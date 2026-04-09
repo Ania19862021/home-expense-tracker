@@ -760,6 +760,110 @@
   }
 
   .hist-tab.active { border-color: var(--accent); color: var(--accent); }
+
+  /* ── MOBILE ────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .app { padding: 16px 14px 90px; }
+    header { margin-bottom: 16px; padding-bottom: 16px; }
+    .logo { font-size: 1.5rem; }
+    .header-meta strong { font-size: 1.1rem; }
+    .tabs { display: none; }
+    .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-value { font-size: 1.3rem; }
+    .stat-card { padding: 14px; }
+    .form-grid { grid-template-columns: 1fr !important; }
+    .form-card { padding: 16px; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .expense-item, .income-item { padding: 12px 14px; }
+    .expense-date { font-size: 0.65rem; }
+    .saldo-bar { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .chat-container { height: 440px; }
+    .msg-bubble { max-width: 85%; font-size: 0.82rem; }
+  }
+
+  /* BOTTOM NAV (mobile only) */
+  .bottom-nav { display: none; }
+
+  @media (max-width: 600px) {
+    .bottom-nav {
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding: 8px 0 14px;
+    }
+    .bnav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.15s;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .bnav-btn .bicon { font-size: 1.25rem; line-height: 1; }
+    .bnav-btn.active { color: var(--accent); }
+  }
+
+  /* RECURRING */
+  .rec-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+    animation: fadeUp 0.2s ease;
+  }
+  .rec-item:hover { background: var(--surface2); }
+  .rec-freq {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    color: var(--text2);
+    padding: 2px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-apply {
+    background: none;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-apply:hover { background: var(--accent); color: #0e0f11; }
+  .rec-info { flex: 1; min-width: 0; }
+  .rec-name { font-size: 0.85rem; }
+  .rec-meta { font-size: 0.7rem; color: var(--text2); margin-top: 2px; }
+  .rec-amount {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--red);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
@@ -779,6 +883,7 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('wydatki')">💰 Wydatki</button>
     <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
+    <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
     <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
   </div>
 
@@ -973,7 +1078,73 @@
       </div>
     </div>
   </div>
-</div>
+  <!-- STAŁE WYDATKI PANEL -->
+  <div class="panel" id="panel-stale">
+    <div class="form-card">
+      <div class="form-title">📅 Dodaj stały wydatek</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Kwota (zł)</label>
+          <input type="number" id="recAmount" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Kategoria</label>
+          <select id="recCat">
+            <option value="dom">🏠 Dom (czynsz, media)</option>
+            <option value="electronics">📱 Subskrypcje</option>
+            <option value="education">📚 Studia / kursy</option>
+            <option value="childcare">👶 Przedszkole / niania</option>
+            <option value="zdrowie">💊 Zdrowie</option>
+            <option value="sport">🏋️ Siłownia / sport</option>
+            <option value="transport">🚗 Transport</option>
+            <option value="inne">📦 Inne</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nazwa</label>
+          <input type="text" id="recName" placeholder="np. Czynsz, Netflix, Angielski...">
+        </div>
+        <div class="field">
+          <button class="btn-add" onclick="addRecurring()">Dodaj stały →</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Suma stałych wydatków / miesiąc</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--red)" id="recTotal">0,00 zł</div>
+      </div>
+      <button class="btn-add" style="width:auto;padding:12px 24px" onclick="applyAllRecurring()">➕ Dodaj wszystkie do tego miesiąca</button>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Twoje stałe wydatki</div>
+      <span class="badge" id="recBadge">0 pozycji</span>
+    </div>
+
+    <div id="recList">
+      <div class="empty"><span class="icon">📅</span>Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...</div>
+    </div>
+  </div>
+
+</div><!-- end .app -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-wydatki" onclick="showTab('wydatki')">
+    <span class="bicon">💰</span>Wydatki
+  </button>
+  <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
+    <span class="bicon">📊</span>Przegląd
+  </button>
+  <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
+    <span class="bicon">📅</span>Stałe
+  </button>
+  <button class="bnav-btn" id="bnav-czat" onclick="showTab('czat')">
+    <span class="bicon">🤖</span>Asystent
+  </button>
+</nav>
 
 <div class="toast" id="toast"></div>
 
@@ -1461,14 +1632,100 @@ ${cm ? `🏆 Największa kategoria: ${cm.emoji} <strong>${cm.label}</strong> (${
   return replies[Math.floor(Math.random() * replies.length)];
 }
 
-// ─── TABS ────────────────────────────────────────────────────────────────────
+// ─── RECURRING ───────────────────────────────────────────────────────────────
+
+let recurring = JSON.parse(localStorage.getItem('stale') || '[]');
+
+function saveRecurring() {
+  localStorage.setItem('stale', JSON.stringify(recurring));
+}
+
+function addRecurring() {
+  const amount = parseFloat(document.getElementById('recAmount').value);
+  const cat    = document.getElementById('recCat').value;
+  const name   = document.getElementById('recName').value.trim();
+  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
+  recurring.push({ id: Date.now(), amount, cat, name: name || CAT_META[cat].label });
+  saveRecurring();
+  renderRecurring();
+  showToast('Stały wydatek dodany ✓');
+  document.getElementById('recAmount').value = '';
+  document.getElementById('recName').value   = '';
+}
+
+function deleteRecurring(id) {
+  recurring = recurring.filter(r => r.id !== id);
+  saveRecurring();
+  renderRecurring();
+  showToast('Usunięto');
+}
+
+function applyRecurring(id) {
+  const r = recurring.find(r => r.id === id);
+  if (!r) return;
+  expenses.unshift({ id: Date.now(), amount: r.amount, cat: r.cat, desc: r.name + ' (stały)', date: today() });
+  save();
+  render();
+  showToast(r.name + ' dodano do wydatków ✓');
+}
+
+function applyAllRecurring() {
+  if (!recurring.length) { showToast('Brak stałych wydatków!'); return; }
+  recurring.forEach(r => {
+    expenses.unshift({ id: Date.now() + Math.random(), amount: r.amount, cat: r.cat, desc: r.name + ' (stały)', date: today() });
+  });
+  save();
+  render();
+  showToast('Wszystkie stałe dodane ✓');
+}
+
+function renderRecurring() {
+  const total = recurring.reduce((s, r) => s + r.amount, 0);
+  document.getElementById('recTotal').textContent = fmt(total);
+  document.getElementById('recBadge').textContent = recurring.length + ' pozycji';
+
+  const el = document.getElementById('recList');
+  if (!recurring.length) {
+    el.innerHTML = '<div class="empty"><span class="icon">📅</span>Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...</div>';
+    return;
+  }
+  el.innerHTML = recurring.map(r => {
+    const cm = CAT_META[r.cat] || CAT_META.inne;
+    return `
+      <div class="rec-item">
+        <div class="cat-dot" style="background:${cm.color}"></div>
+        <div class="rec-info">
+          <div class="rec-name">${r.name}</div>
+          <div class="rec-meta">${cm.emoji} ${cm.label}</div>
+        </div>
+        <span class="rec-freq">co miesiąc</span>
+        <div class="rec-amount">-${fmt(r.amount)}</div>
+        <button class="btn-apply" onclick="applyRecurring(${r.id})">+ Dodaj</button>
+        <button class="btn-delete" onclick="deleteRecurring(${r.id})">✕</button>
+      </div>`;
+  }).join('');
+}
+
+
 
 function showTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+
   document.getElementById('panel-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+
+  // desktop tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(name)) t.classList.add('active');
+  });
+
+  // bottom nav
+  const bnav = document.getElementById('bnav-' + name);
+  if (bnav) bnav.classList.add('active');
+
   if (name === 'przeglad') renderCharts();
+  if (name === 'stale') renderRecurring();
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
@@ -1483,6 +1740,7 @@ function showToast(msg) {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
 render();
+renderRecurring();
 </script>
 </body>
 </html>
