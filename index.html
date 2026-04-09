@@ -869,6 +869,91 @@
     font-size: 0.95rem;
     flex-shrink: 0;
   }
+
+  /* GOALS */
+  .goal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.25s ease;
+    transition: border-color 0.2s;
+  }
+  .goal-card:hover { border-color: var(--accent); }
+  .goal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .goal-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .goal-emoji { font-size: 1.3rem; margin-right: 8px; }
+  .goal-amounts {
+    font-size: 0.8rem;
+    color: var(--text2);
+    text-align: right;
+  }
+  .goal-amounts strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .goal-track {
+    width: 100%;
+    height: 12px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .goal-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .goal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text2);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .goal-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+  .goal-deadline {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+  }
+  .btn-goal-add {
+    background: none;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-goal-add:hover { background: var(--accent); color: #0e0f11; }
 </style>
 </head>
 <body>
@@ -889,6 +974,7 @@
     <button class="tab active" onclick="showTab('wydatki')">💰 Wydatki</button>
     <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
     <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
+    <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
     <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
   </div>
 
@@ -1133,6 +1219,39 @@
     </div>
   </div>
 
+  <!-- CELE PANEL -->
+  <div class="panel" id="panel-cele">
+    <div class="form-card">
+      <div class="form-title">🎯 Dodaj cel oszczędnościowy</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nazwa celu</label>
+          <input type="text" id="goalName" placeholder="np. Wakacje, Nowy telefon...">
+        </div>
+        <div class="field">
+          <label>Cel (zł)</label>
+          <input type="number" id="goalTarget" placeholder="np. 3000" min="1" step="1">
+        </div>
+        <div class="field">
+          <label>Termin</label>
+          <input type="month" id="goalDeadline">
+        </div>
+        <div class="field">
+          <button class="btn-add" onclick="addGoal()">Dodaj cel →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Twoje cele</div>
+      <span class="badge" id="goalBadge">0 celów</span>
+    </div>
+
+    <div id="goalList">
+      <div class="empty"><span class="icon">🎯</span>Brak celów oszczędnościowych.<br>Dodaj swój pierwszy cel!</div>
+    </div>
+  </div>
+
 </div><!-- end .app -->
 
 <!-- BOTTOM NAV (mobile) -->
@@ -1145,6 +1264,9 @@
   </button>
   <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
     <span class="bicon">📅</span>Stałe
+  </button>
+  <button class="bnav-btn" id="bnav-cele" onclick="showTab('cele')">
+    <span class="bicon">🎯</span>Cele
   </button>
   <button class="bnav-btn" id="bnav-czat" onclick="showTab('czat')">
     <span class="bicon">🤖</span>Asystent
@@ -1901,6 +2023,7 @@ function showTab(name) {
 
   if (name === 'przeglad') renderCharts();
   if (name === 'stale') renderRecurring();
+  if (name === 'cele') renderGoals();
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
@@ -1912,10 +2035,102 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// ─── GOALS ───────────────────────────────────────────────────────────────────
+
+let goals = JSON.parse(localStorage.getItem('cele') || '[]');
+
+const GOAL_EMOJIS = ['✈️','🏖️','📱','🚗','🏠','💍','🎓','💻','👗','🎸','🌍','💰'];
+
+function saveGoals() {
+  localStorage.setItem('cele', JSON.stringify(goals));
+}
+
+function addGoal() {
+  const name     = document.getElementById('goalName').value.trim();
+  const target   = parseFloat(document.getElementById('goalTarget').value);
+  const deadline = document.getElementById('goalDeadline').value;
+  if (!name)   { showToast('Podaj nazwę celu!'); return; }
+  if (!target || target <= 0) { showToast('Podaj kwotę celu!'); return; }
+  if (!deadline) { showToast('Podaj termin!'); return; }
+  const emoji = GOAL_EMOJIS[Math.floor(Math.random() * GOAL_EMOJIS.length)];
+  goals.push({ id: Date.now(), name, target, deadline, saved: 0, emoji });
+  saveGoals(); renderGoals();
+  showToast('Cel dodany! 🎯');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalTarget').value = '';
+  document.getElementById('goalDeadline').value = '';
+}
+
+function addToGoal(id, amount) {
+  const g = goals.find(g => g.id === id);
+  if (!g) return;
+  g.saved = Math.min(g.target, g.saved + amount);
+  saveGoals(); renderGoals();
+  showToast(`+${fmt(amount)} dodane do celu "${g.name}" ✓`);
+}
+
+function deleteGoal(id) {
+  goals = goals.filter(g => g.id !== id);
+  saveGoals(); renderGoals();
+  showToast('Cel usunięty');
+}
+
+function renderGoals() {
+  document.getElementById('goalBadge').textContent = goals.length + ' celów';
+  const el = document.getElementById('goalList');
+  if (!goals.length) {
+    el.innerHTML = '<div class="empty"><span class="icon">🎯</span>Brak celów oszczędnościowych.<br>Dodaj swój pierwszy cel!</div>';
+    return;
+  }
+  el.innerHTML = goals.map(g => {
+    const pct = Math.min(100, (g.saved / g.target * 100)).toFixed(0);
+    const remaining = g.target - g.saved;
+    const done = g.saved >= g.target;
+    const now = new Date();
+    const [dy, dm] = g.deadline.split('-').map(Number);
+    const monthsLeft = (dy - now.getFullYear()) * 12 + (dm - now.getMonth() - 1);
+    const monthlyNeeded = monthsLeft > 0 ? remaining / monthsLeft : remaining;
+    const color = done ? 'var(--accent)' : pct >= 75 ? 'var(--accent2)' : pct >= 40 ? 'var(--yellow)' : 'var(--red)';
+    const months = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
+    const deadlineStr = months[dm-1] + ' ' + dy;
+    return `
+      <div class="goal-card">
+        <div class="goal-header">
+          <div><span class="goal-emoji">${g.emoji}</span><span class="goal-name">${g.name}</span></div>
+          <div class="goal-amounts">
+            <div style="color:var(--text2);font-size:0.7rem">odłożono / cel</div>
+            <strong style="color:${color}">${fmt(g.saved)}</strong><span style="color:var(--text2)"> / ${fmt(g.target)}</span>
+          </div>
+        </div>
+        <div class="goal-track">
+          <div class="goal-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <div class="goal-meta">
+          <div>
+            <span class="goal-pct" style="color:${color}">${pct}%</span>
+            ${done
+              ? '<span style="color:var(--accent);margin-left:8px">🎉 Cel osiągnięty!</span>'
+              : `<span style="margin-left:8px">brakuje <strong>${fmt(remaining)}</strong>${monthsLeft > 0 ? ` · odkładaj ${fmt(monthlyNeeded)}/mies.` : ''}</span>`
+            }
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="goal-deadline">📅 ${deadlineStr}</span>
+            ${!done ? `
+              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 100)">+100 zł</button>
+              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 500)">+500 zł</button>
+            ` : ''}
+            <button class="btn-delete" onclick="deleteGoal(${g.id})">✕</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
 render();
 renderRecurring();
+renderGoals();
 </script>
 </body>
 </html>
