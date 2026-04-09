@@ -2603,8 +2603,77 @@ function renderAlerts() {
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
 
 async function requestNotifications() {
-  if (!('Notification' in window)) { showToast('Przeglądarka nie obsługuje powiadomień'); return; }
+  if (!('Notification' in window)) {
+    showToast('Twoja przeglądarka nie obsługuje powiadomień');
+    return;
+  }
+
+  // Detect browser
+  const isEdge    = navigator.userAgent.includes('Edg/');
+  const isFirefox = navigator.userAgent.includes('Firefox');
+  const isSafari  = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isChrome  = navigator.userAgent.includes('Chrome') && !isEdge;
+
+  if (Notification.permission === 'denied') {
+    // Show instructions based on browser
+    let instructions = '';
+    if (isEdge) {
+      instructions = `
+        <strong>Jak włączyć w Edge:</strong><br>
+        1. Kliknij ikonę 🔒 przy pasku adresu<br>
+        2. Wybierz "Uprawnienia dla tej witryny"<br>
+        3. Znajdź "Powiadomienia" → ustaw "Zezwalaj"<br>
+        4. Odśwież stronę`;
+    } else if (isFirefox) {
+      instructions = `
+        <strong>Jak włączyć w Firefox:</strong><br>
+        1. Kliknij ikonę 🔒 przy pasku adresu<br>
+        2. Kliknij strzałkę → "Więcej informacji"<br>
+        3. Zakładka "Uprawnienia" → Odbieranie powiadomień → "Zezwalaj"<br>
+        4. Odśwież stronę`;
+    } else if (isSafari) {
+      instructions = `
+        <strong>Jak włączyć w Safari:</strong><br>
+        1. Menu Safari → Ustawienia dla tej witryny<br>
+        2. Powiadomienia → Zezwalaj<br>
+        Lub dodaj aplikację do ekranu głównego (iPhone)`;
+    } else {
+      instructions = `
+        <strong>Jak włączyć w Chrome:</strong><br>
+        1. Kliknij ikonę 🔒 przy pasku adresu<br>
+        2. Wybierz "Ustawienia witryny"<br>
+        3. Powiadomienia → Zezwól<br>
+        4. Odśwież stronę`;
+    }
+
+    // Show modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position:fixed;inset:0;background:#00000040;z-index:9999;
+      display:flex;align-items:center;justify-content:center;padding:20px`;
+    modal.innerHTML = `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;
+        padding:28px;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.12)">
+        <div style="font-size:1.5rem;margin-bottom:12px">🔔</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;margin-bottom:12px">
+          Powiadomienia są zablokowane
+        </div>
+        <div style="font-size:0.83rem;color:var(--text2);line-height:1.6;margin-bottom:20px">
+          ${instructions}
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()"
+          style="background:linear-gradient(45deg,#f09433,#bc1888);color:#fff;border:none;
+          border-radius:10px;padding:10px 20px;font-family:'Plus Jakarta Sans',sans-serif;
+          font-weight:700;font-size:0.85rem;cursor:pointer;width:100%">
+          Rozumiem
+        </button>
+      </div>`;
+    document.body.appendChild(modal);
+    return;
+  }
+
   const permission = await Notification.requestPermission();
+
   if (permission === 'granted') {
     const btn = document.getElementById('notifBtn');
     if (btn) { btn.textContent = '✅ Włączone'; btn.style.background = '#58b19f'; }
@@ -2616,8 +2685,11 @@ async function requestNotifications() {
       });
     }, 800);
     scheduleNotifications();
+  } else if (permission === 'denied') {
+    // Recursive call to show instructions
+    requestNotifications();
   } else {
-    showToast('Powiadomienia zablokowane przez przeglądarkę');
+    showToast('Powiadomienia nie zostały włączone');
   }
 }
 
