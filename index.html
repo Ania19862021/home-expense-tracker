@@ -1632,7 +1632,61 @@ ${cm ? `🏆 Największa kategoria: ${cm.emoji} <strong>${cm.label}</strong> (${
   return replies[Math.floor(Math.random() * replies.length)];
 }
 
-// ─── RECURRING ───────────────────────────────────────────────────────────────
+// ─── DYNAMIC PLACEHOLDERS ────────────────────────────────────────────────────
+
+const EXP_PLACEHOLDERS = {
+  jedzenie:    'np. Biedronka, Lidl, zakupy...',
+  cafe:        'np. Starbucks, lunch z koleżanką...',
+  transport:   'np. paliwo, bilet miesięczny, Uber...',
+  dom:         'np. czynsz, prąd, internet, gaz...',
+  zdrowie:     'np. wizyta u lekarza, apteka...',
+  rozrywka:    'np. kino, Netflix, koncert...',
+  sport:       'np. karnet na siłownię, basen...',
+  travel:      'np. lot do Barcelony, hotel...',
+  beauty:      'np. fryzjer, kosmetyki, manicure...',
+  gifts:       'np. urodziny mamy, Mikołajki...',
+  electronics: 'np. Spotify, nowe słuchawki...',
+  education:   'np. kurs angielskiego, podręcznik...',
+  childcare:   'np. przedszkole, niania w piątek...',
+  inne:        'np. opis wydatku...',
+};
+
+const INC_PLACEHOLDERS = {
+  wynagrodzenie: 'np. pensja za kwiecień, UoP...',
+  premia:        'np. premia kwartalna, bonus...',
+  freelance:     'np. faktura dla klienta, projekt...',
+  zwrot:         'np. zwrot za zakupy, refundacja...',
+  rodzina:       'np. od mamy, prezent od babci...',
+  inne_inc:      'np. sprzedaż na OLX...',
+};
+
+const REC_PLACEHOLDERS = {
+  dom:         'np. czynsz, prąd, internet...',
+  electronics: 'np. Netflix, Spotify, iCloud...',
+  education:   'np. angielski, kurs online...',
+  childcare:   'np. przedszkole Słoneczko...',
+  zdrowie:     'np. abonament medyczny...',
+  sport:       'np. karnet FitFabric...',
+  transport:   'np. bilet miesięczny ZTM...',
+  inne:        'np. nazwa stałego wydatku...',
+};
+
+function updatePlaceholder(selectId, inputId, map) {
+  const cat = document.getElementById(selectId).value;
+  document.getElementById(inputId).placeholder = map[cat] || 'np. opis...';
+}
+
+// attach listeners after DOM ready
+document.getElementById('inCat').addEventListener('change',  () => updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS));
+document.getElementById('incCat').addEventListener('change', () => updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS));
+document.getElementById('recCat').addEventListener('change', () => updatePlaceholder('recCat', 'recName', REC_PLACEHOLDERS));
+
+// set initial placeholders
+updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS);
+updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS);
+updatePlaceholder('recCat', 'recName', REC_PLACEHOLDERS);
+
+
 
 let recurring = JSON.parse(localStorage.getItem('stale') || '[]');
 
