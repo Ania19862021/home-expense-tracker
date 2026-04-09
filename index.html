@@ -1494,50 +1494,41 @@ function renderCharts() {
   }).join('');
 }
 
-// ─── CHAT (Claude AI) ────────────────────────────────────────────────────────
+// ─── CHAT (Smart Assistant) ──────────────────────────────────────────────────
 
 function sendSuggestion(btn) {
   document.getElementById('chatInput').value = btn.textContent;
   sendChat();
 }
 
-async function sendChat() {
+function sendChat() {
   const input = document.getElementById('chatInput');
   const q = input.value.trim();
   if (!q) return;
   input.value = '';
   input.disabled = true;
-
   addMessage('user', q);
   const typingId = addTyping();
 
-  // Build context from user's data
   const mExp = thisMonthExpenses();
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
-
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
-  const catSummary = Object.entries(catTotals)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`)
-    .join(', ');
-
-  const recentExp = expenses.slice(0,10)
-    .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`)
-    .join('\n');
-
+  const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
+    .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`).join(', ');
+  const recentExp = expenses.slice(0,8)
+    .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
   const recSummary = recurring.length
-    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ')
-    : 'brak';
+    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : 'brak';
 
-  const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - zamiast tego używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
+  const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
 
 Dane użytkownika (bieżący miesiąc):
 - Wpływy: ${totalInc.toFixed(2)} zł
-- Wydatki: ${totalExp.toFixed(2)} zł  
+- Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
 - Wydatki wg kategorii: ${catSummary || 'brak'}
 - Stałe wydatki: ${recSummary}
@@ -1545,35 +1536,30 @@ Dane użytkownika (bieżący miesiąc):
 Ostatnie transakcje:
 ${recentExp || 'brak transakcji'}
 
-Na podstawie tych danych odpowiadaj na pytania użytkownika. Możesz dawać spersonalizowane porady finansowe, analizować wzorce wydatków, sugerować oszczędności. Jeśli pytanie nie dotyczy finansów, delikatnie przekieruj na temat budżetu.`;
+Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i analizuj wzorce wydatków.`;
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: q }]
-      })
-    });
-
-    const data = await response.json();
+  fetch('/.netlify/functions/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system: systemPrompt,
+      messages: [{ role: 'user', content: q }]
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
     removeTyping(typingId);
-
     if (data.content && data.content[0]) {
       addMessage('bot', data.content[0].text);
     } else {
       addMessage('bot', 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
     }
-  } catch(err) {
+  })
+  .catch(() => {
     removeTyping(typingId);
-    addMessage('bot', 'Brak połączenia z AI. Sprawdź internet i spróbuj ponownie.');
-  }
-
-  input.disabled = false;
-  input.focus();
+    addMessage('bot', botReply(q));
+  })
+  .finally(() => { input.disabled = false; input.focus(); });
 }
 
 function addMessage(role, text) {
@@ -1581,9 +1567,7 @@ function addMessage(role, text) {
   const av = role === 'bot' ? '🤖' : '👤';
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-  div.innerHTML = `
-    <div class="msg-av">${av}</div>
-    <div class="msg-bubble">${text}</div>`;
+  div.innerHTML = `<div class="msg-av">${av}</div><div class="msg-bubble">${text}</div>`;
   el.appendChild(div);
   el.scrollTop = el.scrollHeight;
 }
@@ -1591,15 +1575,16 @@ function addMessage(role, text) {
 function addTyping() {
   const el = document.getElementById('chatMessages');
   const id = 'typing-' + Date.now();
-  el.innerHTML += `
-    <div class="msg bot" id="${id}">
-      <div class="msg-av">🤖</div>
-      <div class="msg-bubble" style="color:var(--text2)">
-        <span style="animation:blink 1s infinite">●</span>
-        <span style="animation:blink 1s infinite 0.2s">●</span>
-        <span style="animation:blink 1s infinite 0.4s">●</span>
-      </div>
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = id;
+  div.innerHTML = `<div class="msg-av">🤖</div>
+    <div class="msg-bubble" style="color:var(--text2)">
+      <span style="animation:blink 1s infinite">●</span>
+      <span style="animation:blink 1s infinite 0.2s">●</span>
+      <span style="animation:blink 1s infinite 0.4s">●</span>
     </div>`;
+  el.appendChild(div);
   el.scrollTop = el.scrollHeight;
   return id;
 }
@@ -1609,9 +1594,166 @@ function removeTyping(id) {
   if (el) el.remove();
 }
 
+function botReply(q) {
+  const lq = q.toLowerCase()
+    .replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
+    .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z')
+    .replace(/ź/g,'z').replace(/ć/g,'c').replace(/ń/g,'n');
 
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const allExp = expenses;
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : null;
 
-// ─── DYNAMIC PLACEHOLDERS ────────────────────────────────────────────────────
+  const catTotals = {};
+  mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+  const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+  const topCm  = topCat ? CAT_META[topCat[0]] : null;
+
+  const has = (...words) => words.some(w => lq.includes(w));
+
+  // POWITANIE
+  if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
+    return `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
+  }
+
+  // BRAK DANYCH
+  if (!allExp.length && !incomes.length) {
+    return '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
+  }
+
+  // SALDO
+  if (has('saldo','zostalo','zostaje','ile mam','bilans','stan konta')) {
+    const emoji = balance >= 0 ? '✅' : '⚠️';
+    const koment = balance >= 0
+      ? `Świetnie! Masz nadwyżkę ${fmt(balance)}.`
+      : `Uwaga! Wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}.`;
+    return `${emoji} <strong>Saldo tego miesiąca: ${fmt(balance)}</strong><br><br>
+💚 Wpływy: ${fmt(totalInc)}<br>
+🔴 Wydatki: ${fmt(totalExp)}<br><br>
+${koment}`;
+  }
+
+  // OSZCZĘDNOŚCI
+  if (has('oszczedz','ile odkladam','ile zostan','ile zachowam','procent','odklade')) {
+    if (!totalInc) return '💡 Dodaj najpierw wpływy (pensję itp.), żebym mogła policzyć ile oszczędzasz!';
+    const emoji = +savePct >= 20 ? '🟢' : +savePct >= 10 ? '🟡' : '🔴';
+    const rada = +savePct >= 20
+      ? 'Doskonale! Oszczędzasz więcej niż 20% — jesteś na dobrej drodze! 🎉'
+      : +savePct >= 0
+      ? `Mogłabyś spróbować odkładać więcej. ${topCm ? `Sprawdź czy da się ograniczyć wydatki na ${topCm.emoji} ${topCm.label}.` : ''}`
+      : '⚠️ Wydajesz więcej niż zarabiasz. Warto przejrzeć stałe wydatki!';
+    return `${emoji} <strong>Oszczędzasz ${savePct}% swoich wpływów</strong> (${fmt(balance)})<br><br>${rada}`;
+  }
+
+  // PORADY / TIPS
+  if (has('porada','podpowiedz','co robic','jak zaoszczed','tips','pomoz mi')) {
+    if (!totalExp) return 'Dodaj kilka wydatków, a podam Ci spersonalizowane porady!';
+    const porady = [];
+    if (topCm) porady.push(`💡 Największa kategoria to ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}). Warto ustalić tu miesięczny limit.`);
+    if (catTotals['cafe'] > 200) porady.push(`☕ Wydajesz dużo na kawiarnie i restauracje (${fmt(catTotals['cafe'])}). Gotowanie w domu może zaoszczędzić nawet kilkaset złotych!`);
+    if (catTotals['electronics'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['electronics'])}) — często płacimy za usługi których nie używamy.`);
+    if (recurring.length) {
+      const recTotal = recurring.reduce((s,r)=>s+r.amount,0);
+      porady.push(`📅 Masz ${recurring.length} stałych wydatków łącznie ${fmt(recTotal)}/mies. Warto je co jakiś czas przejrzeć.`);
+    }
+    if (!porady.length) porady.push('💪 Twoje wydatki wyglądają rozsądnie! Tak trzymaj.');
+    return `<strong>Moje porady dla Ciebie:</strong><br><br>${porady.join('<br><br>')}`;
+  }
+
+  // WPŁYWY
+  if (has('wplywy','zarobil','zarobila','przychod','pensj','wyplat','ile zarabi')) {
+    if (!totalInc) return '📭 Nie masz jeszcze wpisanych wpływów w tym miesiącu. Dodaj pensję lub inne przychody!';
+    const incCats = {};
+    mInc.forEach(i => { incCats[i.cat] = (incCats[i.cat]||0)+i.amount; });
+    const lines = Object.entries(incCats).map(([cat,val]) => `${INC_META[cat]?.emoji||'💰'} ${INC_META[cat]?.label||cat}: <strong>${fmt(val)}</strong>`).join('<br>');
+    return `💚 <strong>Wpływy w tym miesiącu: ${fmt(totalInc)}</strong><br><br>${lines}`;
+  }
+
+  // PODSUMOWANIE
+  if (has('podsumow','raport','analiz','zestawien','przegląd')) {
+    const catLines = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,4)
+      .map(([cat,val]) => {
+        const cm = CAT_META[cat]||CAT_META.inne;
+        return `${cm.emoji} ${cm.label}: <strong>${fmt(val)}</strong> (${(val/totalExp*100).toFixed(0)}%)`;
+      }).join('<br>');
+    return `📊 <strong>Podsumowanie miesiąca:</strong><br><br>
+💚 Wpływy: <strong>${fmt(totalInc)}</strong><br>
+🔴 Wydatki: <strong>${fmt(totalExp)}</strong><br>
+💰 Saldo: <strong>${fmt(balance)}</strong><br>
+📈 Oszczędności: <strong>${savePct !== null ? savePct+'%' : '—'}</strong><br><br>
+<strong>Top kategorie:</strong><br>${catLines||'brak danych'}`;
+  }
+
+  // NAJWIĘKSZY wydatek
+  if (has('najwieks','najdrozs','max wydatek','rekord')) {
+    if (!allExp.length) return 'Brak wydatków do analizy.';
+    const top = [...allExp].sort((a,b)=>b.amount-a.amount)[0];
+    const cm = CAT_META[top.cat]||CAT_META.inne;
+    return `🏆 Twój największy wydatek to:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}`;
+  }
+
+  // WYJAZD / WAKACJE
+  if (has('wyjazd','wakacj','urlop','podroz','stac mnie','stac')) {
+    if (!totalInc) return '💡 Dodaj swoje wpływy, żebym mogła ocenić czy stać Cię na wyjazd!';
+    const msg = balance > 1000
+      ? `✅ Masz nadwyżkę ${fmt(balance)} — wygląda na to, że stać Cię na wyjazd! Pamiętaj jednak o odkładaniu na niespodziewane wydatki.`
+      : balance > 0
+      ? `🟡 Masz małą nadwyżkę (${fmt(balance)}). Na tani wyjazd może starczyć, ale warto poczekać kolejny miesiąc.`
+      : `⚠️ Niestety w tym miesiącu wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}. Wyjazd mógłby nadwyrężyć budżet.`;
+    return msg;
+  }
+
+  // PYTANIE O KATEGORIĘ
+  const catKeywords = {
+    jedzenie:    ['jedzen','zakup','biedronk','lidl','sklep','spozywo'],
+    cafe:        ['kawiarni','restauracj','kawa','obiad','lunch'],
+    transport:   ['transport','paliw','auto','samochod','uber','bilet'],
+    dom:         ['dom','mieszkan','czynsz','prad','gaz','media'],
+    zdrowie:     ['zdrowi','lekarz','apteka','lekarstw'],
+    rozrywka:    ['rozrywk','film','kino','seriale','zabaw'],
+    sport:       ['sport','silowni','fitness','trening','basen'],
+    travel:      ['podroz','wakacj','lot','hotel','wyjazd'],
+    beauty:      ['uroda','kosmetyk','fryzjer','manicure'],
+    gifts:       ['prezent','podarunek','gift'],
+    electronics: ['elektronik','subskrypcj','netflix','spotify','telefon'],
+    education:   ['studi','angielski','kurs','nauk','szkol'],
+    childcare:   ['przedszkol','niani','dziecko'],
+  };
+  for (const [cat, keywords] of Object.entries(catKeywords)) {
+    if (keywords.some(k => lq.includes(k))) {
+      const total = mExp.filter(e=>e.cat===cat).reduce((s,e)=>s+e.amount,0);
+      const cm = CAT_META[cat];
+      const pct = totalExp > 0 ? (total/totalExp*100).toFixed(0) : 0;
+      const items = mExp.filter(e=>e.cat===cat).slice(0,3).map(e=>`• ${e.desc}: ${fmt(e.amount)}`).join('<br>');
+      return `${cm.emoji} <strong>${cm.label} w tym miesiącu: ${fmt(total)}</strong> (${pct}% wydatków)<br><br>${items||'Brak transakcji w tej kategorii.'}`;
+    }
+  }
+
+  // STAŁE WYDATKI
+  if (has('stale','staly','staly wydatek','abonament','cykliczne')) {
+    if (!recurring.length) return '📅 Nie masz jeszcze zapisanych stałych wydatków. Dodaj je w zakładce 📅 Stałe!';
+    const recTotal = recurring.reduce((s,r)=>s+r.amount,0);
+    const lines = recurring.map(r=>`• ${r.name}: <strong>${fmt(r.amount)}</strong>`).join('<br>');
+    return `📅 <strong>Twoje stałe wydatki (${fmt(recTotal)}/mies.):</strong><br><br>${lines}`;
+  }
+
+  // DZIĘKUJĘ
+  if (has('dzieki','dziekuje','super','swietnie','spoko','ok dziek')) {
+    return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań o swoje finanse — jestem tutaj!';
+  }
+
+  // FALLBACK — inteligentny
+  const tips = [
+    `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
+    `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydałam na jedzenie?"</em>`,
+    `🎯 Wpisz <em>"Podsumowanie miesiąca"</em> żeby zobaczyć pełną analizę swojego budżetu!`,
+  ];
+  return tips[Math.floor(Math.random()*tips.length)];
+}
 
 const EXP_PLACEHOLDERS = {
   jedzenie:    'np. Biedronka, Lidl, zakupy...',
