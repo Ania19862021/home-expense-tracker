@@ -958,6 +958,82 @@
     white-space: nowrap;
   }
   .btn-goal-add:hover { background: var(--accent); color: #0e0f11; }
+
+  /* ── HEALTH SCORE ─────────────────────────────────────── */
+  .health-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .health-score {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .health-track { flex: 1; min-width: 120px; }
+  .health-label {
+    font-size: 0.7rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .health-progress {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .health-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .health-status { font-size: 0.8rem; font-weight: 600; margin-top: 4px; }
+
+  /* ── ALERTS ───────────────────────────────────────────── */
+  .alerts-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .alert-item {
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.83rem;
+    animation: fadeUp 0.3s ease;
+    border: 1px solid transparent;
+    line-height: 1.4;
+  }
+  .alert-item.warning  { background: #fff8e6; border-color: #f59e0b40; color: #92400e; }
+  .alert-item.danger   { background: #fff0f3; border-color: #e1306c40; color: #9d174d; }
+  .alert-item.success  { background: #f0fdf4; border-color: #58b19f40; color: #065f46; }
+  .alert-item.info     { background: #eff6ff; border-color: #405de640; color: #1e40af; }
+  .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .alert-text { flex: 1; }
+  .alert-text strong { font-weight: 700; }
+
+  /* NOTIFICATION BUTTON */
+  .notif-btn {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .notif-btn:hover { opacity: 0.88; }
 </style>
 </head>
 <body>
@@ -984,6 +1060,22 @@
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
+
+    <!-- HEALTH SCORE -->
+    <div class="health-bar" id="healthBar">
+      <div class="health-score" id="healthScore">--</div>
+      <div class="health-track">
+        <div class="health-label">Zdrowie finansowe</div>
+        <div class="health-progress">
+          <div class="health-fill" id="healthFill" style="width:0%"></div>
+        </div>
+        <div class="health-status" id="healthStatus">Dodaj dane żeby zobaczyć ocenę</div>
+      </div>
+      <button class="notif-btn" id="notifBtn" onclick="requestNotifications()">🔔 Włącz powiadomienia</button>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alerts-container" id="alertsContainer"></div>
 
     <!-- FORM TOGGLE -->
     <div class="form-card">
@@ -1418,6 +1510,8 @@ function render() {
   renderCharts();
   renderMonthButtons();
   updateHeaderTotal();
+  renderHealthScore();
+  renderAlerts();
 }
 
 function updateHeaderTotal() {
@@ -2045,6 +2139,158 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// ─── HEALTH SCORE & ALERTS ───────────────────────────────────────────────────
+
+function calcHealthScore() {
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
+  if (!totalInc && !totalExp) return null;
+  let score = 50;
+  if (savePct >= 20)      score += 30;
+  else if (savePct >= 10) score += 15;
+  else if (savePct >= 0)  score += 5;
+  else                    score -= 20;
+  const spendRatio = totalInc > 0 ? totalExp/totalInc : 1;
+  if (spendRatio < 0.5)      score += 20;
+  else if (spendRatio < 0.8) score += 10;
+  else if (spendRatio >= 1)  score -= 15;
+  if (goals.length > 0) score += 5;
+  if (goals.some(g => g.saved > 0)) score += 5;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function renderHealthScore() {
+  const score = calcHealthScore();
+  const el = document.getElementById('healthScore');
+  const fill = document.getElementById('healthFill');
+  const status = document.getElementById('healthStatus');
+  if (!el) return;
+  if (score === null) {
+    el.textContent = '--';
+    fill.style.width = '0%';
+    status.textContent = 'Dodaj wpływy i wydatki żeby zobaczyć ocenę';
+    return;
+  }
+  el.textContent = score;
+  let color, label;
+  if (score >= 80)      { color = '#58b19f'; label = '🟢 Doskonale! Świetnie zarządzasz finansami!'; }
+  else if (score >= 60) { color = '#6aab8e'; label = '🟡 Dobrze! Możesz jeszcze poprawić oszczędności.'; }
+  else if (score >= 40) { color = '#f0a500'; label = '🟠 Uwaga! Warto ograniczyć niektóre wydatki.'; }
+  else                  { color = '#e1306c'; label = '🔴 Niebezpiecznie! Wydajesz za dużo — działaj!'; }
+  el.style.color = color;
+  fill.style.width = score + '%';
+  fill.style.background = color;
+  status.textContent = label;
+  status.style.color = color;
+}
+
+function renderAlerts() {
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
+  const catTotals = {};
+  mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+
+  const alerts = [];
+
+  if (!totalInc && !totalExp) {
+    alerts.push({ type: 'info', icon: '👋', text: '<strong>Witaj w CashFlow!</strong> Zacznij od dodania swoich wpływów i wydatków.' });
+  }
+  if (totalInc > 0 && balance < 0) {
+    alerts.push({ type: 'danger', icon: '🚨', text: `<strong>Wydajesz więcej niż zarabiasz!</strong> Minusowe saldo: ${fmt(Math.abs(balance))}. Pilnie przejrzyj wydatki!` });
+  }
+  if (totalInc > 0 && savePct < 10 && savePct >= 0) {
+    alerts.push({ type: 'warning', icon: '⚠️', text: `<strong>Odkładasz tylko ${savePct.toFixed(0)}% wpływów.</strong> Eksperci zalecają min. 10–20%. Spróbuj ograniczyć wydatki!` });
+  }
+  if (totalInc > 0 && totalExp/totalInc > 0.8 && balance >= 0) {
+    alerts.push({ type: 'warning', icon: '📊', text: `<strong>Wydałaś już ${(totalExp/totalInc*100).toFixed(0)}% wpływów</strong> w tym miesiącu. Pozostało: ${fmt(balance)}.` });
+  }
+  if (catTotals['cafe'] > 300) {
+    alerts.push({ type: 'warning', icon: '☕', text: `<strong>Dużo wydajesz na kawiarnie</strong> (${fmt(catTotals['cafe'])}). Czy możesz ograniczyć wyjścia?` });
+  }
+  if (catTotals['electronics'] > 200) {
+    alerts.push({ type: 'warning', icon: '📱', text: `<strong>Sprawdź swoje subskrypcje</strong> (${fmt(catTotals['electronics'])}). Czy wszystkie są potrzebne?` });
+  }
+  if (totalInc > 0 && savePct >= 20) {
+    alerts.push({ type: 'success', icon: '🎉', text: `<strong>Świetna robota!</strong> Oszczędzasz ${savePct.toFixed(0)}% wpływów. Tak trzymaj!` });
+  }
+  if (goals.length === 0 && totalInc > 0) {
+    alerts.push({ type: 'info', icon: '🎯', text: '<strong>Brak celów oszczędnościowych.</strong> Przejdź do zakładki 🎯 Cele i dodaj swój pierwszy cel!' });
+  }
+
+  const container = document.getElementById('alertsContainer');
+  if (!container) return;
+  container.innerHTML = alerts.map(a => `
+    <div class="alert-item ${a.type}">
+      <span class="alert-icon">${a.icon}</span>
+      <span class="alert-text">${a.text}</span>
+    </div>`).join('');
+}
+
+// ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
+
+async function requestNotifications() {
+  if (!('Notification' in window)) { showToast('Przeglądarka nie obsługuje powiadomień'); return; }
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    const btn = document.getElementById('notifBtn');
+    if (btn) { btn.textContent = '✅ Włączone'; btn.style.background = '#58b19f'; }
+    localStorage.setItem('notificationsEnabled', 'true');
+    showToast('Powiadomienia włączone! 🔔');
+    setTimeout(() => {
+      new Notification('💸 CashFlow', {
+        body: 'Powiadomienia finansowe są włączone! Będziesz otrzymywać codzienne raporty o 20:00.',
+      });
+    }, 800);
+    scheduleNotifications();
+  } else {
+    showToast('Powiadomienia zablokowane przez przeglądarkę');
+  }
+}
+
+function scheduleNotifications() {
+  setInterval(() => {
+    const now = new Date();
+    const lastNotif = localStorage.getItem('lastNotifDate');
+    const today = now.toDateString();
+    if (now.getHours() === 20 && lastNotif !== today) {
+      localStorage.setItem('lastNotifDate', today);
+      sendDailyNotification();
+    }
+  }, 60 * 60 * 1000);
+}
+
+function sendDailyNotification() {
+  if (Notification.permission !== 'granted') return;
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const score = calcHealthScore();
+  let body = balance < 0
+    ? `⚠️ Wydałaś ${fmt(Math.abs(balance))} więcej niż zarobiłaś!`
+    : totalInc > 0 && totalExp/totalInc > 0.8
+    ? `📊 Wydałaś już ${(totalExp/totalInc*100).toFixed(0)}% wpływów. Zostało: ${fmt(balance)}.`
+    : `💰 Saldo: ${fmt(balance)} | Zdrowie finansowe: ${score}/100`;
+  new Notification('💸 CashFlow — Dzienny raport', { body });
+}
+
+function checkNotificationStatus() {
+  if (localStorage.getItem('notificationsEnabled') === 'true' && Notification.permission === 'granted') {
+    const btn = document.getElementById('notifBtn');
+    if (btn) { btn.textContent = '✅ Włączone'; btn.style.background = '#58b19f'; }
+    scheduleNotifications();
+  }
+}
+
 // ─── PDF EXPORT ──────────────────────────────────────────────────────────────
 
 function exportPDF() {
@@ -2313,6 +2559,7 @@ function renderGoals() {
 render();
 renderRecurring();
 renderGoals();
+checkNotificationStatus();
 </script>
 </body>
 </html>
