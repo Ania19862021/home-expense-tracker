@@ -23,6 +23,14 @@
     --cat-health: #b8f765;
     --cat-fun: #c77dff;
     --cat-other: #8b8f97;
+    --cat-travel: #38bdf8;
+    --cat-beauty: #f472b6;
+    --cat-cafe: #fb923c;
+    --cat-sport: #4ade80;
+    --cat-gifts: #e879f9;
+    --cat-electronics: #818cf8;
+    --cat-education: #facc15;
+    --cat-childcare: #94a3b8;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -643,6 +651,115 @@
     border-radius: 6px;
     font-family: 'DM Mono', monospace;
   }
+
+  /* INCOME TOGGLE */
+  .form-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .ftab {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 8px 16px;
+    border-radius: 7px;
+    border: none;
+    background: none;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ftab.exp.active { background: var(--red); color: #fff; }
+  .ftab.inc.active { background: var(--accent); color: #0e0f11; }
+
+  .income-form { display: none; }
+  .income-form.visible { display: block; }
+  .expense-form { display: block; }
+  .expense-form.hidden { display: none; }
+
+  /* SALDO */
+  .stat-value.positive { color: var(--accent); }
+  .stat-value.negative { color: var(--red); }
+
+  /* INCOME ITEM */
+  .income-item {
+    background: var(--surface);
+    border: 1px solid #b8f76530;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: fadeUp 0.25s ease;
+  }
+
+  .income-item:hover { background: var(--surface2); }
+
+  .income-amount {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* SALDO BAR */
+  .saldo-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .saldo-track {
+    flex: 1;
+    min-width: 200px;
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .saldo-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* HISTORY FILTER */
+  .hist-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .hist-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .hist-tab.active { border-color: var(--accent); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -654,7 +771,7 @@
       <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;">domowy tracker finansów</div>
     </div>
     <div class="header-meta">
-      <span>łącznie w tym miesiącu</span>
+      <span>saldo w tym miesiącu</span>
       <strong id="headerTotal">0,00 zł</strong>
     </div>
   </header>
@@ -667,60 +784,122 @@
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
+
+    <!-- FORM TOGGLE -->
     <div class="form-card">
-      <div class="form-title">➕ Dodaj wydatek</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Kwota (zł)</label>
-          <input type="number" id="inAmount" placeholder="0,00" min="0" step="0.01">
+      <div class="form-toggle">
+        <button class="ftab exp active" id="ftabExp" onclick="switchForm('exp')">➖ Dodaj wydatek</button>
+        <button class="ftab inc" id="ftabInc" onclick="switchForm('inc')">➕ Dodaj wpływ</button>
+      </div>
+
+      <!-- FORMULARZ WYDATKU -->
+      <div class="expense-form" id="expenseForm">
+        <div class="form-grid">
+          <div class="field">
+            <label>Kwota (zł)</label>
+            <input type="number" id="inAmount" placeholder="0,00" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Kategoria</label>
+            <select id="inCat">
+              <option value="jedzenie">🍕 Jedzenie</option>
+              <option value="cafe">☕ Kawiarnie / restauracje</option>
+              <option value="transport">🚗 Transport</option>
+              <option value="dom">🏠 Dom</option>
+              <option value="zdrowie">💊 Zdrowie</option>
+              <option value="rozrywka">🎬 Rozrywka</option>
+              <option value="sport">🏋️ Sport / siłownia</option>
+              <option value="travel">✈️ Podróże / wakacje</option>
+              <option value="beauty">💄 Uroda / kosmetyki</option>
+              <option value="gifts">🎁 Prezenty</option>
+              <option value="electronics">📱 Elektronika / subskrypcje</option>
+              <option value="education">📚 Studia / nauka / angielski</option>
+              <option value="childcare">👶 Przedszkole / niania</option>
+              <option value="inne">📦 Inne</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Opis</label>
+            <input type="text" id="inDesc" placeholder="np. Biedronka, paliwo...">
+          </div>
+          <div class="field">
+            <button class="btn-add" style="background:var(--red);color:#fff" onclick="addExpense()">Dodaj wydatek →</button>
+          </div>
         </div>
-        <div class="field">
-          <label>Kategoria</label>
-          <select id="inCat">
-            <option value="jedzenie">🍕 Jedzenie</option>
-            <option value="transport">🚗 Transport</option>
-            <option value="dom">🏠 Dom</option>
-            <option value="zdrowie">💊 Zdrowie</option>
-            <option value="rozrywka">🎬 Rozrywka</option>
-            <option value="inne">📦 Inne</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Opis</label>
-          <input type="text" id="inDesc" placeholder="np. Biedronka, paliwo...">
-        </div>
-        <div class="field">
-          <button class="btn-add" onclick="addExpense()">Dodaj →</button>
+      </div>
+
+      <!-- FORMULARZ WPŁYWU -->
+      <div class="income-form" id="incomeForm">
+        <div class="form-grid">
+          <div class="field">
+            <label>Kwota (zł)</label>
+            <input type="number" id="incAmount" placeholder="0,00" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Źródło</label>
+            <select id="incCat">
+              <option value="wynagrodzenie">💼 Wynagrodzenie</option>
+              <option value="premia">🏆 Premia</option>
+              <option value="freelance">💻 Freelance / zlecenie</option>
+              <option value="zwrot">↩️ Zwrot / refundacja</option>
+              <option value="rodzina">👨‍👩‍👧 Od rodziny</option>
+              <option value="inne_inc">💰 Inne</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Opis</label>
+            <input type="text" id="incDesc" placeholder="np. pensja, faktura...">
+          </div>
+          <div class="field">
+            <button class="btn-add" onclick="addIncome()">Dodaj wpływ →</button>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card" style="--accent-glow:#b8f76520">
-        <div class="stat-label">Ten miesiąc</div>
-        <div class="stat-value accent" id="statMonth">0,00 zł</div>
+        <div class="stat-label">Wpływy (miesiąc)</div>
+        <div class="stat-value positive" id="statIncome">0,00 zł</div>
       </div>
       <div class="stat-card" style="--accent-glow:#ff6b6b20">
-        <div class="stat-label">Największy wydatek</div>
-        <div class="stat-value red" id="statMax">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Liczba transakcji</div>
-        <div class="stat-value" id="statCount">0</div>
+        <div class="stat-label">Wydatki (miesiąc)</div>
+        <div class="stat-value red" id="statMonth">0,00 zł</div>
       </div>
       <div class="stat-card" style="--accent-glow:#5ef0c820">
-        <div class="stat-label">Średni wydatek</div>
-        <div class="stat-value" id="statAvg" style="color:var(--accent2)">—</div>
+        <div class="stat-label">Saldo</div>
+        <div class="stat-value" id="statBalance" style="color:var(--accent2)">0,00 zł</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Oszczędności %</div>
+        <div class="stat-value" id="statSave">—</div>
       </div>
     </div>
 
+    <!-- SALDO BAR -->
+    <div class="saldo-bar" id="saldoBar">
+      <div style="font-size:0.75rem;color:var(--text2);white-space:nowrap">Wydane vs Wpływy</div>
+      <div class="saldo-track">
+        <div class="saldo-fill" id="saldoFill" style="width:0%;background:var(--red)"></div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text2);white-space:nowrap" id="saldoPct">0%</div>
+    </div>
+
+    <!-- HISTORIA -->
     <div class="section-header">
       <div class="section-title">Historia</div>
-      <span class="badge" id="badgeCount">0 transakcji</span>
+      <span class="badge" id="badgeCount">0 wpisów</span>
+    </div>
+
+    <div class="hist-tabs">
+      <button class="hist-tab active" onclick="setHistFilter('all', this)">Wszystko</button>
+      <button class="hist-tab" onclick="setHistFilter('exp', this)">Tylko wydatki</button>
+      <button class="hist-tab" onclick="setHistFilter('inc', this)">Tylko wpływy</button>
     </div>
 
     <div class="expense-list" id="expenseList">
-      <div class="empty"><span class="icon">🪙</span>Brak wydatków.<br>Dodaj pierwszy!</div>
+      <div class="empty"><span class="icon">🪙</span>Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!</div>
     </div>
   </div>
 
@@ -730,6 +909,22 @@
       <span class="filter-label">Miesiąc:</span>
       <button class="month-btn active" onclick="setMonth(null, this)">Wszystkie</button>
       <!-- dynamicznie dodawane -->
+    </div>
+
+    <!-- INCOME VS EXPENSE SUMMARY -->
+    <div class="stats-row" style="margin-bottom:20px">
+      <div class="stat-card" style="--accent-glow:#b8f76520">
+        <div class="stat-label">💚 Wpływy</div>
+        <div class="stat-value positive" id="chartIncome">0,00 zł</div>
+      </div>
+      <div class="stat-card" style="--accent-glow:#ff6b6b20">
+        <div class="stat-label">🔴 Wydatki</div>
+        <div class="stat-value red" id="chartExpenses">0,00 zł</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">💰 Saldo</div>
+        <div class="stat-value" id="chartBalance">0,00 zł</div>
+      </div>
     </div>
 
     <div class="charts-grid">
@@ -766,11 +961,11 @@
         </div>
       </div>
       <div class="suggestions">
-        <button class="sug-btn" onclick="sendSuggestion(this)">Ile wydałem w tym miesiącu?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Jakie moje saldo?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Ile oszczędzam?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Ile wydałam w tym miesiącu?</button>
         <button class="sug-btn" onclick="sendSuggestion(this)">Na co idzie najwięcej?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Pokaż moje kategorie</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Jaki mój największy wydatek?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Ile transakcji mam?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Podaj podsumowanie</button>
       </div>
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Zadaj pytanie o swoje wydatki..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -786,19 +981,39 @@
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const CAT_META = {
-  jedzenie:   { label: 'Jedzenie',   emoji: '🍕', color: 'var(--cat-food)' },
-  transport:  { label: 'Transport',  emoji: '🚗', color: 'var(--cat-transport)' },
-  dom:        { label: 'Dom',        emoji: '🏠', color: 'var(--cat-home)' },
-  zdrowie:    { label: 'Zdrowie',    emoji: '💊', color: 'var(--cat-health)' },
-  rozrywka:   { label: 'Rozrywka',   emoji: '🎬', color: 'var(--cat-fun)' },
-  inne:       { label: 'Inne',       emoji: '📦', color: 'var(--cat-other)' },
+  jedzenie:   { label: 'Jedzenie',                emoji: '🍕', color: 'var(--cat-food)' },
+  cafe:       { label: 'Kawiarnie / restauracje', emoji: '☕', color: 'var(--cat-cafe)' },
+  transport:  { label: 'Transport',               emoji: '🚗', color: 'var(--cat-transport)' },
+  dom:        { label: 'Dom',                     emoji: '🏠', color: 'var(--cat-home)' },
+  zdrowie:    { label: 'Zdrowie',                 emoji: '💊', color: 'var(--cat-health)' },
+  rozrywka:   { label: 'Rozrywka',                emoji: '🎬', color: 'var(--cat-fun)' },
+  sport:      { label: 'Sport / siłownia',        emoji: '🏋️', color: 'var(--cat-sport)' },
+  travel:     { label: 'Podróże / wakacje',       emoji: '✈️', color: 'var(--cat-travel)' },
+  beauty:     { label: 'Uroda / kosmetyki',       emoji: '💄', color: 'var(--cat-beauty)' },
+  gifts:      { label: 'Prezenty',                emoji: '🎁', color: 'var(--cat-gifts)' },
+  electronics:{ label: 'Elektronika / subskrypcje', emoji: '📱', color: 'var(--cat-electronics)' },
+  education:  { label: 'Studia / nauka / angielski', emoji: '📚', color: 'var(--cat-education)' },
+  childcare:  { label: 'Przedszkole / niania',    emoji: '👶', color: 'var(--cat-childcare)' },
+  inne:       { label: 'Inne',                    emoji: '📦', color: 'var(--cat-other)' },
 };
 
 let expenses = JSON.parse(localStorage.getItem('wydatki') || '[]');
+let incomes  = JSON.parse(localStorage.getItem('wplywy') || '[]');
 let filterMonth = null;
+let histFilter = 'all';
+
+const INC_META = {
+  wynagrodzenie: { label: 'Wynagrodzenie',        emoji: '💼' },
+  premia:        { label: 'Premia',                emoji: '🏆' },
+  freelance:     { label: 'Freelance / zlecenie',  emoji: '💻' },
+  zwrot:         { label: 'Zwrot / refundacja',    emoji: '↩️' },
+  rodzina:       { label: 'Od rodziny',            emoji: '👨‍👩‍👧' },
+  inne_inc:      { label: 'Inne',                  emoji: '💰' },
+};
 
 function save() {
   localStorage.setItem('wydatki', JSON.stringify(expenses));
+  localStorage.setItem('wplywy',  JSON.stringify(incomes));
 }
 
 function fmt(n) {
@@ -809,52 +1024,85 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// ─── ADD ─────────────────────────────────────────────────────────────────────
+// ─── FORM TOGGLE ─────────────────────────────────────────────────────────────
+
+function switchForm(type) {
+  document.getElementById('expenseForm').classList.toggle('hidden', type !== 'exp');
+  document.getElementById('incomeForm').classList.toggle('visible', type === 'inc');
+  document.getElementById('ftabExp').classList.toggle('active', type === 'exp');
+  document.getElementById('ftabInc').classList.toggle('active', type === 'inc');
+}
+
+function setHistFilter(f, btn) {
+  histFilter = f;
+  document.querySelectorAll('.hist-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
 function addExpense() {
   const amount = parseFloat(document.getElementById('inAmount').value);
   const cat    = document.getElementById('inCat').value;
   const desc   = document.getElementById('inDesc').value.trim();
-
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-
-  const item = {
-    id: Date.now(),
-    amount,
-    cat,
-    desc: desc || CAT_META[cat].label,
-    date: today()
-  };
-
-  expenses.unshift(item);
-  save();
-  render();
+  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date: today() });
+  save(); render();
   showToast('Wydatek dodany ✓');
-
   document.getElementById('inAmount').value = '';
   document.getElementById('inDesc').value   = '';
+}
+
+// ─── ADD INCOME ──────────────────────────────────────────────────────────────
+
+function addIncome() {
+  const amount = parseFloat(document.getElementById('incAmount').value);
+  const cat    = document.getElementById('incCat').value;
+  const desc   = document.getElementById('incDesc').value.trim();
+  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
+  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date: today() });
+  save(); render();
+  showToast('Wpływ dodany ✓');
+  document.getElementById('incAmount').value = '';
+  document.getElementById('incDesc').value   = '';
 }
 
 // ─── DELETE ──────────────────────────────────────────────────────────────────
 
 function deleteExpense(id) {
   expenses = expenses.filter(e => e.id !== id);
-  save();
-  render();
-  showToast('Usunięto');
+  save(); render(); showToast('Usunięto');
 }
 
-// ─── RENDER ──────────────────────────────────────────────────────────────────
+function deleteIncome(id) {
+  incomes = incomes.filter(i => i.id !== id);
+  save(); render(); showToast('Usunięto');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
 
 function thisMonthExpenses() {
   const m = new Date().toISOString().slice(0, 7);
   return expenses.filter(e => e.date.startsWith(m));
 }
 
+function thisMonthIncomes() {
+  const m = new Date().toISOString().slice(0, 7);
+  return incomes.filter(i => i.date.startsWith(m));
+}
+
 function filteredExpenses() {
   if (!filterMonth) return expenses;
   return expenses.filter(e => e.date.startsWith(filterMonth));
 }
+
+function filteredIncomes() {
+  if (!filterMonth) return incomes;
+  return incomes.filter(i => i.date.startsWith(filterMonth));
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
 
 function render() {
   renderList();
@@ -865,50 +1113,102 @@ function render() {
 }
 
 function updateHeaderTotal() {
-  const total = thisMonthExpenses().reduce((s, e) => s + e.amount, 0);
-  document.getElementById('headerTotal').textContent = fmt(total);
+  const inc = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
+  const exp = thisMonthExpenses().reduce((s, e) => s + e.amount, 0);
+  const bal = inc - exp;
+  const el  = document.getElementById('headerTotal');
+  el.textContent = fmt(bal);
+  el.style.color = bal >= 0 ? 'var(--accent)' : 'var(--red)';
 }
 
 function renderStats() {
-  const m = thisMonthExpenses();
-  const total = m.reduce((s, e) => s + e.amount, 0);
-  const max   = m.length ? Math.max(...m.map(e => e.amount)) : 0;
-  const avg   = m.length ? total / m.length : 0;
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
+  const totalInc = mInc.reduce((s, i) => s + i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? ((balance / totalInc) * 100).toFixed(0) : null;
 
-  document.getElementById('statMonth').textContent = fmt(total);
-  document.getElementById('statMax').textContent   = m.length ? fmt(max) : '—';
-  document.getElementById('statCount').textContent = expenses.length;
-  document.getElementById('statAvg').textContent   = m.length ? fmt(avg) : '—';
-  document.getElementById('badgeCount').textContent = expenses.length + ' transakcji';
+  document.getElementById('statIncome').textContent  = fmt(totalInc);
+  document.getElementById('statMonth').textContent   = fmt(totalExp);
+
+  const balEl = document.getElementById('statBalance');
+  balEl.textContent = fmt(balance);
+  balEl.className   = 'stat-value ' + (balance >= 0 ? 'positive' : 'negative');
+
+  const saveEl = document.getElementById('statSave');
+  if (savePct !== null) {
+    saveEl.textContent = savePct + '%';
+    saveEl.style.color = savePct >= 20 ? 'var(--accent)' : savePct >= 0 ? 'var(--yellow)' : 'var(--red)';
+  } else {
+    saveEl.textContent = '—';
+  }
+
+  // Saldo bar
+  if (totalInc > 0) {
+    const pct = Math.min(100, (totalExp / totalInc * 100)).toFixed(0);
+    document.getElementById('saldoFill').style.width = pct + '%';
+    document.getElementById('saldoFill').style.background = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--yellow)' : 'var(--accent)';
+    document.getElementById('saldoPct').textContent = pct + '% wydane';
+  } else {
+    document.getElementById('saldoFill').style.width = '0%';
+    document.getElementById('saldoPct').textContent = 'brak wpływów';
+  }
+
+  const total = expenses.length + incomes.length;
+  document.getElementById('badgeCount').textContent = total + ' wpisów';
 }
 
 function renderList() {
   const el = document.getElementById('expenseList');
-  if (!expenses.length) {
-    el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wydatków.<br>Dodaj pierwszy!</div>';
+  // merge and sort by date desc
+  const expItems = histFilter !== 'inc' ? expenses.slice(0, 50).map(e => ({ ...e, type: 'exp' })) : [];
+  const incItems = histFilter !== 'exp' ? incomes.slice(0, 50).map(i => ({ ...i, type: 'inc' })) : [];
+  const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id).slice(0, 60);
+
+  if (!all.length) {
+    el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!</div>';
     return;
   }
-  el.innerHTML = expenses.slice(0, 50).map(e => {
-    const cm = CAT_META[e.cat] || CAT_META.inne;
-    return `
-      <div class="expense-item">
-        <div class="cat-dot" style="background:${cm.color}"></div>
-        <div class="expense-desc">
-          <div>${e.desc}</div>
-          <div class="expense-cat">${cm.emoji} ${cm.label}</div>
-        </div>
-        <div class="expense-date">${e.date}</div>
-        <div class="expense-amount">-${fmt(e.amount)}</div>
-        <button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>
-      </div>
-    `;
+
+  el.innerHTML = all.map(item => {
+    if (item.type === 'exp') {
+      const cm = CAT_META[item.cat] || CAT_META.inne;
+      return `
+        <div class="expense-item">
+          <div class="cat-dot" style="background:${cm.color}"></div>
+          <div class="expense-desc">
+            <div>${item.desc}</div>
+            <div class="expense-cat">${cm.emoji} ${cm.label}</div>
+          </div>
+          <div class="expense-date">${item.date}</div>
+          <div class="expense-amount">-${fmt(item.amount)}</div>
+          <button class="btn-delete" onclick="deleteExpense(${item.id})">✕</button>
+        </div>`;
+    } else {
+      const im = INC_META[item.cat] || INC_META.inne_inc;
+      return `
+        <div class="income-item">
+          <div class="cat-dot" style="background:var(--accent)"></div>
+          <div class="expense-desc">
+            <div>${item.desc}</div>
+            <div class="expense-cat">${im.emoji} ${im.label}</div>
+          </div>
+          <div class="expense-date">${item.date}</div>
+          <div class="income-amount">+${fmt(item.amount)}</div>
+          <button class="btn-delete" onclick="deleteIncome(${item.id})">✕</button>
+        </div>`;
+    }
   }).join('');
 }
 
 function renderMonthButtons() {
-  const months = [...new Set(expenses.map(e => e.date.slice(0, 7)))].sort().reverse();
+  const months = [...new Set([
+    ...expenses.map(e => e.date.slice(0, 7)),
+    ...incomes.map(i => i.date.slice(0, 7))
+  ])].sort().reverse();
+
   const row = document.querySelector('.filter-row');
-  // keep first "Wszystkie" button, rebuild rest
   const all = row.querySelector('.month-btn');
   row.innerHTML = '';
   row.appendChild(all);
@@ -933,7 +1233,23 @@ function setMonth(m, btn) {
 }
 
 function renderCharts() {
-  const list = filteredExpenses();
+  const list    = filteredExpenses();
+  const incList = filteredIncomes();
+
+  const totalExp = list.reduce((s,e) => s+e.amount, 0);
+  const totalInc = incList.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+
+  // Update przegląd stats
+  const ci = document.getElementById('chartIncome');
+  const ce = document.getElementById('chartExpenses');
+  const cb = document.getElementById('chartBalance');
+  if (ci) ci.textContent = fmt(totalInc);
+  if (ce) ce.textContent = fmt(totalExp);
+  if (cb) {
+    cb.textContent = fmt(balance);
+    cb.className = 'stat-value ' + (balance >= 0 ? 'positive' : 'negative');
+  }
 
   // Category chart
   const catTotals = {};
@@ -977,7 +1293,7 @@ function renderCharts() {
     }).join('');
   }
 
-  // Daily chart (last 14 days)
+  // Daily chart
   const dailyEl = document.getElementById('dailyChart');
   const days = [];
   for (let i = 13; i >= 0; i--) {
@@ -1031,118 +1347,116 @@ function addMessage(role, text) {
 
 function botReply(q) {
   const lq = q.toLowerCase();
-  const m  = thisMonthExpenses();
-  const all = expenses;
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const all  = expenses;
 
-  if (!all.length) return 'Nie masz jeszcze żadnych wydatków. Dodaj pierwsze w zakładce 💰 Wydatki!';
+  if (!all.length && !incomes.length) return 'Nie masz jeszcze żadnych wpisów. Dodaj wydatek lub wpływ w zakładce 💰 Wydatki!';
 
-  // SUMA w tym miesiącu
-  if (lq.includes('ile') && (lq.includes('miesi') || lq.includes('tym'))) {
-    const total = m.reduce((s, e) => s + e.amount, 0);
-    return `W tym miesiącu wydałeś/aś łącznie <strong>${fmt(total)}</strong> w ${m.length} transakcjach.`;
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+
+  // SALDO
+  if (lq.includes('saldo') || lq.includes('zostało') || lq.includes('zostaje') || lq.includes('ile mam')) {
+    const emoji = balance >= 0 ? '✅' : '⚠️';
+    return `${emoji} Twoje saldo w tym miesiącu to <strong>${fmt(balance)}</strong>.<br>Wpływy: ${fmt(totalInc)} | Wydatki: ${fmt(totalExp)}`;
+  }
+
+  // WPŁYWY
+  if (lq.includes('wpływ') || lq.includes('zarobił') || lq.includes('zarobiła') || lq.includes('przychód') || lq.includes('pensj') || lq.includes('wypłat')) {
+    return `W tym miesiącu Twoje wpływy to <strong>${fmt(totalInc)}</strong> (${mInc.length} wpisów).`;
+  }
+
+  // OSZCZĘDNOŚCI
+  if (lq.includes('oszczędz') || lq.includes('zaoszczędz') || lq.includes('porada') || lq.includes('ile odkładam')) {
+    if (totalInc === 0) return 'Dodaj wpływy, żebym mógł policzyć oszczędności!';
+    const pct = ((balance / totalInc) * 100).toFixed(0);
+    const catTotals = {};
+    mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+    const topCat = Object.entries(catTotals).sort((a,b) => b[1]-a[1])[0];
+    const cm = topCat ? CAT_META[topCat[0]] : null;
+    let tip = '';
+    if (pct < 10 && cm) tip = `<br><br>💡 Najwięcej idzie na ${cm.emoji} <strong>${cm.label}</strong> (${fmt(topCat[1])}). Warto tam szukać oszczędności!`;
+    return `W tym miesiącu odkładasz <strong>${pct}% wpływów</strong> (${fmt(balance)}).${tip}`;
+  }
+
+  // SUMA WYDATKÓW w tym miesiącu
+  if (lq.includes('ile') && (lq.includes('miesi') || lq.includes('wydałam') || lq.includes('wydałem'))) {
+    return `W tym miesiącu wydałaś/eś łącznie <strong>${fmt(totalExp)}</strong> w ${mExp.length} transakcjach.`;
   }
 
   // SUMA wszystkich
   if (lq.includes('łącznie') || lq.includes('razem') || lq.includes('ogółem') || lq.includes('wszystk')) {
-    const total = all.reduce((s, e) => s + e.amount, 0);
-    return `Łącznie we wszystkich transakcjach wydałeś/aś <strong>${fmt(total)}</strong> (${all.length} transakcji).`;
+    const totalAll = all.reduce((s, e) => s + e.amount, 0);
+    return `Łącznie wydałaś/eś <strong>${fmt(totalAll)}</strong> (${all.length} transakcji).`;
   }
 
   // KATEGORIE
-  if (lq.includes('kategori') || lq.includes('na co') || lq.includes('ile') && lq.includes('jedc') || lq.includes('breakdown')) {
+  if (lq.includes('kategori') || lq.includes('na co') || lq.includes('breakdown')) {
     const catTotals = {};
-    m.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
-    const total = m.reduce((s, e) => s + e.amount, 0);
-    if (!total) return 'Brak wydatków w tym miesiącu.';
-    const lines = Object.entries(catTotals)
-      .sort((a,b) => b[1]-a[1])
+    mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+    if (!totalExp) return 'Brak wydatków w tym miesiącu.';
+    const lines = Object.entries(catTotals).sort((a,b) => b[1]-a[1])
       .map(([cat, val]) => {
         const cm = CAT_META[cat];
-        const pct = (val/total*100).toFixed(0);
+        const pct = (val/totalExp*100).toFixed(0);
         return `${cm.emoji} <strong>${cm.label}</strong>: ${fmt(val)} (${pct}%)`;
       }).join('<br>');
     return `Podział wydatków w tym miesiącu:<br><br>${lines}`;
   }
 
   // NAJWIĘKSZY wydatek
-  if (lq.includes('największ') || lq.includes('max') || lq.includes('najdrożs')) {
-    const sorted = [...all].sort((a,b) => b.amount - a.amount);
-    const top = sorted[0];
-    const cm = CAT_META[top.cat];
+  if (lq.includes('największ') || lq.includes('najdrożs')) {
+    if (!all.length) return 'Brak wydatków.';
+    const top = [...all].sort((a,b) => b.amount - a.amount)[0];
+    const cm = CAT_META[top.cat] || CAT_META.inne;
     return `Twój największy wydatek to <strong>${top.desc}</strong> — ${fmt(top.amount)} (${cm.emoji} ${cm.label}, ${top.date}).`;
-  }
-
-  // ŚREDNIA
-  if (lq.includes('średni') || lq.includes('średnia')) {
-    const avg = m.length ? m.reduce((s,e) => s+e.amount, 0) / m.length : 0;
-    return m.length
-      ? `Średni wydatek w tym miesiącu to <strong>${fmt(avg)}</strong>.`
-      : 'Brak wydatków w tym miesiącu.';
-  }
-
-  // ILE transakcji
-  if (lq.includes('ile') && (lq.includes('transakcj') || lq.includes('wpis') || lq.includes('mam'))) {
-    return `Masz łącznie <strong>${all.length}</strong> transakcji, w tym <strong>${m.length}</strong> w bieżącym miesiącu.`;
-  }
-
-  // JEDZENIE
-  if (lq.includes('jedzen') || lq.includes('jedzenie') || lq.includes('jedzeni') || lq.includes('żywie')) {
-    const total = m.filter(e => e.cat === 'jedzenie').reduce((s,e) => s+e.amount, 0);
-    return `Na jedzenie w tym miesiącu wydałeś/aś <strong>${fmt(total)}</strong>.`;
-  }
-
-  // TRANSPORT
-  if (lq.includes('transport') || lq.includes('paliw') || lq.includes('auto') || lq.includes('pojazd')) {
-    const total = m.filter(e => e.cat === 'transport').reduce((s,e) => s+e.amount, 0);
-    return `Na transport w tym miesiącu wydałeś/aś <strong>${fmt(total)}</strong>.`;
-  }
-
-  // DOM
-  if (lq.includes('dom') || lq.includes('mieszkan') || lq.includes('czynsz') || lq.includes('prąd')) {
-    const total = m.filter(e => e.cat === 'dom').reduce((s,e) => s+e.amount, 0);
-    return `Na dom w tym miesiącu wydałeś/aś <strong>${fmt(total)}</strong>.`;
-  }
-
-  // ZDROWIE
-  if (lq.includes('zdrowi') || lq.includes('lekarz') || lq.includes('apteka') || lq.includes('lek')) {
-    const total = m.filter(e => e.cat === 'zdrowie').reduce((s,e) => s+e.amount, 0);
-    return `Na zdrowie w tym miesiącu wydałeś/aś <strong>${fmt(total)}</strong>.`;
-  }
-
-  // ROZRYWKA
-  if (lq.includes('rozrywk') || lq.includes('film') || lq.includes('kino') || lq.includes('zabaw')) {
-    const total = m.filter(e => e.cat === 'rozrywka').reduce((s,e) => s+e.amount, 0);
-    return `Na rozrywkę w tym miesiącu wydałeś/aś <strong>${fmt(total)}</strong>.`;
-  }
-
-  // OSZCZĘDNOŚCI / PORADA
-  if (lq.includes('oszczędz') || lq.includes('porada') || lq.includes('jak zaoszczędz')) {
-    const catTotals = {};
-    m.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
-    const topCat = Object.entries(catTotals).sort((a,b) => b[1]-a[1])[0];
-    if (!topCat) return 'Dodaj więcej wydatków, żebym mógł coś doradzić!';
-    const cm = CAT_META[topCat[0]];
-    return `Najwięcej wydajesz na <strong>${cm.emoji} ${cm.label}</strong> (${fmt(topCat[1])}). To dobry kandydat do oszczędności!`;
   }
 
   // PODSUMOWANIE
   if (lq.includes('podsumow') || lq.includes('raport') || lq.includes('analiz')) {
-    const total = m.reduce((s, e) => s + e.amount, 0);
     const catTotals = {};
-    m.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+    mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
     const topCat = Object.entries(catTotals).sort((a,b) => b[1]-a[1])[0];
     const cm = topCat ? CAT_META[topCat[0]] : null;
+    const savePct = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : '?';
     return `📊 <strong>Podsumowanie miesiąca:</strong><br>
-Łącznie: <strong>${fmt(total)}</strong><br>
-Transakcji: <strong>${m.length}</strong><br>
-${cm ? `Największa kategoria: ${cm.emoji} <strong>${cm.label}</strong> (${fmt(topCat[1])})` : ''}`;
+💚 Wpływy: <strong>${fmt(totalInc)}</strong><br>
+🔴 Wydatki: <strong>${fmt(totalExp)}</strong><br>
+💰 Saldo: <strong>${fmt(balance)}</strong><br>
+📈 Oszczędności: <strong>${savePct}%</strong><br>
+${cm ? `🏆 Największa kategoria: ${cm.emoji} <strong>${cm.label}</strong> (${fmt(topCat[1])})` : ''}`;
   }
 
-  // FALLBACK
+  // POSZCZEGÓLNE KATEGORIE
+  const catMap = {
+    jedzenie:    ['jedzen','jedzenie','żywie'],
+    cafe:        ['kawiarni','restauracj','kawa','obiad'],
+    transport:   ['transport','paliw','auto','pojazd'],
+    dom:         ['dom','mieszkan','czynsz','prąd'],
+    zdrowie:     ['zdrowi','lekarz','apteka'],
+    rozrywka:    ['rozrywk','film','kino'],
+    sport:       ['sport','siłowni','fitness'],
+    travel:      ['podróż','podroz','wakacj','wyjazd'],
+    beauty:      ['uroda','kosmetyk','fryzjer'],
+    gifts:       ['prezent'],
+    electronics: ['elektronik','subskrypcj','netflix','spotify'],
+    education:   ['studi','angielski','kurs','edukacj'],
+    childcare:   ['przedszkol','niani','dziecko'],
+  };
+  for (const [cat, keywords] of Object.entries(catMap)) {
+    if (keywords.some(k => lq.includes(k))) {
+      const total = mExp.filter(e => e.cat === cat).reduce((s,e) => s+e.amount, 0);
+      const cm = CAT_META[cat];
+      return `Na ${cm.emoji} ${cm.label} w tym miesiącu wydałaś/eś <strong>${fmt(total)}</strong>.`;
+    }
+  }
+
   const replies = [
-    'Możesz zapytać mnie np.: "Ile wydałem w tym miesiącu?", "Na co idzie najwięcej?", "Jaki mój największy wydatek?"',
-    'Spróbuj: "Pokaż moje kategorie", "Ile wydałem na jedzenie?", "Podaj mi podsumowanie".',
-    'Nie rozumiem pytania 🤔 Zapytaj o konkretną kategorię lub sumę wydatków!',
+    'Spróbuj: "Ile wydałam w tym miesiącu?", "Jakie moje saldo?", "Ile oszczędzam?"',
+    'Możesz zapytać: "Ile na jedzenie?", "Podaj podsumowanie", "Na co idzie najwięcej?"',
+    'Nie rozumiem pytania 🤔 Zapytaj o saldo, kategorię lub podsumowanie miesiąca.',
   ];
   return replies[Math.floor(Math.random() * replies.length)];
 }
