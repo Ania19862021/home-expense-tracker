@@ -6,6 +6,9 @@
 <title>CashFlow — Budżet Domowy</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <style>
   :root {
     --bg: #fafafa;
@@ -959,6 +962,162 @@
   }
   .btn-goal-add:hover { background: var(--accent); color: #0e0f11; }
 
+  /* ── LOGIN SCREEN ─────────────────────────────────────── */
+  .login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  }
+
+  .login-logo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+
+  .login-subtitle {
+    text-align: center;
+    color: var(--text2);
+    font-size: 0.85rem;
+    margin-bottom: 32px;
+  }
+
+  .login-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+
+  .login-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: none;
+    border-radius: 7px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .login-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .login-field {
+    margin-bottom: 14px;
+  }
+
+  .login-field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .login-field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--surface2);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-field input:focus { border-color: var(--accent); }
+
+  .btn-login {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-login:hover { opacity: 0.88; }
+
+  .login-error {
+    background: #fff0f3;
+    border: 1px solid #e1306c30;
+    color: #9d174d;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .login-error.show { display: block; }
+
+  .user-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 20px;
+    font-size: 0.82rem;
+    color: var(--text2);
+  }
+
+  .user-email { flex: 1; font-weight: 500; color: var(--text); }
+
+  .btn-logout {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 7px;
+    padding: 4px 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
   /* ── HEALTH SCORE ─────────────────────────────────────── */
   .health-bar {
     background: var(--surface);
@@ -1038,7 +1197,50 @@
 </head>
 <body>
 
-<div class="app">
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Cash<span style="background:linear-gradient(45deg,#f09433,#bc1888);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Flow</span></div>
+    <div class="login-subtitle">Twój domowy tracker finansów 💸</div>
+
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('login', this)">Zaloguj się</button>
+      <button class="login-tab" onclick="switchLoginTab('register', this)">Zarejestruj się</button>
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+
+    <div id="loginForm">
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="twoj@email.pl">
+      </div>
+      <div class="login-field">
+        <label>Hasło</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Zaloguj się →</button>
+    </div>
+
+    <div id="registerForm" style="display:none">
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="twoj@email.pl">
+      </div>
+      <div class="login-field">
+        <label>Hasło (min. 6 znaków)</label>
+        <input type="password" id="regPassword" placeholder="••••••••">
+      </div>
+      <div class="login-field">
+        <label>Imię (opcjonalnie)</label>
+        <input type="text" id="regName" placeholder="np. Ania" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <button class="btn-login" onclick="doRegister()">Zarejestruj się →</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
   <header>
     <div>
       <div class="logo">Cash<span>Flow</span></div>
@@ -1056,6 +1258,13 @@
     <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
     <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
     <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
+  </div>
+
+  <!-- USER BAR -->
+  <div class="user-bar" id="userBar">
+    <span>👤</span>
+    <span class="user-email" id="userEmail">—</span>
+    <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
   </div>
 
   <!-- WYDATKI PANEL -->
@@ -1414,6 +1623,7 @@ const INC_META = {
 function save() {
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('wplywy',  JSON.stringify(incomes));
+  saveToFirestore();
 }
 
 function fmt(n) {
@@ -2039,6 +2249,7 @@ let recurring = JSON.parse(localStorage.getItem('stale') || '[]');
 
 function saveRecurring() {
   localStorage.setItem('stale', JSON.stringify(recurring));
+  saveToFirestore();
 }
 
 function addRecurring() {
@@ -2139,7 +2350,126 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ─── HEALTH SCORE & ALERTS ───────────────────────────────────────────────────
+// ─── FIREBASE ────────────────────────────────────────────────────────────────
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDHzYaON_uPgx2lSmI44KPV5kn_wEclyKo",
+  authDomain: "cashflow-app-298a1.firebaseapp.com",
+  projectId: "cashflow-app-298a1",
+  storageBucket: "cashflow-app-298a1.firebasestorage.app",
+  messagingSenderId: "252950150689",
+  appId: "1:252950150689:web:74fa3b2693d2388061ad60",
+  measurementId: "G-3QERSE2Y6M"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+let currentUser = null;
+
+// LOGIN UI
+function switchLoginTab(tab, btn) {
+  document.querySelectorAll('.login-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('loginForm').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('loginError').classList.remove('show');
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  if (!email || !pass) { showLoginError('Wpisz email i hasło!'); return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':  'Nie ma konta z tym emailem.',
+      'auth/wrong-password':  'Złe hasło. Spróbuj ponownie.',
+      'auth/invalid-email':   'Nieprawidłowy email.',
+      'auth/too-many-requests': 'Za dużo prób. Poczekaj chwilę.',
+    };
+    showLoginError(msgs[e.code] || 'Błąd logowania. Spróbuj ponownie.');
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPassword').value;
+  const name  = document.getElementById('regName').value.trim();
+  if (!email || !pass) { showLoginError('Wpisz email i hasło!'); return; }
+  if (pass.length < 6) { showLoginError('Hasło musi mieć min. 6 znaków!'); return; }
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    if (name) await cred.user.updateProfile({ displayName: name });
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Konto z tym emailem już istnieje.',
+      'auth/invalid-email':        'Nieprawidłowy email.',
+      'auth/weak-password':        'Hasło jest za słabe.',
+    };
+    showLoginError(msgs[e.code] || 'Błąd rejestracji. Spróbuj ponownie.');
+  }
+}
+
+async function doLogout() {
+  await auth.signOut();
+}
+
+// AUTH STATE LISTENER
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display     = 'block';
+    document.getElementById('userEmail').textContent = user.displayName || user.email;
+    await loadUserData();
+    render();
+    renderRecurring();
+    renderGoals();
+    checkNotificationStatus();
+  } else {
+    currentUser = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainApp').style.display     = 'none';
+    expenses = []; incomes = []; recurring = []; goals = [];
+  }
+});
+
+// LOAD & SAVE DATA FROM FIRESTORE
+async function loadUserData() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  try {
+    const doc = await db.collection('users').doc(uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      expenses  = data.expenses  || [];
+      incomes   = data.incomes   || [];
+      recurring = data.recurring || [];
+      goals     = data.goals     || [];
+    }
+  } catch(e) { console.log('Load error:', e); }
+}
+
+async function saveToFirestore() {
+  if (!currentUser) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).set({
+      expenses, incomes, recurring, goals,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.log('Save error:', e); }
+}
+
+
 
 function calcHealthScore() {
   const mExp = thisMonthExpenses();
@@ -2507,6 +2837,7 @@ const GOAL_EMOJIS = ['✈️','🏖️','📱','🚗','🏠','💍','🎓','💻
 
 function saveGoals() {
   localStorage.setItem('cele', JSON.stringify(goals));
+  saveToFirestore();
 }
 
 function addGoal() {
@@ -2590,12 +2921,8 @@ function renderGoals() {
   }).join('');
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-
-render();
-renderRecurring();
-renderGoals();
-checkNotificationStatus();
+// ─── INIT (Firebase handles auth & data load) ────────────────────────────────
+// auth.onAuthStateChanged above handles initialization
 </script>
 </body>
 </html>
