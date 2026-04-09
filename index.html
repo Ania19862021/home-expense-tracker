@@ -4,34 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CashFlow — Budżet Domowy</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0e0f11;
-    --surface: #161719;
-    --surface2: #1e2023;
-    --border: #2a2d31;
-    --accent: #b8f765;
-    --accent2: #5ef0c8;
-    --text: #ecedef;
-    --text2: #8b8f97;
-    --red: #ff6b6b;
-    --yellow: #ffd166;
-    --cat-food: #ff6b6b;
-    --cat-transport: #5ef0c8;
-    --cat-home: #ffd166;
-    --cat-health: #b8f765;
-    --cat-fun: #c77dff;
-    --cat-other: #8b8f97;
-    --cat-travel: #38bdf8;
-    --cat-beauty: #f472b6;
-    --cat-cafe: #fb923c;
-    --cat-sport: #4ade80;
-    --cat-gifts: #e879f9;
-    --cat-electronics: #818cf8;
-    --cat-education: #facc15;
-    --cat-childcare: #94a3b8;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface2: #f5f5f5;
+    --border: #efefef;
+    --accent: #c13584;
+    --accent2: #e1306c;
+    --text: #262626;
+    --text2: #8e8e8e;
+    --red: #e1306c;
+    --yellow: #f77737;
+    --cat-food: #e1306c;
+    --cat-transport: #405de6;
+    --cat-home: #f77737;
+    --cat-health: #58b19f;
+    --cat-fun: #833ab4;
+    --cat-other: #8e8e8e;
+    --cat-travel: #405de6;
+    --cat-beauty: #c13584;
+    --cat-cafe: #f77737;
+    --cat-sport: #58b19f;
+    --cat-gifts: #833ab4;
+    --cat-electronics: #405de6;
+    --cat-education: #f77737;
+    --cat-childcare: #8e8e8e;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,7 +39,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -49,7 +49,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='none'/%3E%3Cpath d='M0 0h60v60H0z' fill='none' stroke='%23ffffff04' stroke-width='1'/%3E%3Cline x1='0' y1='0' x2='0' y2='60' stroke='%23ffffff03' stroke-width='1'/%3E%3Cline x1='0' y1='0' x2='60' y2='0' stroke='%23ffffff03' stroke-width='1'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='none'/%3E%3Cline x1='0' y1='0' x2='60' y2='0' stroke='%2300000008' stroke-width='1'/%3E%3Cline x1='0' y1='0' x2='0' y2='60' stroke='%2300000008' stroke-width='1'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
   }
@@ -75,7 +75,7 @@
   }
 
   .logo {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
     font-size: 2rem;
     letter-spacing: -0.03em;
@@ -83,7 +83,10 @@
   }
 
   .logo span {
-    color: var(--accent);
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .header-meta {
@@ -94,7 +97,7 @@
 
   .header-meta strong {
     display: block;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.4rem;
     font-weight: 700;
     color: var(--text);
@@ -114,7 +117,7 @@
   }
 
   .tab {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 0.85rem;
     padding: 10px 20px;
@@ -128,8 +131,8 @@
   }
 
   .tab.active {
-    background: var(--accent);
-    color: #0e0f11;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #ffffff;
   }
 
   /* PANEL */
@@ -184,7 +187,7 @@
   }
 
   .stat-value {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
     font-size: 1.8rem;
     letter-spacing: -0.03em;
@@ -204,7 +207,7 @@
   }
 
   .form-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1rem;
     margin-bottom: 20px;
@@ -239,7 +242,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     padding: 12px 14px;
     outline: none;
@@ -253,12 +256,12 @@
   .field select option { background: var(--surface2); }
 
   .btn-add {
-    background: var(--accent);
-    color: #0e0f11;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     padding: 12px 24px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
@@ -268,7 +271,7 @@
   }
 
   .btn-add:hover {
-    background: #c8ff75;
+    opacity: 0.9;
     transform: translateY(-1px);
   }
 
@@ -283,7 +286,7 @@
   }
 
   .section-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1rem;
     text-transform: uppercase;
@@ -334,7 +337,7 @@
   }
 
   .expense-amount {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1rem;
     color: var(--red);
@@ -393,7 +396,7 @@
   }
 
   .chart-card-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.85rem;
     color: var(--text2);
@@ -432,7 +435,7 @@
 
   .bar-val {
     font-size: 0.75rem;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     width: 70px;
     text-align: right;
@@ -462,7 +465,7 @@
     color: var(--text2);
     border-radius: 8px;
     padding: 6px 14px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.15s;
@@ -498,12 +501,12 @@
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.9rem;
-    color: #0e0f11;
+    color: #ffffff;
     flex-shrink: 0;
   }
 
   .chat-name {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.9rem;
   }
@@ -548,7 +551,7 @@
 
   .msg.user .msg-bubble {
     background: var(--accent);
-    color: #0e0f11;
+    color: #ffffff;
     border-bottom-right-radius: 4px;
     font-weight: 500;
   }
@@ -577,7 +580,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.85rem;
     padding: 12px 16px;
     outline: none;
@@ -598,7 +601,7 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  .btn-send:hover { background: #c8ff75; }
+  .btn-send:hover { background: linear-gradient(45deg, #f09433, #bc1888); }
 
   .suggestions {
     display: flex;
@@ -613,7 +616,7 @@
     color: var(--text2);
     border-radius: 999px;
     padding: 4px 12px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.72rem;
     cursor: pointer;
     transition: all 0.15s;
@@ -631,7 +634,7 @@
     bottom: 24px; right: 24px;
     background: var(--accent);
     color: #0e0f11;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.85rem;
     padding: 12px 20px;
@@ -655,7 +658,7 @@
     font-size: 0.7rem;
     padding: 3px 8px;
     border-radius: 6px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
   }
 
   /* INCOME TOGGLE */
@@ -671,7 +674,7 @@
   }
 
   .ftab {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.8rem;
     padding: 8px 16px;
@@ -684,7 +687,7 @@
   }
 
   .ftab.exp.active { background: var(--red); color: #fff; }
-  .ftab.inc.active { background: var(--accent); color: #0e0f11; }
+  .ftab.inc.active { background: var(--accent); color: #fff; }
 
   .income-form { display: none; }
   .income-form.visible { display: block; }
@@ -710,7 +713,7 @@
   .income-item:hover { background: var(--surface2); }
 
   .income-amount {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1rem;
     color: var(--accent);
@@ -754,7 +757,7 @@
   }
 
   .hist-tab {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     padding: 5px 12px;
     border-radius: 7px;
@@ -809,7 +812,7 @@
       background: none;
       border: none;
       color: var(--text2);
-      font-family: 'Syne', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.58rem;
       font-weight: 700;
       cursor: pointer;
@@ -851,7 +854,7 @@
     color: var(--accent);
     border-radius: 8px;
     padding: 6px 12px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.72rem;
     cursor: pointer;
@@ -864,7 +867,7 @@
   .rec-name { font-size: 0.85rem; }
   .rec-meta { font-size: 0.7rem; color: var(--text2); margin-top: 2px; }
   .rec-amount {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     color: var(--red);
     font-size: 0.95rem;
@@ -891,7 +894,7 @@
     gap: 8px;
   }
   .goal-name {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1rem;
   }
@@ -902,7 +905,7 @@
     text-align: right;
   }
   .goal-amounts strong {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1rem;
     color: var(--text);
   }
@@ -930,7 +933,7 @@
     gap: 8px;
   }
   .goal-pct {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
     font-size: 1.1rem;
   }
@@ -947,7 +950,7 @@
     color: var(--accent);
     border-radius: 8px;
     padding: 5px 12px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 0.72rem;
     cursor: pointer;
@@ -1109,7 +1112,7 @@
     </div>
 
     <div style="margin-bottom:20px">
-      <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+      <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
         📄 Pobierz raport PDF
       </button>
     </div>
@@ -1211,7 +1214,7 @@
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <div>
         <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Suma stałych wydatków / miesiąc</div>
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--red)" id="recTotal">0,00 zł</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.6rem;color:var(--red)" id="recTotal">0,00 zł</div>
       </div>
       <button class="btn-add" style="width:auto;padding:12px 24px" onclick="applyAllRecurring()">➕ Dodaj wszystkie do tego miesiąca</button>
     </div>
@@ -1590,10 +1593,10 @@ function renderCharts() {
       const cm = CAT_META[e.cat] || CAT_META.inne;
       return `
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;color:var(--text2);width:20px">#${i+1}</span>
+          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.75rem;color:var(--text2);width:20px">#${i+1}</span>
           <div class="cat-dot" style="background:${cm.color}"></div>
           <div style="flex:1;font-size:0.8rem">${e.desc}</div>
-          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--red)">${fmt(e.amount)}</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--red)">${fmt(e.amount)}</div>
         </div>`;
     }).join('');
   }
