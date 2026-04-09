@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CashFlow — Budżet Domowy</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
     --bg: #0e0f11;
@@ -1107,6 +1108,12 @@
       <!-- dynamicznie dodawane -->
     </div>
 
+    <div style="margin-bottom:20px">
+      <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        📄 Pobierz raport PDF
+      </button>
+    </div>
+
     <!-- INCOME VS EXPENSE SUMMARY -->
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card" style="--accent-glow:#b8f76520">
@@ -2035,7 +2042,179 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ─── GOALS ───────────────────────────────────────────────────────────────────
+// ─── PDF EXPORT ──────────────────────────────────────────────────────────────
+
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
+
+  const now = new Date();
+  const months = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+  const monthName = months[now.getMonth()] + ' ' + now.getFullYear();
+
+  let y = 20;
+  const lm = 20; // left margin
+  const pw = 170; // page width
+
+  // HEADER
+  doc.setFillColor(14, 15, 17);
+  doc.rect(0, 0, 210, 40, 'F');
+  doc.setTextColor(184, 247, 101);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CashFlow', lm, 18);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Raport miesięczny — ' + monthName, lm, 28);
+  doc.setTextColor(139, 143, 151);
+  doc.setFontSize(9);
+  doc.text('Wygenerowano: ' + now.toLocaleDateString('pl-PL'), lm, 35);
+
+  y = 55;
+
+  // SUMMARY BOXES
+  const boxes = [
+    { label: 'Wpływy', value: fmt(totalInc), color: [184, 247, 101] },
+    { label: 'Wydatki', value: fmt(totalExp), color: [255, 107, 107] },
+    { label: 'Saldo', value: fmt(balance), color: balance >= 0 ? [94, 240, 200] : [255, 107, 107] },
+    { label: 'Oszczędności', value: savePct + '%', color: [94, 240, 200] },
+  ];
+
+  const bw = 40;
+  boxes.forEach((b, i) => {
+    const x = lm + i * (bw + 3);
+    doc.setFillColor(22, 23, 25);
+    doc.roundedRect(x, y, bw, 22, 3, 3, 'F');
+    doc.setDrawColor(...b.color);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(x, y, bw, 22, 3, 3, 'S');
+    doc.setTextColor(139, 143, 151);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text(b.label.toUpperCase(), x + 3, y + 7);
+    doc.setTextColor(...b.color);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(b.value, x + 3, y + 17);
+  });
+
+  y += 32;
+
+  // KATEGORIE
+  const catTotals = {};
+  mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+  const sortedCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]);
+
+  if (sortedCats.length) {
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Wydatki wg kategorii', lm, y);
+    y += 6;
+    doc.setDrawColor(42, 45, 49);
+    doc.setLineWidth(0.3);
+    doc.line(lm, y, lm + pw, y);
+    y += 6;
+
+    sortedCats.forEach(([cat, val]) => {
+      const cm = CAT_META[cat] || CAT_META.inne;
+      const pct = totalExp > 0 ? (val/totalExp*100).toFixed(0) : 0;
+      const barW = (val/totalExp) * 100;
+
+      doc.setTextColor(236, 237, 239);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(cm.label, lm, y);
+      doc.text(fmt(val), lm + pw - 30, y);
+      doc.text(pct + '%', lm + pw, y, { align: 'right' });
+
+      // bar
+      doc.setFillColor(30, 32, 35);
+      doc.roundedRect(lm + 50, y - 4, 80, 5, 1, 1, 'F');
+      doc.setFillColor(184, 247, 101);
+      if (barW > 0) doc.roundedRect(lm + 50, y - 4, Math.max(1, barW * 0.8), 5, 1, 1, 'F');
+
+      y += 8;
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+  }
+
+  y += 4;
+
+  // TOP TRANSAKCJE
+  const top = [...mExp].sort((a,b) => b.amount - a.amount).slice(0, 8);
+  if (top.length) {
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Top wydatki', lm, y);
+    y += 6;
+    doc.setDrawColor(42, 45, 49);
+    doc.line(lm, y, lm + pw, y);
+    y += 6;
+
+    top.forEach((e, i) => {
+      const cm = CAT_META[e.cat] || CAT_META.inne;
+      doc.setTextColor(139, 143, 151);
+      doc.setFontSize(8);
+      doc.text('#' + (i+1), lm, y);
+      doc.setTextColor(236, 237, 239);
+      doc.setFontSize(9);
+      doc.text(e.desc.substring(0, 35), lm + 8, y);
+      doc.setTextColor(255, 107, 107);
+      doc.text(fmt(e.amount), lm + pw, y, { align: 'right' });
+      doc.setTextColor(139, 143, 151);
+      doc.setFontSize(7);
+      doc.text(cm.label + ' · ' + e.date, lm + 8, y + 4);
+      y += 10;
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+  }
+
+  // CELE
+  if (goals.length) {
+    y += 4;
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cele oszczędnościowe', lm, y);
+    y += 6;
+    doc.setDrawColor(42, 45, 49);
+    doc.line(lm, y, lm + pw, y);
+    y += 6;
+
+    goals.forEach(g => {
+      const pct = Math.min(100, (g.saved/g.target*100)).toFixed(0);
+      doc.setTextColor(236, 237, 239);
+      doc.setFontSize(9);
+      doc.text(g.name, lm, y);
+      doc.setTextColor(184, 247, 101);
+      doc.text(pct + '%  ' + fmt(g.saved) + ' / ' + fmt(g.target), lm + pw, y, { align: 'right' });
+      y += 8;
+    });
+  }
+
+  // FOOTER
+  doc.setFillColor(14, 15, 17);
+  doc.rect(0, 285, 210, 15, 'F');
+  doc.setTextColor(139, 143, 151);
+  doc.setFontSize(8);
+  doc.text('CashFlow — Twój domowy tracker finansów', 105, 292, { align: 'center' });
+
+  // SAVE
+  doc.save('CashFlow-Raport-' + monthName.replace(' ', '-') + '.pdf');
+  showToast('Raport PDF pobrany! 📄');
+}
+
+
 
 let goals = JSON.parse(localStorage.getItem('cele') || '[]');
 
