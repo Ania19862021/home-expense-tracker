@@ -3301,8 +3301,15 @@ function addToGoal(id, amount) {
 }
 
 function deleteGoal(id) {
+  const g = goals.find(g => g.id === id);
+  if (g) {
+    // Usuń też wszystkie wpłaty na ten cel z historii
+    expenses = expenses.filter(e => e.desc !== '🎯 Oszczędności: ' + g.name);
+    save();
+  }
   goals = goals.filter(g => g.id !== id);
-  saveGoals(); renderGoals();
+  saveGoals();
+  renderGoals();
   showToast('Cel usunięty');
 }
 
