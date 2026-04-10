@@ -2046,20 +2046,15 @@ function render() {
 }
 
 function updateHeaderTotal() {
-  // Saldo w nagłówku = bieżący miesiąc kalendarzowy (nie activeMonth)
-  const inc = realMonthIncomes().reduce((s, i) => s + i.amount, 0);
-  const exp = realMonthExpenses().reduce((s, e) => s + e.amount, 0);
-  const bal = inc - exp;
+  // Saldo WSZYSTKICH danych (nie tylko bieżący miesiąc)
+  const totalInc = incomes.reduce((s, i) => s + i.amount, 0);
+  const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
+  const bal = totalInc - totalExp;
   const el  = document.getElementById('headerTotal');
-  el.textContent = fmt(bal);
+  el.textContent = fmt(Math.abs(bal));
   el.style.color = bal >= 0 ? 'var(--accent)' : 'var(--red)';
-  // Label zawsze pokazuje bieżący miesiąc
   const balLabel = document.getElementById('headerBalLabel');
-  if (balLabel) {
-    const names = t('monthsShort');
-    const now = new Date();
-    balLabel.textContent = names[now.getMonth()] + ' ' + now.getFullYear();
-  }
+  if (balLabel) balLabel.textContent = lang === 'en' ? 'total balance' : 'saldo łącznie';
 }
 
 function renderStats() {
@@ -2856,57 +2851,48 @@ async function saveToFirestore() {
 }
 
 function calcHealthScore() {
-  // ZAWSZE używa bieżącego miesiąca kalendarzowego, nie wybranego activeMonth
-  const mExp = realMonthExpenses();
-  const mInc = realMonthIncomes();
-  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
-  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance  = totalInc - totalExp;
-  const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
+  // Użyj WSZYSTKICH danych jeśli bieżący miesiąc pusty
+  let mExp = realMonthExpenses();
+  let mInc = realMonthIncomes();
+  let totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  let totalInc = mInc.reduce((s,i) => s+i.amount, 0);
 
-  // Jeśli brak danych w bieżącym miesiącu, sprawdź ostatni miesiąc z danymi
-  if (!totalInc && !totalExp) {
-    // Znajdź ostatni miesiąc z danymi
-    const allMonths = [...new Set([
-      ...expenses.map(e => e.date.slice(0,7)),
-      ...incomes.map(i => i.date.slice(0,7))
-    ])].sort().reverse();
-    if (!allMonths.length) return null;
-    const lastMonth = allMonths[0];
-    const lmExp = expenses.filter(e => e.date.startsWith(lastMonth)).reduce((s,e) => s+e.amount, 0);
-    const lmInc = incomes.filter(i => i.date.startsWith(lastMonth)).reduce((s,i) => s+i.amount, 0);
-    if (!lmInc && !lmExp) return null;
-    // Oblicz score na podstawie ostatniego miesiąca z danymi
-    const lmBal = lmInc - lmExp;
-    const lmSave = lmInc > 0 ? (lmBal/lmInc)*100 : 0;
-    let score = 0;
-    if (lmSave >= 20) score += 60; else if (lmSave >= 15) score += 45;
-    else if (lmSave >= 10) score += 30; else if (lmSave >= 5) score += 15;
-    else if (lmSave >= 0) score += 5;
-    const sr = lmInc > 0 ? lmExp/lmInc : 1;
-    if (sr <= 0.7) score += 20; else if (sr <= 0.8) score += 15;
-    else if (sr <= 0.9) score += 8; else if (sr <= 1.0) score += 2;
-    if (goals.length > 0) score += 10;
-    if (goals.some(g => g.saved > 0)) score += 10;
-    return Math.max(0, Math.min(100, Math.round(score)));
+  // Jeśli bieżący miesiąc pusty → weź ALL TIME
+  if (!totalExp && !totalInc) {
+    totalExp = expenses.reduce((s,e) => s+e.amount, 0);
+    totalInc = incomes.reduce((s,i) => s+i.amount, 0);
   }
 
-  // Pay Yourself First: celem jest 20% oszczędności
+  // Jeśli naprawdę brak jakichkolwiek danych finansowych
+  if (!totalExp && !totalInc && !goals.length) return null;
+
+  const balance = totalInc - totalExp;
+  const savePct = totalInc > 0 ? (balance/totalInc)*100 : 0;
+
   let score = 0;
-  if (savePct >= 20)      score += 60;
-  else if (savePct >= 15) score += 45;
-  else if (savePct >= 10) score += 30;
-  else if (savePct >= 5)  score += 15;
-  else if (savePct >= 0)  score += 5;
 
-  const spendRatio = totalInc > 0 ? totalExp/totalInc : 1;
-  if (spendRatio <= 0.7)      score += 20;
-  else if (spendRatio <= 0.8) score += 15;
-  else if (spendRatio <= 0.9) score += 8;
-  else if (spendRatio <= 1.0) score += 2;
+  if (totalInc > 0) {
+    // Punkty za oszczędności (Pay Yourself First)
+    if (savePct >= 20)      score += 60;
+    else if (savePct >= 15) score += 45;
+    else if (savePct >= 10) score += 30;
+    else if (savePct >= 5)  score += 15;
+    else if (savePct >= 0)  score += 5;
 
-  if (goals.length > 0)               score += 10;
-  if (goals.some(g => g.saved > 0))   score += 10;
+    // Punkty za kontrolę wydatków
+    const spendRatio = totalExp / totalInc;
+    if (spendRatio <= 0.7)      score += 20;
+    else if (spendRatio <= 0.8) score += 15;
+    else if (spendRatio <= 0.9) score += 8;
+    else if (spendRatio <= 1.0) score += 2;
+  } else {
+    // Brak wpływów — daj bazowe punkty za śledzenie wydatków
+    score += totalExp > 0 ? 15 : 5;
+  }
+
+  // Punkty za cele oszczędnościowe
+  if (goals.length > 0)             score += 10;
+  if (goals.some(g => g.saved > 0)) score += 10;
 
   return Math.max(0, Math.min(100, Math.round(score)));
 }
@@ -3138,15 +3124,21 @@ function exportPDF() {
 
   // Helper to strip Polish chars for PDF compatibility
   function pl(str) {
-    return (str || '').replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
+    return (str || '')
+      // Usuń emoji (jsPDF ich nie obsługuje)
+      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{FE00}-\u{FE0F}]|[\u{1F000}-\u{1FFFF}]/gu, '')
+      // Zamień polskie znaki
+      .replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
       .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z').replace(/ź/g,'z')
       .replace(/ć/g,'c').replace(/ń/g,'n').replace(/Ą/g,'A').replace(/Ę/g,'E')
       .replace(/Ó/g,'O').replace(/Ś/g,'S').replace(/Ł/g,'L').replace(/Ż/g,'Z')
-      .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N');
+      .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N')
+      .trim();
   }
 
-  const mExp = thisMonthExpenses();
-  const mInc = thisMonthIncomes();
+  // PDF używa WSZYSTKICH danych (nie tylko bieżącego miesiąca)
+  const mExp = expenses;
+  const mInc = incomes;
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
@@ -3356,6 +3348,27 @@ function exportPDF() {
 
 let goals = JSON.parse(localStorage.getItem('cele') || '[]');
 
+function getGoalEmoji(name) {
+  const n = (name || '').toLowerCase();
+  if (/dom|mieszkan|house|home|wynajem|nieruchomosc/.test(n)) return '🏠';
+  if (/wakacj|urlop|wyjazd|trip|vacation|travel|podro/.test(n)) return '✈️';
+  if (/auto|samochod|car|pojazd|motor/.test(n)) return '🚗';
+  if (/telefon|phone|laptop|komputer|iphone|mac|tablet/.test(n)) return '📱';
+  if (/wesele|slub|wedding|pier|zarecz/.test(n)) return '💍';
+  if (/studia|edukacj|kurs|nauka|szkola|education/.test(n)) return '🎓';
+  if (/emerytur|pension|retire/.test(n)) return '🏦';
+  if (/dziecko|dzieci|baby|child|porod/.test(n)) return '👶';
+  if (/remont|renovacj|remontu/.test(n)) return '🔨';
+  if (/ogrod|garden/.test(n)) return '🌱';
+  if (/ksiazk|book|czytanie/.test(n)) return '📚';
+  if (/zdrowie|health|leczenie|szpital/.test(n)) return '💊';
+  if (/sport|silownia|rower|fitness/.test(n)) return '🏋️';
+  if (/fundusz|oszczednosc|savings|rezerwow/.test(n)) return '💰';
+  // Default random from curated list
+  const defaults = ['🎯','💎','⭐','🚀','🌟','🎪','🎨','🎭'];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
 const GOAL_EMOJIS = ['✈️','🏖️','📱','🚗','🏠','💍','🎓','💻','👗','🎸','🌍','💰'];
 
 function saveGoals() {
@@ -3370,7 +3383,7 @@ function addGoal() {
   if (!name)   { showToast('Podaj nazwę celu!'); return; }
   if (!target || target <= 0) { showToast('Podaj kwotę celu!'); return; }
   if (!deadline) { showToast('Podaj termin!'); return; }
-  const emoji = GOAL_EMOJIS[Math.floor(Math.random() * GOAL_EMOJIS.length)];
+  const emoji = getGoalEmoji(name);
   goals.push({ id: Date.now(), name, target, deadline, saved: 0, emoji });
   saveGoals(); renderGoals();
   showToast('Cel dodany! 🎯');
