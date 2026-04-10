@@ -1891,7 +1891,7 @@ function render() {
 
 function updateHeaderTotal() {
   const inc = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
-  const exp = thisMonthExpenses().reduce((s, e) => s + e.amount, 0);
+  const exp = thisMonthBudgetExpenses().reduce((s, e) => s + e.amount, 0);
   const bal = inc - exp;
   const el  = document.getElementById('headerTotal');
   el.textContent = fmt(bal);
