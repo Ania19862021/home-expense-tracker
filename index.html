@@ -2229,7 +2229,7 @@ function sendChat() {
   addMessage('user', q);
   const typingId = addTyping();
 
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -3039,7 +3039,7 @@ function scheduleNotifications() {
 
 function sendDailyNotification() {
   if (Notification.permission !== 'granted') return;
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -3076,7 +3076,7 @@ function exportPDF() {
       .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N');
   }
 
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -3342,8 +3342,7 @@ function addToGoal(id, amount) {
   if (!g) return;
   const actual = Math.min(amount, g.target - g.saved); // nie przekraczaj celu
   if (actual <= 0) { showToast('Cel już osiągnięty! 🎉'); return; }
-  g.saved += actual;
-  // Tworzy wydatek — saldo automatycznie spada
+  // Dodaj wydatek do historii
   expenses.unshift({
     id: Date.now(),
     amount: actual,
@@ -3351,8 +3350,13 @@ function addToGoal(id, amount) {
     desc: '🎯 Oszczędności: ' + g.name,
     date: today()
   });
-  save();
-  saveGoals();
+  // g.saved zawsze = suma z historii (spójność)
+  g.saved = expenses
+    .filter(e => isGoalSaving(e) && e.desc.includes(g.name))
+    .reduce((s, e) => s + e.amount, 0);
+  localStorage.setItem('wydatki', JSON.stringify(expenses));
+  localStorage.setItem('cele', JSON.stringify(goals));
+  saveToFirestore();
   render();
   renderGoals();
   showToast(`+${fmt(actual)} odłożone na "${g.name}" ✓`);
@@ -3368,12 +3372,13 @@ function deleteGoal(id) {
       !(isGoalSaving(e) && e.desc.includes(g.name))
     );
     const removed = before - expenses.length;
-    save();
-    render();
-    if (removed > 0) console.log(`Usunięto ${removed} wpłat dla celu "${g.name}"`);
+    // Zapisz razem expenses i goals w jednym Firestore write
   }
   goals = goals.filter(g => g.id !== id);
-  saveGoals();
+  localStorage.setItem('wydatki', JSON.stringify(expenses));
+  localStorage.setItem('cele', JSON.stringify(goals));
+  saveToFirestore(); // jeden zapis zamiast dwóch
+  render();
   renderGoals();
   showToast('Cel i jego wpłaty usunięte ✓');
 }
