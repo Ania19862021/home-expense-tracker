@@ -2213,7 +2213,10 @@ function sendSuggestion(btn) {
   sendChat();
 }
 
+let isTyping = false; // rate limit — blokuje podczas oczekiwania na AI
+
 function sendChat() {
+  if (isTyping) { showToast('Poczekaj na odpowiedź...'); return; }
   const input = document.getElementById('chatInput');
   const q = input.value.trim();
   if (!q) return;
@@ -2221,6 +2224,7 @@ function sendChat() {
   input.disabled = true;
   addMessage('user', q);
   const typingId = addTyping();
+  isTyping = true;
 
   const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
@@ -2259,6 +2263,7 @@ Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i a
   .then(r => r.json())
   .then(data => {
     removeTyping(typingId);
+    isTyping = false;
     if (data.content && data.content[0]) {
       addMessage('bot', data.content[0].text);
     } else {
@@ -2267,6 +2272,7 @@ Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i a
   })
   .catch(() => {
     removeTyping(typingId);
+    isTyping = false;
     addMessage('bot', botReply(q));
   })
   .finally(() => { input.disabled = false; input.focus(); });
@@ -2717,6 +2723,10 @@ async function loadUserData() {
 
 async function saveToFirestore() {
   if (!currentUser) return;
+  if (!navigator.onLine) {
+    console.warn('Offline — dane zapisane lokalnie, synchronizacja po połączeniu');
+    return;
+  }
   try {
     await db.collection('users').doc(currentUser.uid).set({
       expenses, incomes, goals,
@@ -3426,6 +3436,17 @@ document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 // checkSession() above handles initialization
+</script>
+
+<script>
+  // Rejestracja Service Workera
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW zarejestrowany:', reg.scope))
+        .catch(err => console.log('SW błąd rejestracji:', err));
+    });
+  }
 </script>
 
 </body>
