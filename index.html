@@ -1118,24 +1118,6 @@
 
   .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
-  /* ── LANGUAGE SWITCHER ───────────────────────────────── */
-  .lang-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    cursor: pointer;
-    color: var(--text2);
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
-
   /* ── HEALTH SCORE ─────────────────────────────────────── */
   .health-bar {
     background: var(--surface);
@@ -1212,47 +1194,7 @@
   }
   .notif-btn:hover { opacity: 0.88; }
 
-  /* ── MONTH STRIP ─────────────────────────────────────── */
-  .month-strip {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .month-pill {
-    flex-shrink: 0;
-    padding: 6px 13px;
-    border-radius: 99px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 600;
-    font-size: 0.78rem;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .month-pill:hover { border-color: var(--accent); color: var(--accent); }
-  .month-pill.active {
-    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-    color: #fff;
-    border-color: transparent;
-  }
-  .month-nav {
-    flex-shrink: 0;
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text2);
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .month-nav:hover { border-color: var(--accent); color: var(--accent); }
+  /* ── CUSTOM MONTH PICKER ──────────────────────────────── */
   .month-picker-wrap { position: relative; }
   .month-picker-input {
     width: 100%;
@@ -1387,44 +1329,37 @@
   <header>
     <div>
       <div class="logo">Cash<span>Flow</span></div>
-      <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;" id="headerSub">domowy tracker finansów</div>
+      <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;">domowy tracker finansów</div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
-      <div class="header-meta">
-        <span id="headerBalLabel">saldo w tym miesiącu</span>
-        <strong id="headerTotal">0,00 zł</strong>
-      </div>
+    <div class="header-meta">
+      <span>saldo w tym miesiącu</span>
+      <strong id="headerTotal">0,00 zł</strong>
     </div>
   </header>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('wydatki')" id="tab-wydatki">💰 Budżet</button>
-    <button class="tab" onclick="showTab('przeglad')" id="tab-przeglad">📊 Przegląd</button>
-    <button class="tab" onclick="showTab('rok')" id="tab-rok">📈 Rok</button>
-    <button class="tab" onclick="showTab('stale')" id="tab-stale">📅 Stałe</button>
-    <button class="tab" onclick="showTab('cele')" id="tab-cele">🎯 Cele</button>
-    <button class="tab" onclick="showTab('czat')" id="tab-czat">🤖 Asystent</button>
+    <button class="tab active" onclick="showTab('wydatki')">💰 Wydatki</button>
+    <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
+    <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
+    <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
+    <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
   </div>
 
   <!-- USER BAR -->
   <div class="user-bar" id="userBar">
     <span>👤</span>
     <span class="user-email" id="userEmail">—</span>
-    <button class="btn-logout" onclick="doLogout()" id="logoutBtn">Wyloguj</button>
+    <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
   </div>
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
 
-    <!-- MONTH STRIP -->
-    <div class="month-strip" id="monthStrip"></div>
-
     <!-- HEALTH SCORE -->
     <div class="health-bar" id="healthBar">
       <div class="health-score" id="healthScore">--</div>
       <div class="health-track">
-        <div class="health-label" id="healthLabelEl">Zdrowie finansowe</div>
+        <div class="health-label">Zdrowie finansowe</div>
         <div class="health-progress">
           <div class="health-fill" id="healthFill" style="width:0%"></div>
         </div>
@@ -1524,19 +1459,19 @@
     <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card" style="--accent-glow:#b8f76520">
-        <div class="stat-label" id="statIncLabel">Wpływy (miesiąc)</div>
+        <div class="stat-label">Wpływy (miesiąc)</div>
         <div class="stat-value positive" id="statIncome">0,00 zł</div>
       </div>
       <div class="stat-card" style="--accent-glow:#ff6b6b20">
-        <div class="stat-label" id="statExpLabel">Wydatki (miesiąc)</div>
+        <div class="stat-label">Wydatki (miesiąc)</div>
         <div class="stat-value red" id="statMonth">0,00 zł</div>
       </div>
       <div class="stat-card" style="--accent-glow:#5ef0c820">
-        <div class="stat-label" id="statBalLabel">Saldo</div>
+        <div class="stat-label">Saldo</div>
         <div class="stat-value" id="statBalance" style="color:var(--accent2)">0,00 zł</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label" id="statSaveLabel">Oszczędności %</div>
+        <div class="stat-label">Oszczędności %</div>
         <div class="stat-value" id="statSave">—</div>
       </div>
     </div>
@@ -1569,11 +1504,14 @@
 
   <!-- PRZEGLĄD PANEL -->
   <div class="panel" id="panel-przeglad">
-    <!-- Month strip (shared with Wydatki) -->
-    <div class="month-strip" id="monthStripPrzeglad"></div>
+    <div class="filter-row">
+      <span class="filter-label">Miesiąc:</span>
+      <button class="month-btn active" onclick="setMonth(null, this)">Wszystkie</button>
+      <!-- dynamicznie dodawane -->
+    </div>
 
     <div style="margin-bottom:20px">
-      <button onclick="exportPDF()" id="pdfBtn" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+      <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
         📄 Pobierz raport PDF
       </button>
     </div>
@@ -1581,82 +1519,33 @@
     <!-- INCOME VS EXPENSE SUMMARY -->
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card" style="--accent-glow:#b8f76520">
-        <div class="stat-label" id="chartIncLabel">💚 Wpływy</div>
+        <div class="stat-label">💚 Wpływy</div>
         <div class="stat-value positive" id="chartIncome">0,00 zł</div>
       </div>
       <div class="stat-card" style="--accent-glow:#ff6b6b20">
-        <div class="stat-label" id="chartExpLabel">🔴 Wydatki</div>
+        <div class="stat-label">🔴 Wydatki</div>
         <div class="stat-value red" id="chartExpenses">0,00 zł</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label" id="chartBalLabel">💰 Saldo</div>
+        <div class="stat-label">💰 Saldo</div>
         <div class="stat-value" id="chartBalance">0,00 zł</div>
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-card-title" id="catChartTitle">Wydatki wg kategorii</div>
+        <div class="chart-card-title">Wydatki wg kategorii</div>
         <div id="catChart"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title" id="topChartTitle">Top wydatki</div>
+        <div class="chart-card-title">Top wydatki</div>
         <div id="topList"></div>
       </div>
     </div>
 
     <div class="chart-card" style="margin-bottom:20px;">
-      <div class="chart-card-title" id="dailyChartTitle">Wydatki dzienne (ostatnie 14 dni)</div>
+      <div class="chart-card-title">Wydatki dzienne (ostatnie 14 dni)</div>
       <div id="dailyChart" style="display:flex;align-items:flex-end;gap:6px;height:80px;"></div>
-    </div>
-  </div>
-
-  <!-- ROK PANEL -->
-  <div class="panel" id="panel-rok">
-    <!-- Year navigation -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-      <button class="month-nav" onclick="rokChangeYear(-1)">‹</button>
-      <span id="rokYear" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.4rem;color:var(--text)"></span>
-      <button class="month-nav" onclick="rokChangeYear(1)">›</button>
-      <span id="rokTitleLabel" style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em"></span>
-    </div>
-
-    <!-- Annual stats -->
-    <div class="stats-row" style="margin-bottom:24px">
-      <div class="stat-card" style="--accent-glow:#b8f76520">
-        <div class="stat-label" id="rokIncLabel">💚 Wpływy roczne</div>
-        <div class="stat-value positive" id="rokIncome">0,00 zł</div>
-      </div>
-      <div class="stat-card" style="--accent-glow:#ff6b6b20">
-        <div class="stat-label" id="rokExpLabel">🔴 Wydatki roczne</div>
-        <div class="stat-value red" id="rokExpenses">0,00 zł</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label" id="rokBalLabel">💰 Saldo roczne</div>
-        <div class="stat-value" id="rokBalance">0,00 zł</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label" id="rokSaveLabel">📈 Śr. oszczędności</div>
-        <div class="stat-value" id="rokSavings">—</div>
-      </div>
-    </div>
-
-    <!-- Monthly breakdown -->
-    <div class="chart-card" style="margin-bottom:20px">
-      <div class="chart-card-title" id="rokMonthlyTitle">Miesiąc po miesiącu</div>
-      <div id="rokMonthlyChart"></div>
-    </div>
-
-    <!-- Best/worst month + top category -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-card-title" id="rokCatTitle">Top kategorie roku</div>
-        <div id="rokCatChart"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title" id="rokHighlightsTitle">Podsumowanie</div>
-        <div id="rokHighlights"></div>
-      </div>
     </div>
   </div>
 
@@ -1666,22 +1555,22 @@
       <div class="chat-header">
         <div class="chat-avatar">🤖</div>
         <div>
-          <div class="chat-name" id="chatNameEl">Asystent Finansowy</div>
-          <div class="chat-status" id="chatStatusEl">● online</div>
+          <div class="chat-name">Asystent Finansowy</div>
+          <div class="chat-status">● online</div>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="msg bot">
           <div class="msg-av">🤖</div>
-          <div class="msg-bubble" id="chatWelcomeMsg">Cześć! Jestem Twoim asystentem finansowym. Mogę analizować Twoje wydatki i odpowiadać na pytania. Zapytaj mnie o cokolwiek! 💰</div>
+          <div class="msg-bubble">Cześć! Jestem Twoim asystentem finansowym. Mogę analizować Twoje wydatki i odpowiadać na pytania. Zapytaj mnie o cokolwiek! 💰</div>
         </div>
       </div>
-      <div class="suggestions" id="chatSuggestions">
-        <button class="sug-btn" onclick="sendSuggestion(this)" id="sug1">Jakie moje saldo?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)" id="sug2">Ile oszczędzam?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)" id="sug3">Ile wydałam w tym miesiącu?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)" id="sug4">Na co idzie najwięcej?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)" id="sug5">Podaj podsumowanie</button>
+      <div class="suggestions">
+        <button class="sug-btn" onclick="sendSuggestion(this)">Jakie moje saldo?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Ile oszczędzam?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Ile wydałam w tym miesiącu?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Na co idzie najwięcej?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Podaj podsumowanie</button>
       </div>
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Zadaj pytanie o swoje wydatki..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -1692,14 +1581,14 @@
   <!-- STAŁE WYDATKI PANEL -->
   <div class="panel" id="panel-stale">
     <div class="form-card">
-      <div class="form-title" id="recFormTitle">📅 Dodaj stały wydatek</div>
+      <div class="form-title">📅 Dodaj stały wydatek</div>
       <div class="form-grid">
         <div class="field">
-          <label id="recAmountLabel">Kwota (zł)</label>
+          <label>Kwota (zł)</label>
           <input type="number" id="recAmount" placeholder="0,00" min="0" step="0.01">
         </div>
         <div class="field">
-          <label id="recCatLabel">Kategoria</label>
+          <label>Kategoria</label>
           <select id="recCat">
             <option value="dom">🏠 Dom (czynsz, media)</option>
             <option value="electronics">📱 Subskrypcje</option>
@@ -1712,25 +1601,25 @@
           </select>
         </div>
         <div class="field">
-          <label id="recNameLabel">Nazwa</label>
+          <label>Nazwa</label>
           <input type="text" id="recName" placeholder="np. Czynsz, Netflix, Angielski...">
         </div>
         <div class="field">
-          <button class="btn-add" onclick="addRecurring()" id="recAddBtn">Dodaj stały →</button>
+          <button class="btn-add" onclick="addRecurring()">Dodaj stały →</button>
         </div>
       </div>
     </div>
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <div>
-        <div id="recTotalLabel" style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Suma stałych wydatków / miesiąc</div>
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Suma stałych wydatków / miesiąc</div>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.6rem;color:var(--red)" id="recTotal">0,00 zł</div>
       </div>
-      <button class="btn-add" id="addAllRecBtn" style="width:auto;padding:12px 24px" onclick="applyAllRecurring()">➕ Dodaj wszystkie do tego miesiąca</button>
+      <button class="btn-add" style="width:auto;padding:12px 24px" onclick="applyAllRecurring()">➕ Dodaj wszystkie do tego miesiąca</button>
     </div>
 
     <div class="section-header">
-      <div class="section-title" id="yourRecTitle">Twoje stałe wydatki</div>
+      <div class="section-title">Twoje stałe wydatki</div>
       <span class="badge" id="recBadge">0 pozycji</span>
     </div>
 
@@ -1742,18 +1631,18 @@
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
     <div class="form-card">
-      <div class="form-title" id="goalFormTitle">🎯 Dodaj cel oszczędnościowy</div>
+      <div class="form-title">🎯 Dodaj cel oszczędnościowy</div>
       <div class="form-grid">
         <div class="field">
-          <label id="goalNameLabel">Nazwa celu</label>
+          <label>Nazwa celu</label>
           <input type="text" id="goalName" placeholder="np. Wakacje, Nowy telefon...">
         </div>
         <div class="field">
-          <label id="goalTargetLabel">Cel (zł)</label>
+          <label>Cel (zł)</label>
           <input type="number" id="goalTarget" placeholder="np. 3000" min="1" step="1">
         </div>
         <div class="field">
-          <label id="goalDeadlineLabel">Termin</label>
+          <label>Termin</label>
           <div class="month-picker-wrap">
             <div class="month-picker-input" id="mpDisplay" onclick="toggleMonthPicker()">
               <span id="mpText">Wybierz miesiąc</span>
@@ -1771,7 +1660,7 @@
           <input type="hidden" id="goalDeadline">
         </div>
         <div class="field">
-          <button class="btn-add" onclick="addGoal()" id="goalAddBtn">Dodaj cel →</button>
+          <button class="btn-add" onclick="addGoal()">Dodaj cel →</button>
         </div>
       </div>
     </div>
@@ -1791,22 +1680,19 @@
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
   <button class="bnav-btn active" id="bnav-wydatki" onclick="showTab('wydatki')">
-    <span class="bicon">💰</span>Budżet
+    <span class="bicon">💰</span>Wydatki
   </button>
   <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
     <span class="bicon">📊</span>Przegląd
   </button>
-  <button class="bnav-btn" id="bnav-rok" onclick="showTab('rok')">
-    <span class="bicon">📈</span>Rok
-  </button>
   <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
-    <span class="bicon">📋</span>Stałe
+    <span class="bicon">📅</span>Stałe
   </button>
   <button class="bnav-btn" id="bnav-cele" onclick="showTab('cele')">
     <span class="bicon">🎯</span>Cele
   </button>
   <button class="bnav-btn" id="bnav-czat" onclick="showTab('czat')">
-    <span class="bicon">🤖</span>AI
+    <span class="bicon">🤖</span>Asystent
   </button>
 </nav>
 
@@ -1879,57 +1765,6 @@ function setHistFilter(f, btn) {
   renderList();
 }
 
-// ─── MONTH STRIP ─────────────────────────────────────────────────────────────
-
-let activeMonth = new Date().toISOString().slice(0, 7);
-let activeYear  = new Date().getFullYear();
-let rokYear     = new Date().getFullYear();
-
-function renderMonthStrip() {
-  const strip1 = document.getElementById('monthStrip');
-  const strip2 = document.getElementById('monthStripPrzeglad');
-  if (strip1) _drawStrip(strip1);
-  if (strip2) _drawStrip(strip2);
-}
-
-function _drawStrip(strip) {
-  const names = t('monthsShort');
-  const currentYM = new Date().toISOString().slice(0, 7);
-  strip.innerHTML = `
-    <button class="month-nav" onclick="stripChangeYear(-1)">‹</button>
-    <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.9rem;color:var(--text);flex-shrink:0;padding:0 4px">${activeYear}</span>
-    <button class="month-nav" onclick="stripChangeYear(1)">›</button>
-    ${names.map((name, i) => {
-      const m = activeYear + '-' + String(i+1).padStart(2,'0');
-      const isActive = m === activeMonth;
-      const isNow = m === currentYM;
-      return `<button class="month-pill${isActive ? ' active' : ''}" onclick="setActiveMonth('${m}')">
-        ${name}${isNow && !isActive ? ' •' : ''}
-      </button>`;
-    }).join('')}
-  `;
-}
-
-function stripChangeYear(dir) {
-  activeYear += dir;
-  // Keep activeMonth in new year if possible
-  const mo = activeMonth.split('-')[1];
-  activeMonth = activeYear + '-' + mo;
-  renderMonthStrip();
-  render();
-}
-
-function setActiveMonth(m) {
-  activeMonth = m;
-  activeYear = parseInt(m.split('-')[0]);
-  renderMonthStrip();
-  render();
-  const [y, mo] = m.split('-');
-  const names = t('monthsShort');
-  const balLabel = document.getElementById('headerBalLabel');
-  if (balLabel) balLabel.textContent = names[parseInt(mo)-1] + ' ' + y;
-}
-
 // ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
 function addExpense() {
@@ -1937,10 +1772,7 @@ function addExpense() {
   const cat    = document.getElementById('inCat').value;
   const desc   = document.getElementById('inDesc').value.trim();
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  // Use activeMonth + today's day
-  const now = new Date();
-  const date = activeMonth + '-' + String(now.getDate()).padStart(2,'0');
-  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date });
+  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date: today() });
   save(); render();
   showToast('Wydatek dodany ✓');
   document.getElementById('inAmount').value = '';
@@ -1977,9 +1809,7 @@ function addIncome() {
   const cat    = document.getElementById('incCat').value;
   const desc   = document.getElementById('incDesc').value.trim();
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  const now = new Date();
-  const date = activeMonth + '-' + String(now.getDate()).padStart(2,'0');
-  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date });
+  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date: today() });
   save(); render();
   showToast('Wpływ dodany ✓');
   document.getElementById('incAmount').value = '';
@@ -2000,42 +1830,29 @@ function deleteIncome(id) {
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
-// Bieżący miesiąc kalendarzowy (zawsze aktualny — dla zdrowia finansowego)
-function realMonthStr() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-function realMonthExpenses() {
-  const m = realMonthStr();
+function thisMonthExpenses() {
+  const m = new Date().toISOString().slice(0, 7);
   return expenses.filter(e => e.date.startsWith(m));
 }
 
-function realMonthIncomes() {
-  const m = realMonthStr();
+function thisMonthIncomes() {
+  const m = new Date().toISOString().slice(0, 7);
   return incomes.filter(i => i.date.startsWith(m));
 }
 
-// Wybrany miesiąc (pasek miesięcy — dla historii i dodawania)
-function thisMonthExpenses() {
-  return expenses.filter(e => e.date.startsWith(activeMonth));
-}
-
-function thisMonthIncomes() {
-  return incomes.filter(i => i.date.startsWith(activeMonth));
-}
-
 function filteredExpenses() {
-  return expenses.filter(e => e.date.startsWith(activeMonth));
+  if (!filterMonth) return expenses;
+  return expenses.filter(e => e.date.startsWith(filterMonth));
 }
 
 function filteredIncomes() {
-  return incomes.filter(i => i.date.startsWith(activeMonth));
+  if (!filterMonth) return incomes;
+  return incomes.filter(i => i.date.startsWith(filterMonth));
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 
 function render() {
-  renderMonthStrip();
   renderList();
   renderStats();
   renderCharts();
@@ -2046,15 +1863,12 @@ function render() {
 }
 
 function updateHeaderTotal() {
-  // Saldo WSZYSTKICH danych (nie tylko bieżący miesiąc)
-  const totalInc = incomes.reduce((s, i) => s + i.amount, 0);
-  const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
-  const bal = totalInc - totalExp;
+  const inc = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
+  const exp = thisMonthExpenses().reduce((s, e) => s + e.amount, 0);
+  const bal = inc - exp;
   const el  = document.getElementById('headerTotal');
-  el.textContent = fmt(Math.abs(bal));
+  el.textContent = fmt(bal);
   el.style.color = bal >= 0 ? 'var(--accent)' : 'var(--red)';
-  const balLabel = document.getElementById('headerBalLabel');
-  if (balLabel) balLabel.textContent = lang === 'en' ? 'total balance' : 'saldo łącznie';
 }
 
 function renderStats() {
@@ -2092,25 +1906,18 @@ function renderStats() {
   }
 
   const total = expenses.length + incomes.length;
-  const entriesLabel = lang === 'en'
-    ? total + ' entries'
-    : total === 1 ? '1 wpis' : total <= 4 ? total + ' wpisy' : total + ' wpisów';
-  document.getElementById('badgeCount').textContent = entriesLabel;
+  document.getElementById('badgeCount').textContent = total + ' wpisów';
 }
 
 function renderList() {
   const el = document.getElementById('expenseList');
-  // filter by activeMonth and merge
-  const expItems = histFilter !== 'inc'
-    ? expenses.filter(e => e.date.startsWith(activeMonth)).slice(0,60).map(e => ({ ...e, type: 'exp' }))
-    : [];
-  const incItems = histFilter !== 'exp'
-    ? incomes.filter(i => i.date.startsWith(activeMonth)).slice(0,60).map(i => ({ ...i, type: 'inc' }))
-    : [];
+  // merge and sort by date desc
+  const expItems = histFilter !== 'inc' ? expenses.slice(0, 50).map(e => ({ ...e, type: 'exp' })) : [];
+  const incItems = histFilter !== 'exp' ? incomes.slice(0, 50).map(i => ({ ...i, type: 'inc' })) : [];
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id).slice(0, 60);
 
   if (!all.length) {
-    el.innerHTML = `<div class="empty"><span class="icon">🪙</span>${t('noEntries')}</div>`;
+    el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!</div>';
     return;
   }
 
@@ -2161,7 +1968,7 @@ function renderMonthButtons() {
     const b = document.createElement('button');
     b.className = 'month-btn' + (filterMonth === m ? ' active' : '');
     const [y, mo] = m.split('-');
-    const names = t('monthsShort');
+    const names = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
     b.textContent = names[parseInt(mo)-1] + ' ' + y;
     b.onclick = () => setMonth(m, b);
     row.appendChild(b);
@@ -2289,27 +2096,11 @@ function sendChat() {
   const recentExp = expenses.slice(0,8)
     .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
   const recSummary = recurring.length
-    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : (lang === 'en' ? 'none' : 'brak');
+    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : 'brak';
 
-  const isEN = lang === 'en';
+  const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
 
-  const systemPrompt = isEN
-    ? `You are a helpful financial assistant built into a home expense tracking app. Always respond in English, concisely and helpfully. Use emoji where appropriate. Do not use markdown asterisks — use HTML: <strong> for bold, <br> for new lines.
-
-User data (current month: ${activeMonth}):
-- Income: ${totalInc.toFixed(2)} PLN
-- Expenses: ${totalExp.toFixed(2)} PLN
-- Balance: ${balance.toFixed(2)} PLN
-- Expenses by category: ${catSummary || 'none'}
-- Fixed expenses: ${recSummary}
-
-Recent transactions:
-${recentExp || 'no transactions'}
-
-Answer based on this data. Give personalized financial advice and analyze spending patterns.`
-    : `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
-
-Dane użytkownika (bieżący miesiąc: ${activeMonth}):
+Dane użytkownika (bieżący miesiąc):
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
@@ -2335,7 +2126,7 @@ Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i a
     if (data.content && data.content[0]) {
       addMessage('bot', data.content[0].text);
     } else {
-      addMessage('bot', isEN ? 'Sorry, something went wrong. Please try again! 🤔' : 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
+      addMessage('bot', 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
     }
   })
   .catch(() => {
@@ -2383,8 +2174,9 @@ function botReply(q) {
     .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z')
     .replace(/ź/g,'z').replace(/ć/g,'c').replace(/ń/g,'n');
 
-  const mExp = realMonthExpenses();
-  const mInc = realMonthIncomes();
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const allExp = expenses;
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
@@ -2397,20 +2189,14 @@ function botReply(q) {
 
   const has = (...words) => words.some(w => lq.includes(w));
 
-  const isEN = lang === 'en';
-
-  // GREETING
-  if (has('czesc','hej','halo','witaj','dzien dobry','siema','hello','hi','hey')) {
-    return isEN
-      ? `Hi! 👋 I'm your financial assistant.<br>I can analyze expenses, calculate balance and suggest savings tips.<br><br>Try: <em>"What's my balance?"</em> or <em>"What do I spend most on?"</em>`
-      : `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
+  // POWITANIE
+  if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
+    return `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
   }
 
-  // NO DATA
-  if (!expenses.length && !incomes.length) {
-    return isEN
-      ? '📭 No entries yet. Add expenses and income in the 💰 tab!'
-      : '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
+  // BRAK DANYCH
+  if (!allExp.length && !incomes.length) {
+    return '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
   }
 
   // SALDO
@@ -2478,8 +2264,8 @@ ${koment}`;
 
   // NAJWIĘKSZY wydatek
   if (has('najwieks','najdrozs','max wydatek','rekord')) {
-    if (!expenses.length) return 'Brak wydatków do analizy.';
-    const top = [...expenses].sort((a,b)=>b.amount-a.amount)[0];
+    if (!allExp.length) return 'Brak wydatków do analizy.';
+    const top = [...allExp].sort((a,b)=>b.amount-a.amount)[0];
     const cm = CAT_META[top.cat]||CAT_META.inne;
     return `🏆 Twój największy wydatek to:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}`;
   }
@@ -2534,12 +2320,8 @@ ${koment}`;
     return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań o swoje finanse — jestem tutaj!';
   }
 
-  // FALLBACK
-  const tips = isEN ? [
-    `💡 Try asking: <em>"What's my balance?"</em>, <em>"How much am I saving?"</em> or <em>"Give me advice"</em>`,
-    `📊 I can analyze your spending by category. Try: <em>"How much did I spend on food?"</em>`,
-    `🎯 Type <em>"Monthly summary"</em> for a full budget analysis!`,
-  ] : [
+  // FALLBACK — inteligentny
+  const tips = [
     `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
     `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydałam na jedzenie?"</em>`,
     `🎯 Wpisz <em>"Podsumowanie miesiąca"</em> żeby zobaczyć pełną analizę swojego budżetu!`,
@@ -2653,14 +2435,11 @@ function applyAllRecurring() {
 function renderRecurring() {
   const total = recurring.reduce((s, r) => s + r.amount, 0);
   document.getElementById('recTotal').textContent = fmt(total);
-  const posLabel = lang === 'en'
-    ? recurring.length + ' items'
-    : recurring.length === 1 ? '1 pozycja' : recurring.length <= 4 ? recurring.length + ' pozycje' : recurring.length + ' pozycji';
-  document.getElementById('recBadge').textContent = posLabel;
+  document.getElementById('recBadge').textContent = recurring.length + ' pozycji';
 
   const el = document.getElementById('recList');
   if (!recurring.length) {
-    el.innerHTML = `<div class="empty"><span class="icon">📅</span>${t('emptyRec')}</div>`;
+    el.innerHTML = '<div class="empty"><span class="icon">📅</span>Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...</div>';
     return;
   }
   el.innerHTML = recurring.map(r => {
@@ -2672,9 +2451,9 @@ function renderRecurring() {
           <div class="rec-name">${r.name}</div>
           <div class="rec-meta">${cm.emoji} ${cm.label}</div>
         </div>
-        <span class="rec-freq">${t('everyMonth')}</span>
+        <span class="rec-freq">co miesiąc</span>
         <div class="rec-amount">-${fmt(r.amount)}</div>
-        <button class="btn-apply" onclick="applyRecurring(${r.id})">${t('addBtn')}</button>
+        <button class="btn-apply" onclick="applyRecurring(${r.id})">+ Dodaj</button>
         <button class="btn-delete" onclick="deleteRecurring(${r.id})">✕</button>
       </div>`;
   }).join('');
@@ -2701,7 +2480,6 @@ function showTab(name) {
   if (name === 'przeglad') renderCharts();
   if (name === 'stale') renderRecurring();
   if (name === 'cele') renderGoals();
-  if (name === 'rok') renderRok();
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
@@ -2794,12 +2572,6 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('mainApp').style.display     = 'block';
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
-    applyLang();
-    const t = today();
-    const inDate = document.getElementById('inDate');
-    const incDate = document.getElementById('incDate');
-    if (inDate) inDate.value = t;
-    if (incDate) incDate.value = t;
     render(); renderRecurring(); renderGoals(); checkNotificationStatus();
   } else {
     currentUser = null;
@@ -2811,33 +2583,16 @@ auth.onAuthStateChanged(async user => {
 
 async function loadUserData() {
   if (!currentUser) return;
-
-  // Wczytaj localStorage jako natychmiastowy backup
-  const lsExp   = JSON.parse(localStorage.getItem('wydatki') || '[]');
-  const lsInc   = JSON.parse(localStorage.getItem('wplywy')  || '[]');
-  const lsRec   = JSON.parse(localStorage.getItem('stale')   || '[]');
-  const lsGoals = JSON.parse(localStorage.getItem('cele')    || '[]');
-
   try {
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists) {
       const data = doc.data();
-      // Użyj Firestore jeśli ma dane, w przeciwnym razie localStorage
-      expenses  = (data.expenses  && data.expenses.length  > 0) ? data.expenses  : lsExp;
-      incomes   = (data.incomes   && data.incomes.length   > 0) ? data.incomes   : lsInc;
-      recurring = (data.recurring && data.recurring.length > 0) ? data.recurring : lsRec;
-      goals     = (data.goals     && data.goals.length     > 0) ? data.goals     : lsGoals;
-      // Jeśli użyliśmy localStorage — zsynchronizuj z Firestore
-      if (!data.expenses || data.expenses.length === 0) saveToFirestore();
-    } else {
-      // Nowy użytkownik — użyj localStorage
-      expenses = lsExp; incomes = lsInc; recurring = lsRec; goals = lsGoals;
-      if (lsExp.length || lsInc.length) saveToFirestore();
+      expenses  = data.expenses  || [];
+      incomes   = data.incomes   || [];
+      recurring = data.recurring || [];
+      goals     = data.goals     || [];
     }
-  } catch(e) {
-    console.log('Load error:', e);
-    expenses = lsExp; incomes = lsInc; recurring = lsRec; goals = lsGoals;
-  }
+  } catch(e) { console.log('Load error:', e); }
 }
 
 async function saveToFirestore() {
@@ -2851,48 +2606,35 @@ async function saveToFirestore() {
 }
 
 function calcHealthScore() {
-  // Użyj WSZYSTKICH danych jeśli bieżący miesiąc pusty
-  let mExp = realMonthExpenses();
-  let mInc = realMonthIncomes();
-  let totalExp = mExp.reduce((s,e) => s+e.amount, 0);
-  let totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
+  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance  = totalInc - totalExp;
+  const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
+  if (!totalInc && !totalExp) return null;
 
-  // Jeśli bieżący miesiąc pusty → weź ALL TIME
-  if (!totalExp && !totalInc) {
-    totalExp = expenses.reduce((s,e) => s+e.amount, 0);
-    totalInc = incomes.reduce((s,i) => s+i.amount, 0);
-  }
-
-  // Jeśli naprawdę brak jakichkolwiek danych finansowych
-  if (!totalExp && !totalInc && !goals.length) return null;
-
-  const balance = totalInc - totalExp;
-  const savePct = totalInc > 0 ? (balance/totalInc)*100 : 0;
-
+  // Pay Yourself First: celem jest 20% oszczędności
   let score = 0;
 
-  if (totalInc > 0) {
-    // Punkty za oszczędności (Pay Yourself First)
-    if (savePct >= 20)      score += 60;
-    else if (savePct >= 15) score += 45;
-    else if (savePct >= 10) score += 30;
-    else if (savePct >= 5)  score += 15;
-    else if (savePct >= 0)  score += 5;
+  // 60 pkt za oszczędności (najważniejsze!)
+  if (savePct >= 20)      score += 60;
+  else if (savePct >= 15) score += 45;
+  else if (savePct >= 10) score += 30;
+  else if (savePct >= 5)  score += 15;
+  else if (savePct >= 0)  score += 5;
+  else                    score += 0; // minus = 0
 
-    // Punkty za kontrolę wydatków
-    const spendRatio = totalExp / totalInc;
-    if (spendRatio <= 0.7)      score += 20;
-    else if (spendRatio <= 0.8) score += 15;
-    else if (spendRatio <= 0.9) score += 8;
-    else if (spendRatio <= 1.0) score += 2;
-  } else {
-    // Brak wpływów — daj bazowe punkty za śledzenie wydatków
-    score += totalExp > 0 ? 15 : 5;
-  }
+  // 20 pkt za kontrolę wydatków (max 80% wpływów)
+  const spendRatio = totalInc > 0 ? totalExp/totalInc : 1;
+  if (spendRatio <= 0.7)      score += 20;
+  else if (spendRatio <= 0.8) score += 15;
+  else if (spendRatio <= 0.9) score += 8;
+  else if (spendRatio <= 1.0) score += 2;
 
-  // Punkty za cele oszczędnościowe
-  if (goals.length > 0)             score += 10;
-  if (goals.some(g => g.saved > 0)) score += 10;
+  // 20 pkt za cele oszczędnościowe
+  if (goals.length > 0)               score += 10;
+  if (goals.some(g => g.saved > 0))   score += 10;
 
   return Math.max(0, Math.min(100, Math.round(score)));
 }
@@ -2906,16 +2648,15 @@ function renderHealthScore() {
   if (score === null) {
     el.textContent = '--';
     fill.style.width = '0%';
-    status.textContent = t('healthEmpty');
+    status.textContent = 'Dodaj wpływy i wydatki żeby zobaczyć ocenę';
     return;
   }
   el.textContent = score;
-  const isEN = lang === 'en';
   let color, label;
-  if (score >= 80)      { color = '#58b19f'; label = isEN ? '🟢 Excellent! Great financial management!' : '🟢 Doskonale! Świetnie zarządzasz finansami!'; }
-  else if (score >= 60) { color = '#6aab8e'; label = isEN ? '🟡 Good! You can improve your savings.' : '🟡 Dobrze! Możesz jeszcze poprawić oszczędności.'; }
-  else if (score >= 40) { color = '#f0a500'; label = isEN ? '🟠 Warning! Consider cutting some expenses.' : '🟠 Uwaga! Warto ograniczyć niektóre wydatki.'; }
-  else                  { color = '#e1306c'; label = isEN ? '🔴 Danger! You\'re spending too much — take action!' : '🔴 Niebezpiecznie! Wydajesz za dużo — działaj!'; }
+  if (score >= 80)      { color = '#58b19f'; label = '🟢 Doskonale! Świetnie zarządzasz finansami!'; }
+  else if (score >= 60) { color = '#6aab8e'; label = '🟡 Dobrze! Możesz jeszcze poprawić oszczędności.'; }
+  else if (score >= 40) { color = '#f0a500'; label = '🟠 Uwaga! Warto ograniczyć niektóre wydatki.'; }
+  else                  { color = '#e1306c'; label = '🔴 Niebezpiecznie! Wydajesz za dużo — działaj!'; }
   el.style.color = color;
   fill.style.width = score + '%';
   fill.style.background = color;
@@ -2924,79 +2665,63 @@ function renderHealthScore() {
 }
 
 function renderAlerts() {
-  // Alerty zawsze dla bieżącego miesiąca kalendarzowego
-  const mExp = realMonthExpenses();
-  const mInc = realMonthIncomes();
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
   const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
-  const spendable = totalInc * 0.80;
+  const spendable = totalInc * 0.80; // 80% do wydania po odłożeniu 20%
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
 
   const alerts = [];
-  const isEN = lang === 'en';
 
+  // Brak danych
   if (!totalInc && !totalExp) {
-    alerts.push({ type: 'info', icon: '👋', text: isEN
-      ? '<strong>Welcome to CashFlow!</strong> Add your income and expenses to see your budget analysis.'
-      : '<strong>Witaj w CashFlow!</strong> Dodaj swoje wpływy i wydatki żeby zobaczyć analizę budżetu.' });
-    alerts.push({ type: 'info', icon: '💡', text: isEN
-      ? '<strong>Pay Yourself First:</strong> When you add income, set aside 20% immediately. Spend the rest (80%) freely.'
-      : '<strong>Metoda Pay Yourself First:</strong> Gdy dodasz wpływy, od razu odkładaj 20%. Resztą (80%) zarządzaj swobodnie.' });
+    alerts.push({ type: 'info', icon: '👋', text: '<strong>Witaj w CashFlow!</strong> Dodaj swoje wpływy i wydatki żeby zobaczyć analizę budżetu.' });
+    alerts.push({ type: 'info', icon: '💡', text: '<strong>Metoda Pay Yourself First:</strong> Gdy dodasz wpływy, od razu odkładaj 20%. Resztą (80%) zarządzaj swobodnie.' });
   }
 
   if (totalInc > 0) {
     const saveTarget = totalInc * 0.20;
+
+    // OSZCZĘDNOŚCI — najważniejszy alert
     if (balance < 0) {
-      alerts.push({ type: 'danger', icon: '🚨', text: isEN
-        ? `<strong>You're spending more than you earn!</strong> Negative balance: ${fmt(Math.abs(balance))}. Cut expenses immediately!`
-        : `<strong>Wydajesz więcej niż zarabiasz!</strong> Minusowe saldo: ${fmt(Math.abs(balance))}. To sytuacja kryzysowa — natychmiast ogranicz wydatki!` });
+      alerts.push({ type: 'danger', icon: '🚨', text: `<strong>Wydajesz więcej niż zarabiasz!</strong> Minusowe saldo: ${fmt(Math.abs(balance))}. To sytuacja kryzysowa — natychmiast ogranicz wydatki!` });
     } else if (savePct < 10) {
-      alerts.push({ type: 'danger', icon: '🔴', text: isEN
-        ? `<strong>You're saving only ${savePct.toFixed(0)}% of income</strong> (${fmt(balance)}). The Pay Yourself First goal is <strong>20%</strong> (${fmt(saveTarget)}). You're missing ${fmt(saveTarget - balance)}.`
-        : `<strong>Odkładasz tylko ${savePct.toFixed(0)}% wpływów</strong> (${fmt(balance)}). Cel metody Pay Yourself First to <strong>20%</strong> (${fmt(saveTarget)}). Brakuje Ci ${fmt(saveTarget - balance)}.` });
+      alerts.push({ type: 'danger', icon: '🔴', text: `<strong>Odkładasz tylko ${savePct.toFixed(0)}% wpływów</strong> (${fmt(balance)}). Cel metody Pay Yourself First to <strong>20%</strong> (${fmt(saveTarget)}). Brakuje Ci ${fmt(saveTarget - balance)}.` });
     } else if (savePct < 20) {
-      alerts.push({ type: 'warning', icon: '⚠️', text: isEN
-        ? `<strong>You're saving ${savePct.toFixed(0)}% of income</strong> (${fmt(balance)}). Almost there! Goal is 20% (${fmt(saveTarget)}). Just ${fmt(saveTarget - balance)} more to go.`
-        : `<strong>Odkładasz ${savePct.toFixed(0)}% wpływów</strong> (${fmt(balance)}). Blisko! Cel to 20% (${fmt(saveTarget)}). Jeszcze ${fmt(saveTarget - balance)} do celu.` });
+      alerts.push({ type: 'warning', icon: '⚠️', text: `<strong>Odkładasz ${savePct.toFixed(0)}% wpływów</strong> (${fmt(balance)}). Blisko! Cel to 20% (${fmt(saveTarget)}). Jeszcze ${fmt(saveTarget - balance)} do celu.` });
     } else {
-      alerts.push({ type: 'success', icon: '🎉', text: isEN
-        ? `<strong>You're saving ${savePct.toFixed(0)}% of income</strong> — Pay Yourself First goal achieved! Great job!`
-        : `<strong>Odkładasz ${savePct.toFixed(0)}% wpływów</strong> — osiągasz cel metody Pay Yourself First! Świetna robota!` });
+      alerts.push({ type: 'success', icon: '🎉', text: `<strong>Odkładasz ${savePct.toFixed(0)}% wpływów</strong> — osiągasz cel metody Pay Yourself First! Świetna robota!` });
     }
 
+    // PRZEKROCZENIE 80% budżetu do wydania
     if (totalExp > spendable && balance >= 0) {
-      alerts.push({ type: 'warning', icon: '📊', text: isEN
-        ? `<strong>You've spent more than 80% of income</strong> (${fmt(totalExp)} of ${fmt(spendable)} available). Your savings buffer is shrinking!`
-        : `<strong>Wydałaś więcej niż 80% wpływów</strong> (${fmt(totalExp)} z ${fmt(spendable)} dostępnych). Twoja poduszka oszczędnościowa maleje!` });
+      alerts.push({ type: 'warning', icon: '📊', text: `<strong>Wydałaś więcej niż 80% wpływów</strong> (${fmt(totalExp)} z ${fmt(spendable)} dostępnych). Twoja poduszka oszczędnościowa maleje!` });
     }
 
+    // KATEGORIE — alert gdy jedna kategoria > 25% kwoty do wydania
     const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
     if (topCat && spendable > 0 && topCat[1]/spendable > 0.25) {
       const cm = CAT_META[topCat[0]] || CAT_META.inne;
-      alerts.push({ type: 'warning', icon: cm.emoji, text: isEN
-        ? `<strong>${cm.label} takes up ${(topCat[1]/spendable*100).toFixed(0)}% of your budget</strong> (${fmt(topCat[1])}). That's a lot for one category — worth reviewing.`
-        : `<strong>${cm.label} pochłania ${(topCat[1]/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(topCat[1])}). To dużo jak na jedną kategorię — warto się zastanowić.` });
+      alerts.push({ type: 'warning', icon: cm.emoji, text: `<strong>${cm.label} pochłania ${(topCat[1]/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(topCat[1])}). To dużo jak na jedną kategorię — warto się zastanowić.` });
     }
 
+    // KAWIARNIE > 15% budżetu do wydania
     if (catTotals['cafe'] && catTotals['cafe']/spendable > 0.15) {
-      alerts.push({ type: 'warning', icon: '☕', text: isEN
-        ? `<strong>Cafes & restaurants are ${(catTotals['cafe']/spendable*100).toFixed(0)}% of your budget</strong> (${fmt(catTotals['cafe'])}). Cooking at home is an easy saving!`
-        : `<strong>Kawiarnie i restauracje to ${(catTotals['cafe']/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(catTotals['cafe'])}). Gotowanie w domu to prosta oszczędność!` });
+      alerts.push({ type: 'warning', icon: '☕', text: `<strong>Kawiarnie i restauracje to ${(catTotals['cafe']/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(catTotals['cafe'])}). Gotowanie w domu to prosta oszczędność!` });
     }
 
+    // SUBSKRYPCJE > 10% budżetu do wydania
     if (catTotals['electronics'] && catTotals['electronics']/spendable > 0.10) {
-      alerts.push({ type: 'warning', icon: '📱', text: isEN
-        ? `<strong>Subscriptions are ${(catTotals['electronics']/spendable*100).toFixed(0)}% of your budget</strong> (${fmt(catTotals['electronics'])}). Check if you really need all of them.`
-        : `<strong>Subskrypcje to ${(catTotals['electronics']/spendable*100).toFixed(0)}% budżetu</strong> (${fmt(catTotals['electronics'])}). Przejrzyj czy wszystkie są potrzebne.` });
+      alerts.push({ type: 'warning', icon: '📱', text: `<strong>Subskrypcje i elektronika to ${(catTotals['electronics']/spendable*100).toFixed(0)}% budżetu</strong> (${fmt(catTotals['electronics'])}). Przejrzyj czy wszystkie są potrzebne.` });
     }
 
+    // BRAK CELÓW
     if (goals.length === 0) {
-      alerts.push({ type: 'info', icon: '🎯', text: isEN
-        ? '<strong>No savings goals yet.</strong> Add a goal in the 🎯 tab — it motivates 3x more than rules alone!'
-        : '<strong>Nie masz celów oszczędnościowych.</strong> Dodaj cel w zakładce 🎯 — to motywuje do odkładania 3x bardziej niż sama zasada!' });
+      alerts.push({ type: 'info', icon: '🎯', text: '<strong>Nie masz celów oszczędnościowych.</strong> Dodaj cel w zakładce 🎯 — to motywuje do odkładania 3x bardziej niż sama zasada!' });
     }
   }
 
@@ -3124,21 +2849,15 @@ function exportPDF() {
 
   // Helper to strip Polish chars for PDF compatibility
   function pl(str) {
-    return (str || '')
-      // Usuń emoji (jsPDF ich nie obsługuje)
-      .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{FE00}-\u{FE0F}]|[\u{1F000}-\u{1FFFF}]/gu, '')
-      // Zamień polskie znaki
-      .replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
+    return (str || '').replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
       .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z').replace(/ź/g,'z')
       .replace(/ć/g,'c').replace(/ń/g,'n').replace(/Ą/g,'A').replace(/Ę/g,'E')
       .replace(/Ó/g,'O').replace(/Ś/g,'S').replace(/Ł/g,'L').replace(/Ż/g,'Z')
-      .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N')
-      .trim();
+      .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N');
   }
 
-  // PDF używa WSZYSTKICH danych (nie tylko bieżącego miesiąca)
-  const mExp = expenses;
-  const mInc = incomes;
+  const mExp = thisMonthExpenses();
+  const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
@@ -3146,7 +2865,7 @@ function exportPDF() {
   const score    = calcHealthScore() || 0;
 
   const now = new Date();
-  const monthsNames = t('months');
+  const monthsNames = ['Styczen','Luty','Marzec','Kwiecien','Maj','Czerwiec','Lipiec','Sierpien','Wrzesien','Pazdziernik','Listopad','Grudzien'];
   const monthName = monthsNames[now.getMonth()] + ' ' + now.getFullYear();
 
   let y = 0;
@@ -3171,9 +2890,9 @@ function exportPDF() {
   doc.text('CashFlow', lm, 14);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(pl(t('pdfTitle')) + ' - ' + monthName, lm, 23);
+  doc.text('Raport miesięczny - ' + monthName, lm, 23);
   doc.setFontSize(8);
-  doc.text(pl(t('pdfGenerated')) + ': ' + now.toLocaleDateString('pl-PL'), lm, 30);
+  doc.text('Wygenerowano: ' + now.toLocaleDateString('pl-PL'), lm, 30);
 
   // Health score badge
   const scoreColor = score >= 80 ? [88,177,159] : score >= 60 ? [106,171,142] : score >= 40 ? [240,165,0] : [225,48,108];
@@ -3185,16 +2904,16 @@ function exportPDF() {
   doc.text(score + '/100', 157, 20);
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text(pl(lang === 'en' ? 'FINANCIAL HEALTH' : 'ZDROWIE FINANSOWE'), 157, 25);
+  doc.text('ZDROWIE FINANSOWE', 157, 25);
 
   y = 44;
 
   // ── SUMMARY BOXES (light style) ──
   const boxes = [
-    { label: pl(t('statIncome').toUpperCase()),   value: pl(fmt(totalInc)), bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
-    { label: pl(t('statExpenses').toUpperCase()), value: pl(fmt(totalExp)), bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
-    { label: pl(t('statBalance').toUpperCase()),  value: pl(fmt(balance)),  bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
-    { label: pl(t('pdfSavings').toUpperCase()),   value: savePct + '%',     bg: [239,246,255], border: [64,93,230],   text: [64,93,230] },
+    { label: 'WPLYWY',       value: pl(fmt(totalInc)), bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
+    { label: 'WYDATKI',      value: pl(fmt(totalExp)), bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
+    { label: 'SALDO',        value: pl(fmt(balance)),  bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
+    { label: 'OSZCZEDNOSCI', value: savePct + '%',     bg: [239,246,255], border: [64,93,230],   text: [64,93,230] },
   ];
   const bw = 41;
   boxes.forEach((b, i) => {
@@ -3225,7 +2944,7 @@ function exportPDF() {
     doc.setTextColor(38, 38, 38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(pl(t('pdfCategories')), lm, y);
+    doc.text('Wydatki wg kategorii', lm, y);
     y += 2;
     doc.setDrawColor(239, 239, 239);
     doc.setLineWidth(0.5);
@@ -3266,7 +2985,7 @@ function exportPDF() {
     doc.setTextColor(38,38,38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(pl(t('pdfTop')), lm, y);
+    doc.text('Top wydatki', lm, y);
     y += 2;
     doc.setDrawColor(239,239,239);
     doc.line(lm, y+2, lm+pw, y+2);
@@ -3305,7 +3024,7 @@ function exportPDF() {
     doc.setTextColor(38,38,38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(pl(t('pdfGoals')), lm, y);
+    doc.text('Cele oszczednosciowe', lm, y);
     y += 2;
     doc.setDrawColor(239,239,239);
     doc.line(lm, y+2, lm+pw, y+2);
@@ -3338,7 +3057,7 @@ function exportPDF() {
   doc.setTextColor(142,142,142);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text(pl(t('pdfFooter')), 105, 292, { align: 'center' });
+  doc.text('CashFlow - Twoj domowy tracker finansow', 105, 292, { align: 'center' });
 
   doc.save('CashFlow-Raport-' + monthName + '.pdf');
   showToast('Raport PDF pobrany! 📄');
@@ -3347,27 +3066,6 @@ function exportPDF() {
 
 
 let goals = JSON.parse(localStorage.getItem('cele') || '[]');
-
-function getGoalEmoji(name) {
-  const n = (name || '').toLowerCase();
-  if (/dom|mieszkan|house|home|wynajem|nieruchomosc/.test(n)) return '🏠';
-  if (/wakacj|urlop|wyjazd|trip|vacation|travel|podro/.test(n)) return '✈️';
-  if (/auto|samochod|car|pojazd|motor/.test(n)) return '🚗';
-  if (/telefon|phone|laptop|komputer|iphone|mac|tablet/.test(n)) return '📱';
-  if (/wesele|slub|wedding|pier|zarecz/.test(n)) return '💍';
-  if (/studia|edukacj|kurs|nauka|szkola|education/.test(n)) return '🎓';
-  if (/emerytur|pension|retire/.test(n)) return '🏦';
-  if (/dziecko|dzieci|baby|child|porod/.test(n)) return '👶';
-  if (/remont|renovacj|remontu/.test(n)) return '🔨';
-  if (/ogrod|garden/.test(n)) return '🌱';
-  if (/ksiazk|book|czytanie/.test(n)) return '📚';
-  if (/zdrowie|health|leczenie|szpital/.test(n)) return '💊';
-  if (/sport|silownia|rower|fitness/.test(n)) return '🏋️';
-  if (/fundusz|oszczednosc|savings|rezerwow/.test(n)) return '💰';
-  // Default random from curated list
-  const defaults = ['🎯','💎','⭐','🚀','🌟','🎪','🎨','🎭'];
-  return defaults[Math.floor(Math.random() * defaults.length)];
-}
 
 const GOAL_EMOJIS = ['✈️','🏖️','📱','🚗','🏠','💍','🎓','💻','👗','🎸','🌍','💰'];
 
@@ -3383,7 +3081,7 @@ function addGoal() {
   if (!name)   { showToast('Podaj nazwę celu!'); return; }
   if (!target || target <= 0) { showToast('Podaj kwotę celu!'); return; }
   if (!deadline) { showToast('Podaj termin!'); return; }
-  const emoji = getGoalEmoji(name);
+  const emoji = GOAL_EMOJIS[Math.floor(Math.random() * GOAL_EMOJIS.length)];
   goals.push({ id: Date.now(), name, target, deadline, saved: 0, emoji });
   saveGoals(); renderGoals();
   showToast('Cel dodany! 🎯');
@@ -3394,32 +3092,12 @@ function addGoal() {
   document.getElementById('mpText').textContent = 'Wybierz miesiąc';
 }
 
-function addToGoalCustom(id) {
-  const input = document.getElementById('goalInput_' + id);
-  const amount = parseFloat(input ? input.value : 0);
-  if (!amount || amount <= 0) { showToast(lang === 'en' ? 'Enter an amount!' : 'Podaj kwotę!'); return; }
-  addToGoal(id, amount);
-  if (input) input.value = '';
-}
-
 function addToGoal(id, amount) {
   const g = goals.find(g => g.id === id);
   if (!g) return;
   g.saved = Math.min(g.target, g.saved + amount);
-  saveGoals();
-
-  // Automatycznie dodaj wydatek — pieniądze muszą skądś pochodzić!
-  expenses.unshift({
-    id: Date.now(),
-    amount,
-    cat: 'inne',
-    desc: (lang === 'en' ? '🎯 Savings: ' : '🎯 Oszczędności: ') + g.name,
-    date: today()
-  });
-  save();
-  render();
-  renderGoals();
-  showToast(`+${fmt(amount)} → ${g.name} 🎯`);
+  saveGoals(); renderGoals();
+  showToast(`+${fmt(amount)} dodane do celu "${g.name}" ✓`);
 }
 
 function deleteGoal(id) {
@@ -3428,18 +3106,11 @@ function deleteGoal(id) {
   showToast('Cel usunięty');
 }
 
-function goalCountLabel(n) {
-  if (lang === 'en') return n + ' ' + (n === 1 ? 'goal' : 'goals');
-  if (n === 1) return '1 cel';
-  if (n >= 2 && n <= 4) return n + ' cele';
-  return n + ' celów';
-}
-
 function renderGoals() {
-  document.getElementById('goalBadge').textContent = goalCountLabel(goals.length);
+  document.getElementById('goalBadge').textContent = goals.length + ' celów';
   const el = document.getElementById('goalList');
   if (!goals.length) {
-    el.innerHTML = `<div class="empty"><span class="icon">🎯</span>${t('noGoals')}</div>`;
+    el.innerHTML = '<div class="empty"><span class="icon">🎯</span>Brak celów oszczędnościowych.<br>Dodaj swój pierwszy cel!</div>';
     return;
   }
   el.innerHTML = goals.map(g => {
@@ -3450,32 +3121,15 @@ function renderGoals() {
     const [dy, dm] = g.deadline.split('-').map(Number);
     const monthsLeft = (dy - now.getFullYear()) * 12 + (dm - now.getMonth() - 1);
     const monthlyNeeded = monthsLeft > 0 ? remaining / monthsLeft : remaining;
-
-    // Smart color: based on urgency, not just raw percentage
-    let color;
-    if (done) {
-      color = 'var(--accent)'; // green - done!
-    } else if (monthsLeft <= 0) {
-      color = 'var(--red)'; // overdue!
-    } else if (monthsLeft > 24 && pct < 50) {
-      color = '#405de6'; // blue - long term, early stage, no panic
-    } else if (pct >= 75) {
-      color = 'var(--accent)'; // green - almost there
-    } else if (pct >= 40) {
-      color = 'var(--yellow)'; // yellow - good progress
-    } else if (monthsLeft <= 6) {
-      color = 'var(--red)'; // red - deadline soon, not enough saved
-    } else {
-      color = 'var(--yellow)'; // orange - in progress
-    }
-    const months = t('monthsShort');
+    const color = done ? 'var(--accent)' : pct >= 75 ? 'var(--accent2)' : pct >= 40 ? 'var(--yellow)' : 'var(--red)';
+    const months = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
     const deadlineStr = months[dm-1] + ' ' + dy;
     return `
       <div class="goal-card">
         <div class="goal-header">
           <div><span class="goal-emoji">${g.emoji}</span><span class="goal-name">${g.name}</span></div>
           <div class="goal-amounts">
-            <div style="color:var(--text2);font-size:0.7rem">${t('savedLabel')}</div>
+            <div style="color:var(--text2);font-size:0.7rem">odłożono / cel</div>
             <strong style="color:${color}">${fmt(g.saved)}</strong><span style="color:var(--text2)"> / ${fmt(g.target)}</span>
           </div>
         </div>
@@ -3486,25 +3140,16 @@ function renderGoals() {
           <div>
             <span class="goal-pct" style="color:${color}">${pct}%</span>
             ${done
-              ? `<span style="color:var(--accent);margin-left:8px">${t('goalAchieved')}</span>`
-              : `<span style="margin-left:8px">${t('missing')} <strong>${fmt(remaining)}</strong>${monthsLeft > 0 ? ` · ${t('saveMonthly')} ${fmt(monthlyNeeded)}${t('perMonth')}` : ''}</span>`
+              ? '<span style="color:var(--accent);margin-left:8px">🎉 Cel osiągnięty!</span>'
+              : `<span style="margin-left:8px">brakuje <strong>${fmt(remaining)}</strong>${monthsLeft > 0 ? ` · odkładaj ${fmt(monthlyNeeded)}/mies.` : ''}</span>`
             }
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="goal-deadline">📅 ${deadlineStr}</span>
             ${!done ? `
-              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                <input type="number" id="goalInput_${g.id}"
-                  placeholder="${Math.round(monthlyNeeded) || 100}"
-                  min="1" step="1"
-                  style="width:110px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;
-                    font-family:'Inter',sans-serif;font-size:0.82rem;background:var(--surface2);color:var(--text);outline:none"
-                  onkeydown="if(event.key==='Enter')addToGoalCustom(${g.id})">
-                <button class="btn-goal-add" onclick="addToGoalCustom(${g.id})">
-                  ${lang === 'en' ? '+ Add' : '+ Dodaj'}
-                </button>
-              </div>
-            ` : '🎉'}
+              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 100)">+100 zł</button>
+              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 500)">+500 zł</button>
+            ` : ''}
             <button class="btn-delete" onclick="deleteGoal(${g.id})">✕</button>
           </div>
         </div>
@@ -3512,118 +3157,7 @@ function renderGoals() {
   }).join('');
 }
 
-// ─── ROK (ANNUAL SUMMARY) ────────────────────────────────────────────────────
-
-function rokChangeYear(dir) {
-  rokYear += dir;
-  renderRok();
-}
-
-function renderRok() {
-  const isEN = lang === 'en';
-  const el = (id) => document.getElementById(id);
-  if (!el('rokYear')) return;
-
-  el('rokYear').textContent = rokYear;
-  el('rokTitleLabel').textContent = isEN ? 'Annual Summary' : 'Podsumowanie roczne';
-  el('rokIncLabel').textContent   = isEN ? '💚 Annual income'   : '💚 Wpływy roczne';
-  el('rokExpLabel').textContent   = isEN ? '🔴 Annual expenses' : '🔴 Wydatki roczne';
-  el('rokBalLabel').textContent   = isEN ? '💰 Annual balance'  : '💰 Saldo roczne';
-  el('rokSaveLabel').textContent  = isEN ? '📈 Avg. savings'    : '📈 Śr. oszczędności';
-  el('rokMonthlyTitle').textContent   = isEN ? 'Month by month'    : 'Miesiąc po miesiącu';
-  el('rokCatTitle').textContent       = isEN ? 'Top categories'    : 'Top kategorie roku';
-  el('rokHighlightsTitle').textContent = isEN ? 'Highlights'       : 'Podsumowanie';
-
-  const monthNames = t('monthsShort');
-  let totalInc = 0, totalExp = 0;
-  const monthData = [];
-
-  for (let m = 1; m <= 12; m++) {
-    const ym = rokYear + '-' + String(m).padStart(2,'0');
-    const mInc = incomes.filter(i => i.date.startsWith(ym)).reduce((s,i) => s+i.amount, 0);
-    const mExp = expenses.filter(e => e.date.startsWith(ym)).reduce((s,e) => s+e.amount, 0);
-    totalInc += mInc;
-    totalExp += mExp;
-    monthData.push({ m, ym, mInc, mExp, bal: mInc - mExp, name: monthNames[m-1] });
-  }
-
-  const totalBal = totalInc - totalExp;
-  const savePct = totalInc > 0 ? ((totalBal/totalInc)*100).toFixed(0) : null;
-
-  // Stats
-  el('rokIncome').textContent   = fmt(totalInc);
-  el('rokExpenses').textContent = fmt(totalExp);
-  const balEl = el('rokBalance');
-  balEl.textContent = fmt(totalBal);
-  balEl.style.color = totalBal >= 0 ? 'var(--accent)' : 'var(--red)';
-  el('rokSavings').textContent = savePct !== null ? savePct + '%' : '—';
-  el('rokSavings').style.color = savePct >= 20 ? 'var(--accent)' : savePct >= 10 ? 'var(--yellow)' : 'var(--red)';
-
-  // Monthly bar chart
-  const maxVal = Math.max(1, ...monthData.map(d => Math.max(d.mInc, d.mExp)));
-  el('rokMonthlyChart').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:120px;margin-top:12px">
-      ${monthData.map(d => {
-        const hInc = Math.max(2, (d.mInc/maxVal*100)).toFixed(0);
-        const hExp = Math.max(2, (d.mExp/maxVal*100)).toFixed(0);
-        const isCurrent = d.ym === activeMonth;
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="setActiveMonth('${d.ym}')" title="${d.name}: ${isEN?'Income':'Wpływy'} ${fmt(d.mInc)}, ${isEN?'Expenses':'Wydatki'} ${fmt(d.mExp)}">
-          <div style="width:100%;display:flex;gap:1px;align-items:flex-end;height:90px">
-            <div style="flex:1;background:${isCurrent?'#58b19f':'#58b19f60'};height:${hInc}%;border-radius:3px 3px 0 0;transition:height 0.4s"></div>
-            <div style="flex:1;background:${isCurrent?'var(--red)':'#e1306c60'};height:${hExp}%;border-radius:3px 3px 0 0;transition:height 0.4s"></div>
-          </div>
-          <div style="font-size:0.55rem;color:${isCurrent?'var(--accent)':'var(--text2)'};font-weight:${isCurrent?'700':'400'};text-align:center">${d.name}</div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div style="display:flex;gap:16px;margin-top:8px;font-size:0.72rem;color:var(--text2)">
-      <span><span style="display:inline-block;width:10px;height:10px;background:#58b19f;border-radius:2px;margin-right:4px"></span>${isEN?'Income':'Wpływy'}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:var(--red);border-radius:2px;margin-right:4px"></span>${isEN?'Expenses':'Wydatki'}</span>
-      <span style="font-style:italic">${isEN?'Click month to filter':'Kliknij miesiąc aby filtrować'}</span>
-    </div>`;
-
-  // Top categories for year
-  const catTotals = {};
-  expenses.filter(e => e.date.startsWith(String(rokYear))).forEach(e => {
-    catTotals[e.cat] = (catTotals[e.cat]||0) + e.amount;
-  });
-  const sortedCats = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const maxCat = sortedCats[0]?.[1] || 1;
-  el('rokCatChart').innerHTML = sortedCats.length ? sortedCats.map(([cat,val]) => {
-    const cm = CAT_META[cat]||CAT_META.inne;
-    const pct = (val/maxCat*100).toFixed(0);
-    return `<div class="bar-row">
-      <div class="bar-label">${cm.emoji} ${cm.label}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cm.color}"></div></div>
-      <div class="bar-val" style="color:${cm.color}">${fmt(val)}</div>
-    </div>`;
-  }).join('') : `<div style="color:var(--text2);font-size:0.8rem;text-align:center;padding:20px">${isEN?'No data':'Brak danych'}</div>`;
-
-  // Highlights
-  const withData = monthData.filter(d => d.mExp > 0 || d.mInc > 0);
-  const bestMonth = withData.length ? withData.reduce((a,b) => b.bal > a.bal ? b : a, withData[0]) : null;
-  const worstMonth = withData.length ? withData.reduce((a,b) => b.mExp > a.mExp ? b : a, withData[0]) : null;
-  const avgMonthlyInc = totalInc / 12;
-  const avgMonthlyExp = totalExp / 12;
-
-  el('rokHighlights').innerHTML = withData.length ? `
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
-      ${bestMonth ? `<div style="background:#f0fdf4;border:1px solid #58b19f40;border-radius:10px;padding:12px">
-        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'🏆 Best month':'🏆 Najlepszy miesiąc'}</div>
-        <div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700">${bestMonth.name} — ${fmt(bestMonth.bal)} ${isEN?'surplus':'nadwyżki'}</div>
-      </div>` : ''}
-      ${worstMonth ? `<div style="background:#fff0f3;border:1px solid #e1306c40;border-radius:10px;padding:12px">
-        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'💸 Highest spending':'💸 Największe wydatki'}</div>
-        <div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700">${worstMonth.name} — ${fmt(worstMonth.mExp)}</div>
-      </div>` : ''}
-      <div style="background:var(--surface2);border-radius:10px;padding:12px">
-        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'📊 Monthly average':'📊 Średnia miesięczna'}</div>
-        <div style="font-size:0.85rem">💚 ${fmt(avgMonthlyInc)} / 🔴 ${fmt(avgMonthlyExp)}</div>
-      </div>
-    </div>` : `<div style="color:var(--text2);font-size:0.8rem;text-align:center;padding:20px">${isEN?'No data for this year':'Brak danych dla tego roku'}</div>`;
-}
-
-
+// ─── CUSTOM MONTH PICKER ─────────────────────────────────────────────────────
 
 let mpYear = new Date().getFullYear();
 let mpSelected = null;
@@ -3660,8 +3194,7 @@ function renderMonthPicker() {
   document.getElementById('mpYear').textContent = mpYear;
   const now = new Date();
   const grid = document.getElementById('mpMonths');
-  const mpNames = t('monthsShort');
-  grid.innerHTML = mpNames.map((name, i) => {
+  grid.innerHTML = mpMonthNames.map((name, i) => {
     const val = `${mpYear}-${String(i+1).padStart(2,'0')}`;
     const isPast = mpYear < now.getFullYear() || (mpYear === now.getFullYear() && i < now.getMonth());
     const isSelected = mpSelected === val;
@@ -3674,221 +3207,16 @@ function selectMonth(val) {
   mpSelected = val;
   document.getElementById('goalDeadline').value = val;
   const [y, m] = val.split('-');
-  document.getElementById('mpText').textContent = t('monthsShort')[parseInt(m)-1] + ' ' + y;
+  document.getElementById('mpText').textContent = mpMonthNames[parseInt(m)-1] + ' ' + y;
   document.getElementById('mpDropdown').classList.remove('open');
   document.getElementById('mpDisplay').classList.remove('open');
 }
 
-function showApp() {
-  // noop — handled by auth listener
-}
-
-// Set default dates on load
-document.addEventListener('DOMContentLoaded', () => {
-  const t = today();
-  const inDate = document.getElementById('inDate');
-  const incDate = document.getElementById('incDate');
-  if (inDate) inDate.value = t;
-  if (incDate) incDate.value = t;
-  renderMonthPicker();
-});
-
-// ─── LANGUAGE / TŁUMACZENIA ──────────────────────────────────────────────────
-
-let lang = localStorage.getItem('cf_lang') || 'pl';
-
-const T = {
-  pl: {
-    subtitle: 'domowy tracker finansów', balLabel: 'saldo w tym miesiącu', logout: 'Wyloguj',
-    tabWydatki: '💰 Budżet', tabPrzeglad: '📊 Przegląd', tabStale: '📅 Stałe', tabCele: '🎯 Cele', tabCzat: '🤖 Asystent', tabRok: '📈 Rok',
-    navWydatki: 'Budżet', navPrzeglad: 'Przegląd', navStale: 'Stałe', navCele: 'Cele', navCzat: 'AI', navRok: 'Rok',
-    addExpense: '➖ Dodaj wydatek', addIncome: '➕ Dodaj wpływ',
-    amount: 'Kwota (zł)', category: 'Kategoria', source: 'Źródło', description: 'Opis',
-    btnAddExp: 'Dodaj wydatek →', btnAddInc: 'Dodaj wpływ →', children: 'Liczba dzieci',
-    statIncome: 'Wpływy (miesiąc)', statExpenses: 'Wydatki (miesiąc)', statBalance: 'Saldo', statSavings: 'Oszczędności %',
-    spentVsIncome: 'Wydane vs Wpływy', history: 'Historia', all: 'Wszystko', onlyExp: 'Tylko wydatki', onlyInc: 'Tylko wpływy',
-    chartInc: '💚 Wpływy', chartExp: '🔴 Wydatki', chartBal: '💰 Saldo',
-    byCategory: 'Wydatki wg kategorii', topExpenses: 'Top wydatki', dailyChart: 'Wydatki dzienne (ostatnie 14 dni)',
-    downloadPDF: '📄 Pobierz raport PDF',
-    recFormTitle: '📅 Dodaj stały wydatek', recAmountLabel: 'Kwota (zł)', recCatLabel: 'Kategoria', recNameLabel: 'Nazwa',
-    recAddBtn: 'Dodaj stały →', recTotalLabel: 'Suma stałych wydatków / miesiąc',
-    addAllRec: '➕ Dodaj wszystkie do tego miesiąca', yourRecurring: 'Twoje stałe wydatki',
-    everyMonth: 'co miesiąc', addBtn: '+ Dodaj',
-    emptyRec: 'Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...',
-    goalFormTitle: '🎯 Dodaj cel oszczędnościowy', goalNameLabel: 'Nazwa celu',
-    goalTargetLabel: 'Cel (zł)', goalDeadlineLabel: 'Termin', goalAddBtn: 'Dodaj cel →',
-    yourGoals: 'Twoje cele', savedLabel: 'odłożono / cel', goalAchieved: '🎉 Cel osiągnięty!',
-    missing: 'brakuje', saveMonthly: 'odkładaj', perMonth: '/mies.',
-    chatName: 'Asystent Finansowy', chatOnline: '● online',
-    chatPlaceholder: 'Zadaj pytanie o swoje wydatki...',
-    chatWelcome: 'Cześć! Jestem Twoim asystentem finansowym. Mogę analizować Twoje wydatki i odpowiadać na pytania. Zapytaj mnie o cokolwiek! 💰',
-    sug1: 'Jakie moje saldo?', sug2: 'Ile oszczędzam?', sug3: 'Ile wydałam w tym miesiącu?',
-    sug4: 'Na co idzie najwięcej?', sug5: 'Podaj podsumowanie',
-    healthLabel: 'Zdrowie finansowe', healthEmpty: 'Dodaj wpływy i wydatki żeby zobaczyć ocenę',
-    notifBtn: '🔔 Włącz powiadomienia', notifOn: '✅ Włączone',
-    loginTitle: 'Zaloguj się', registerTitle: 'Zarejestruj się',
-    loginSubtitle: 'Twój domowy tracker finansów 💸',
-    emailLabel: 'Email', passLabel: 'Hasło', passHint: 'Hasło (min. 6 znaków)',
-    nameLabel: 'Imię (opcjonalnie)', btnLogin: 'Zaloguj się →', btnRegister: 'Zarejestruj się →',
-    mpPlaceholder: 'Wybierz miesiąc',
-    noData: 'Brak danych', noEntries: 'Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!',
-    noGoals: 'Brak celów oszczędnościowych.<br>Dodaj swój pierwszy cel!',
-    entries: 'wpisów', positions: 'pozycji', goals: 'celów',
-    pdfTitle: 'Raport miesięczny',
-    pdfGenerated: 'Wygenerowano',
-    pdfSavings: 'Oszczednosci',
-    pdfCategories: 'Wydatki wg kategorii',
-    pdfTop: 'Top wydatki',
-    pdfGoals: 'Cele oszczednosciowe',
-    pdfFooter: 'CashFlow - Twoj domowy tracker finansow',
-    months: ['Styczen','Luty','Marzec','Kwiecien','Maj','Czerwiec','Lipiec','Sierpien','Wrzesien','Pazdziernik','Listopad','Grudzien'],
-    monthsFull: ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'],
-    monthsShort: ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'],
-  },
-  en: {
-    subtitle: 'home finance tracker', balLabel: 'balance this month', logout: 'Logout',
-    tabWydatki: '💰 Budget', tabPrzeglad: '📊 Overview', tabStale: '📅 Fixed', tabCele: '🎯 Goals', tabCzat: '🤖 Assistant', tabRok: '📈 Year',
-    navWydatki: 'Budget', navPrzeglad: 'Overview', navStale: 'Fixed', navCele: 'Goals', navCzat: 'AI', navRok: 'Year',
-    addExpense: '➖ Add expense', addIncome: '➕ Add income',
-    amount: 'Amount (PLN)', category: 'Category', source: 'Source', description: 'Description',
-    btnAddExp: 'Add expense →', btnAddInc: 'Add income →', children: 'Number of children',
-    statIncome: 'Income (month)', statExpenses: 'Expenses (month)', statBalance: 'Balance', statSavings: 'Savings %',
-    spentVsIncome: 'Spent vs Income', history: 'History', all: 'All', onlyExp: 'Expenses only', onlyInc: 'Income only',
-    chartInc: '💚 Income', chartExp: '🔴 Expenses', chartBal: '💰 Balance',
-    byCategory: 'Expenses by category', topExpenses: 'Top expenses', dailyChart: 'Daily expenses (last 14 days)',
-    downloadPDF: '📄 Download PDF report',
-    recFormTitle: '📅 Add fixed expense', recAmountLabel: 'Amount (PLN)', recCatLabel: 'Category', recNameLabel: 'Name',
-    recAddBtn: 'Add fixed →', recTotalLabel: 'Total fixed expenses / month',
-    addAllRec: '➕ Add all to this month', yourRecurring: 'Your fixed expenses',
-    everyMonth: 'every month', addBtn: '+ Add',
-    emptyRec: 'No fixed expenses.<br>Add e.g. rent, Netflix, daycare...',
-    goalFormTitle: '🎯 Add savings goal', goalNameLabel: 'Goal name',
-    goalTargetLabel: 'Target (PLN)', goalDeadlineLabel: 'Deadline', goalAddBtn: 'Add goal →',
-    yourGoals: 'Your goals', savedLabel: 'saved / target', goalAchieved: '🎉 Goal achieved!',
-    missing: 'remaining', saveMonthly: 'save', perMonth: '/mo.',
-    chatName: 'Financial Assistant', chatOnline: '● online',
-    chatPlaceholder: 'Ask a question about your finances...',
-    chatWelcome: "Hi! I'm your financial assistant. I can analyze your expenses and answer questions. Ask me anything! 💰",
-    sug1: "What's my balance?", sug2: 'How much am I saving?', sug3: 'How much did I spend this month?',
-    sug4: 'What do I spend most on?', sug5: 'Give me a summary',
-    healthLabel: 'Financial health', healthEmpty: 'Add income and expenses to see your score',
-    notifBtn: '🔔 Enable notifications', notifOn: '✅ Enabled',
-    loginTitle: 'Sign in', registerTitle: 'Sign up',
-    loginSubtitle: 'Your home finance tracker 💸',
-    emailLabel: 'Email', passLabel: 'Password', passHint: 'Password (min. 6 characters)',
-    nameLabel: 'Name (optional)', btnLogin: 'Sign in →', btnRegister: 'Sign up →',
-    mpPlaceholder: 'Select month',
-    noData: 'No data', noEntries: 'No entries.<br>Add your first expense or income!',
-    noGoals: 'No savings goals.<br>Add your first goal!',
-    entries: 'entries', positions: 'items', goals: 'goals',
-    pdfTitle: 'Monthly report',
-    pdfGenerated: 'Generated',
-    pdfSavings: 'Savings',
-    pdfCategories: 'Expenses by category',
-    pdfTop: 'Top expenses',
-    pdfGoals: 'Savings goals',
-    pdfFooter: 'CashFlow - Your home finance tracker',
-    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-    monthsFull: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-    monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-  }
-};
-
-function t(key) { return T[lang][key] || T['pl'][key] || key; }
-
-function toggleLang() {
-  lang = lang === 'pl' ? 'en' : 'pl';
-  localStorage.setItem('cf_lang', lang);
-  applyLang();
-}
-
-function applyLang() {
-  const isEN = lang === 'en';
-  const btn = document.getElementById('langBtn');
-  if (btn) btn.textContent = isEN ? 'PL' : 'EN';
-
-  // Simple ID → translation key map
-  const ids = {
-    'headerSub': 'subtitle', 'headerBalLabel': 'balLabel', 'logoutBtn': 'logout',
-    'tab-wydatki': 'tabWydatki', 'tab-przeglad': 'tabPrzeglad', 'tab-stale': 'tabStale',
-    'tab-cele': 'tabCele', 'tab-czat': 'tabCzat', 'tab-rok': 'tabRok',
-    'statIncLabel': 'statIncome', 'statExpLabel': 'statExpenses',
-    'statBalLabel': 'statBalance', 'statSaveLabel': 'statSavings',
-    'chartIncLabel': 'chartInc', 'chartExpLabel': 'chartExp', 'chartBalLabel': 'chartBal',
-    'catChartTitle': 'byCategory', 'topChartTitle': 'topExpenses', 'dailyChartTitle': 'dailyChart',
-    'healthLabelEl': 'healthLabel',
-    'recFormTitle': 'recFormTitle', 'recAmountLabel': 'recAmountLabel',
-    'recCatLabel': 'recCatLabel', 'recNameLabel': 'recNameLabel',
-    'recAddBtn': 'recAddBtn', 'recTotalLabel': 'recTotalLabel',
-    'addAllRecBtn': 'addAllRec', 'yourRecTitle': 'yourRecurring',
-    'goalFormTitle': 'goalFormTitle', 'goalNameLabel': 'goalNameLabel',
-    'goalTargetLabel': 'goalTargetLabel', 'goalDeadlineLabel': 'goalDeadlineLabel',
-    'goalAddBtn': 'goalAddBtn',
-    'chatNameEl': 'chatName', 'chatStatusEl': 'chatOnline',
-    'sug1': 'sug1', 'sug2': 'sug2', 'sug3': 'sug3', 'sug4': 'sug4', 'sug5': 'sug5',
-  };
-  Object.entries(ids).forEach(([id, key]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = t(key);
-  });
-
-  // Tabs with icons (bottom nav)
-  [['wydatki','navWydatki','💰'],['przeglad','navPrzeglad','📊'],['rok','navRok','📈'],
-   ['stale','navStale','📋'],['cele','navCele','🎯'],['czat','navCzat','🤖']].forEach(([id, key, icon]) => {
-    const el = document.getElementById('bnav-' + id);
-    if (el) el.innerHTML = `<span class="bicon">${icon}</span>${t(key)}`;
-  });
-
-  // Form toggles
-  const ftabExp = document.getElementById('ftabExp');
-  const ftabInc = document.getElementById('ftabInc');
-  if (ftabExp) ftabExp.textContent = t('addExpense');
-  if (ftabInc) ftabInc.textContent = t('addIncome');
-
-  // Chat input placeholder
-  const ci = document.getElementById('chatInput');
-  if (ci) ci.placeholder = t('chatPlaceholder');
-
-  // Chat welcome message
-  const cw = document.getElementById('chatWelcomeMsg');
-  if (cw) cw.textContent = t('chatWelcome');
-
-  // Month picker placeholder
-  const mp = document.getElementById('mpText');
-  if (mp && (mp.textContent === 'Wybierz miesiąc' || mp.textContent === 'Select month')) {
-    mp.textContent = t('mpPlaceholder');
-  }
-
-  // Notification button
-  const nb = document.getElementById('notifBtn');
-  if (nb && !nb.textContent.includes('✅')) nb.textContent = t('notifBtn');
-
-  // Login screen
-  const loginSub = document.querySelector('.login-subtitle');
-  if (loginSub) loginSub.textContent = t('loginSubtitle');
-  const loginTabs = document.querySelectorAll('.login-tab');
-  if (loginTabs[0]) loginTabs[0].textContent = t('loginTitle');
-  if (loginTabs[1]) loginTabs[1].textContent = t('registerTitle');
-
-  // PDF button
-  const pdfBtn = document.querySelector('[onclick="exportPDF()"]');
-  if (pdfBtn) pdfBtn.innerHTML = t('downloadPDF');
-
-  // Re-render dynamic content
-  render();
-  renderRecurring();
-  renderGoals();
-  renderHealthScore();
-  renderAlerts();
-}
+// Init month picker
+document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 // checkSession() above handles initialization
-
-// Register service worker for push notifications
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
 </script>
 
 </body>
