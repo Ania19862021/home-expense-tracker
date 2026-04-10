@@ -1797,7 +1797,7 @@
     <span class="bicon">📊</span>Przegląd
   </button>
   <button class="bnav-btn" id="bnav-rok" onclick="showTab('rok')">
-    <span class="bicon">📅</span>Rok
+    <span class="bicon">📈</span>Rok
   </button>
   <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
     <span class="bicon">📋</span>Stałe
@@ -2000,6 +2000,22 @@ function deleteIncome(id) {
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
+// Bieżący miesiąc kalendarzowy (zawsze aktualny — dla zdrowia finansowego)
+function realMonthStr() {
+  return new Date().toISOString().slice(0, 7);
+}
+
+function realMonthExpenses() {
+  const m = realMonthStr();
+  return expenses.filter(e => e.date.startsWith(m));
+}
+
+function realMonthIncomes() {
+  const m = realMonthStr();
+  return incomes.filter(i => i.date.startsWith(m));
+}
+
+// Wybrany miesiąc (pasek miesięcy — dla historii i dodawania)
 function thisMonthExpenses() {
   return expenses.filter(e => e.date.startsWith(activeMonth));
 }
@@ -2030,12 +2046,20 @@ function render() {
 }
 
 function updateHeaderTotal() {
-  const inc = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
-  const exp = thisMonthExpenses().reduce((s, e) => s + e.amount, 0);
+  // Saldo w nagłówku = bieżący miesiąc kalendarzowy (nie activeMonth)
+  const inc = realMonthIncomes().reduce((s, i) => s + i.amount, 0);
+  const exp = realMonthExpenses().reduce((s, e) => s + e.amount, 0);
   const bal = inc - exp;
   const el  = document.getElementById('headerTotal');
   el.textContent = fmt(bal);
   el.style.color = bal >= 0 ? 'var(--accent)' : 'var(--red)';
+  // Label zawsze pokazuje bieżący miesiąc
+  const balLabel = document.getElementById('headerBalLabel');
+  if (balLabel) {
+    const names = t('monthsShort');
+    const now = new Date();
+    balLabel.textContent = names[now.getMonth()] + ' ' + now.getFullYear();
+  }
 }
 
 function renderStats() {
@@ -2073,7 +2097,10 @@ function renderStats() {
   }
 
   const total = expenses.length + incomes.length;
-  document.getElementById('badgeCount').textContent = total + ' ' + t('entries');
+  const entriesLabel = lang === 'en'
+    ? total + ' entries'
+    : total === 1 ? '1 wpis' : total <= 4 ? total + ' wpisy' : total + ' wpisów';
+  document.getElementById('badgeCount').textContent = entriesLabel;
 }
 
 function renderList() {
@@ -2361,9 +2388,8 @@ function botReply(q) {
     .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z')
     .replace(/ź/g,'z').replace(/ć/g,'c').replace(/ń/g,'n');
 
-  const mExp = thisMonthExpenses();
-  const mInc = thisMonthIncomes();
-  const allExp = expenses;
+  const mExp = realMonthExpenses();
+  const mInc = realMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
@@ -2386,7 +2412,7 @@ function botReply(q) {
   }
 
   // NO DATA
-  if (!allExp.length && !incomes.length) {
+  if (!expenses.length && !incomes.length) {
     return isEN
       ? '📭 No entries yet. Add expenses and income in the 💰 tab!'
       : '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
@@ -2457,8 +2483,8 @@ ${koment}`;
 
   // NAJWIĘKSZY wydatek
   if (has('najwieks','najdrozs','max wydatek','rekord')) {
-    if (!allExp.length) return 'Brak wydatków do analizy.';
-    const top = [...allExp].sort((a,b)=>b.amount-a.amount)[0];
+    if (!expenses.length) return 'Brak wydatków do analizy.';
+    const top = [...expenses].sort((a,b)=>b.amount-a.amount)[0];
     const cm = CAT_META[top.cat]||CAT_META.inne;
     return `🏆 Twój największy wydatek to:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}`;
   }
@@ -2632,7 +2658,10 @@ function applyAllRecurring() {
 function renderRecurring() {
   const total = recurring.reduce((s, r) => s + r.amount, 0);
   document.getElementById('recTotal').textContent = fmt(total);
-  document.getElementById('recBadge').textContent = recurring.length + ' ' + t('positions');
+  const posLabel = lang === 'en'
+    ? recurring.length + ' items'
+    : recurring.length === 1 ? '1 pozycja' : recurring.length <= 4 ? recurring.length + ' pozycje' : recurring.length + ' pozycji';
+  document.getElementById('recBadge').textContent = posLabel;
 
   const el = document.getElementById('recList');
   if (!recurring.length) {
@@ -2787,16 +2816,33 @@ auth.onAuthStateChanged(async user => {
 
 async function loadUserData() {
   if (!currentUser) return;
+
+  // Wczytaj localStorage jako natychmiastowy backup
+  const lsExp   = JSON.parse(localStorage.getItem('wydatki') || '[]');
+  const lsInc   = JSON.parse(localStorage.getItem('wplywy')  || '[]');
+  const lsRec   = JSON.parse(localStorage.getItem('stale')   || '[]');
+  const lsGoals = JSON.parse(localStorage.getItem('cele')    || '[]');
+
   try {
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists) {
       const data = doc.data();
-      expenses  = data.expenses  || [];
-      incomes   = data.incomes   || [];
-      recurring = data.recurring || [];
-      goals     = data.goals     || [];
+      // Użyj Firestore jeśli ma dane, w przeciwnym razie localStorage
+      expenses  = (data.expenses  && data.expenses.length  > 0) ? data.expenses  : lsExp;
+      incomes   = (data.incomes   && data.incomes.length   > 0) ? data.incomes   : lsInc;
+      recurring = (data.recurring && data.recurring.length > 0) ? data.recurring : lsRec;
+      goals     = (data.goals     && data.goals.length     > 0) ? data.goals     : lsGoals;
+      // Jeśli użyliśmy localStorage — zsynchronizuj z Firestore
+      if (!data.expenses || data.expenses.length === 0) saveToFirestore();
+    } else {
+      // Nowy użytkownik — użyj localStorage
+      expenses = lsExp; incomes = lsInc; recurring = lsRec; goals = lsGoals;
+      if (lsExp.length || lsInc.length) saveToFirestore();
     }
-  } catch(e) { console.log('Load error:', e); }
+  } catch(e) {
+    console.log('Load error:', e);
+    expenses = lsExp; incomes = lsInc; recurring = lsRec; goals = lsGoals;
+  }
 }
 
 async function saveToFirestore() {
@@ -2810,33 +2856,55 @@ async function saveToFirestore() {
 }
 
 function calcHealthScore() {
-  const mExp = thisMonthExpenses();
-  const mInc = thisMonthIncomes();
+  // ZAWSZE używa bieżącego miesiąca kalendarzowego, nie wybranego activeMonth
+  const mExp = realMonthExpenses();
+  const mInc = realMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
   const savePct  = totalInc > 0 ? (balance/totalInc)*100 : 0;
-  if (!totalInc && !totalExp) return null;
+
+  // Jeśli brak danych w bieżącym miesiącu, sprawdź ostatni miesiąc z danymi
+  if (!totalInc && !totalExp) {
+    // Znajdź ostatni miesiąc z danymi
+    const allMonths = [...new Set([
+      ...expenses.map(e => e.date.slice(0,7)),
+      ...incomes.map(i => i.date.slice(0,7))
+    ])].sort().reverse();
+    if (!allMonths.length) return null;
+    const lastMonth = allMonths[0];
+    const lmExp = expenses.filter(e => e.date.startsWith(lastMonth)).reduce((s,e) => s+e.amount, 0);
+    const lmInc = incomes.filter(i => i.date.startsWith(lastMonth)).reduce((s,i) => s+i.amount, 0);
+    if (!lmInc && !lmExp) return null;
+    // Oblicz score na podstawie ostatniego miesiąca z danymi
+    const lmBal = lmInc - lmExp;
+    const lmSave = lmInc > 0 ? (lmBal/lmInc)*100 : 0;
+    let score = 0;
+    if (lmSave >= 20) score += 60; else if (lmSave >= 15) score += 45;
+    else if (lmSave >= 10) score += 30; else if (lmSave >= 5) score += 15;
+    else if (lmSave >= 0) score += 5;
+    const sr = lmInc > 0 ? lmExp/lmInc : 1;
+    if (sr <= 0.7) score += 20; else if (sr <= 0.8) score += 15;
+    else if (sr <= 0.9) score += 8; else if (sr <= 1.0) score += 2;
+    if (goals.length > 0) score += 10;
+    if (goals.some(g => g.saved > 0)) score += 10;
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }
 
   // Pay Yourself First: celem jest 20% oszczędności
   let score = 0;
-
-  // 60 pkt za oszczędności (najważniejsze!)
   if (savePct >= 20)      score += 60;
   else if (savePct >= 15) score += 45;
   else if (savePct >= 10) score += 30;
   else if (savePct >= 5)  score += 15;
   else if (savePct >= 0)  score += 5;
-  else                    score += 0; // minus = 0
 
-  // 20 pkt za kontrolę wydatków (max 80% wpływów)
   const spendRatio = totalInc > 0 ? totalExp/totalInc : 1;
   if (spendRatio <= 0.7)      score += 20;
   else if (spendRatio <= 0.8) score += 15;
   else if (spendRatio <= 0.9) score += 8;
   else if (spendRatio <= 1.0) score += 2;
 
-  // 20 pkt za cele oszczędnościowe
   if (goals.length > 0)               score += 10;
   if (goals.some(g => g.saved > 0))   score += 10;
 
@@ -2870,8 +2938,9 @@ function renderHealthScore() {
 }
 
 function renderAlerts() {
-  const mExp = thisMonthExpenses();
-  const mInc = thisMonthIncomes();
+  // Alerty zawsze dla bieżącego miesiąca kalendarzowego
+  const mExp = realMonthExpenses();
+  const mInc = realMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
   const balance  = totalInc - totalExp;
@@ -3312,6 +3381,14 @@ function addGoal() {
   document.getElementById('mpText').textContent = 'Wybierz miesiąc';
 }
 
+function addToGoalCustom(id) {
+  const input = document.getElementById('goalInput_' + id);
+  const amount = parseFloat(input ? input.value : 0);
+  if (!amount || amount <= 0) { showToast(lang === 'en' ? 'Enter an amount!' : 'Podaj kwotę!'); return; }
+  addToGoal(id, amount);
+  if (input) input.value = '';
+}
+
 function addToGoal(id, amount) {
   const g = goals.find(g => g.id === id);
   if (!g) return;
@@ -3338,8 +3415,15 @@ function deleteGoal(id) {
   showToast('Cel usunięty');
 }
 
+function goalCountLabel(n) {
+  if (lang === 'en') return n + ' ' + (n === 1 ? 'goal' : 'goals');
+  if (n === 1) return '1 cel';
+  if (n >= 2 && n <= 4) return n + ' cele';
+  return n + ' celów';
+}
+
 function renderGoals() {
-  document.getElementById('goalBadge').textContent = goals.length + ' ' + t('goals');
+  document.getElementById('goalBadge').textContent = goalCountLabel(goals.length);
   const el = document.getElementById('goalList');
   if (!goals.length) {
     el.innerHTML = `<div class="empty"><span class="icon">🎯</span>${t('noGoals')}</div>`;
@@ -3353,7 +3437,24 @@ function renderGoals() {
     const [dy, dm] = g.deadline.split('-').map(Number);
     const monthsLeft = (dy - now.getFullYear()) * 12 + (dm - now.getMonth() - 1);
     const monthlyNeeded = monthsLeft > 0 ? remaining / monthsLeft : remaining;
-    const color = done ? 'var(--accent)' : pct >= 75 ? 'var(--accent2)' : pct >= 40 ? 'var(--yellow)' : 'var(--red)';
+
+    // Smart color: based on urgency, not just raw percentage
+    let color;
+    if (done) {
+      color = 'var(--accent)'; // green - done!
+    } else if (monthsLeft <= 0) {
+      color = 'var(--red)'; // overdue!
+    } else if (monthsLeft > 24 && pct < 50) {
+      color = '#405de6'; // blue - long term, early stage, no panic
+    } else if (pct >= 75) {
+      color = 'var(--accent)'; // green - almost there
+    } else if (pct >= 40) {
+      color = 'var(--yellow)'; // yellow - good progress
+    } else if (monthsLeft <= 6) {
+      color = 'var(--red)'; // red - deadline soon, not enough saved
+    } else {
+      color = 'var(--yellow)'; // orange - in progress
+    }
     const months = t('monthsShort');
     const deadlineStr = months[dm-1] + ' ' + dy;
     return `
@@ -3379,9 +3480,18 @@ function renderGoals() {
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="goal-deadline">📅 ${deadlineStr}</span>
             ${!done ? `
-              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 100)">+100 zł</button>
-              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 500)">+500 zł</button>
-            ` : ''}
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <input type="number" id="goalInput_${g.id}"
+                  placeholder="${Math.round(monthlyNeeded) || 100}"
+                  min="1" step="1"
+                  style="width:110px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;
+                    font-family:'Inter',sans-serif;font-size:0.82rem;background:var(--surface2);color:var(--text);outline:none"
+                  onkeydown="if(event.key==='Enter')addToGoalCustom(${g.id})">
+                <button class="btn-goal-add" onclick="addToGoalCustom(${g.id})">
+                  ${lang === 'en' ? '+ Add' : '+ Dodaj'}
+                </button>
+              </div>
+            ` : '🎉'}
             <button class="btn-delete" onclick="deleteGoal(${g.id})">✕</button>
           </div>
         </div>
@@ -3577,7 +3687,7 @@ let lang = localStorage.getItem('cf_lang') || 'pl';
 const T = {
   pl: {
     subtitle: 'domowy tracker finansów', balLabel: 'saldo w tym miesiącu', logout: 'Wyloguj',
-    tabWydatki: '💰 Budżet', tabPrzeglad: '📊 Przegląd', tabStale: '📅 Stałe', tabCele: '🎯 Cele', tabCzat: '🤖 Asystent', tabRok: '📅 Rok',
+    tabWydatki: '💰 Budżet', tabPrzeglad: '📊 Przegląd', tabStale: '📅 Stałe', tabCele: '🎯 Cele', tabCzat: '🤖 Asystent', tabRok: '📈 Rok',
     navWydatki: 'Budżet', navPrzeglad: 'Przegląd', navStale: 'Stałe', navCele: 'Cele', navCzat: 'AI', navRok: 'Rok',
     addExpense: '➖ Dodaj wydatek', addIncome: '➕ Dodaj wpływ',
     amount: 'Kwota (zł)', category: 'Kategoria', source: 'Źródło', description: 'Opis',
@@ -3624,7 +3734,7 @@ const T = {
   },
   en: {
     subtitle: 'home finance tracker', balLabel: 'balance this month', logout: 'Logout',
-    tabWydatki: '💰 Budget', tabPrzeglad: '📊 Overview', tabStale: '📅 Fixed', tabCele: '🎯 Goals', tabCzat: '🤖 Assistant', tabRok: '📅 Year',
+    tabWydatki: '💰 Budget', tabPrzeglad: '📊 Overview', tabStale: '📅 Fixed', tabCele: '🎯 Goals', tabCzat: '🤖 Assistant', tabRok: '📈 Year',
     navWydatki: 'Budget', navPrzeglad: 'Overview', navStale: 'Fixed', navCele: 'Goals', navCzat: 'AI', navRok: 'Year',
     addExpense: '➖ Add expense', addIncome: '➕ Add income',
     amount: 'Amount (PLN)', category: 'Category', source: 'Source', description: 'Description',
@@ -3710,7 +3820,7 @@ function applyLang() {
   });
 
   // Tabs with icons (bottom nav)
-  [['wydatki','navWydatki','💰'],['przeglad','navPrzeglad','📊'],['rok','navRok','📅'],
+  [['wydatki','navWydatki','💰'],['przeglad','navPrzeglad','📊'],['rok','navRok','📈'],
    ['stale','navStale','📋'],['cele','navCele','🎯'],['czat','navCzat','🤖']].forEach(([id, key, icon]) => {
     const el = document.getElementById('bnav-' + id);
     if (el) el.innerHTML = `<span class="bicon">${icon}</span>${t(key)}`;
@@ -3761,6 +3871,11 @@ function applyLang() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 // checkSession() above handles initialization
+
+// Register service worker for push notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
 </script>
 
 </body>
