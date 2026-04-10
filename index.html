@@ -1212,7 +1212,47 @@
   }
   .notif-btn:hover { opacity: 0.88; }
 
-  /* ── CUSTOM MONTH PICKER ──────────────────────────────── */
+  /* ── MONTH STRIP ─────────────────────────────────────── */
+  .month-strip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .month-pill {
+    flex-shrink: 0;
+    padding: 6px 13px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .month-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .month-pill.active {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+    border-color: transparent;
+  }
+  .month-nav {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .month-nav:hover { border-color: var(--accent); color: var(--accent); }
   .month-picker-wrap { position: relative; }
   .month-picker-input {
     width: 100%;
@@ -1350,7 +1390,7 @@
       <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;" id="headerSub">domowy tracker finansów</div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
+    <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
       <div class="header-meta">
         <span id="headerBalLabel">saldo w tym miesiącu</span>
         <strong id="headerTotal">0,00 zł</strong>
@@ -1375,6 +1415,9 @@
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
+
+    <!-- MONTH STRIP -->
+    <div class="month-strip" id="monthStrip"></div>
 
     <!-- HEALTH SCORE -->
     <div class="health-bar" id="healthBar">
@@ -1786,6 +1829,52 @@ function setHistFilter(f, btn) {
   renderList();
 }
 
+// ─── MONTH STRIP ─────────────────────────────────────────────────────────────
+
+let activeMonth = new Date().toISOString().slice(0, 7);
+let activeYear  = new Date().getFullYear();
+
+function renderMonthStrip() {
+  const strip = document.getElementById('monthStrip');
+  if (!strip) return;
+  const names = t('monthsShort');
+  const currentYM = new Date().toISOString().slice(0, 7);
+
+  strip.innerHTML = `
+    <button class="month-nav" onclick="stripChangeYear(-1)">‹</button>
+    <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.9rem;color:var(--text);flex-shrink:0;padding:0 4px">${activeYear}</span>
+    <button class="month-nav" onclick="stripChangeYear(1)">›</button>
+    ${names.map((name, i) => {
+      const m = activeYear + '-' + String(i+1).padStart(2,'0');
+      const isActive = m === activeMonth;
+      const isNow = m === currentYM;
+      return `<button class="month-pill${isActive ? ' active' : ''}" onclick="setActiveMonth('${m}')">
+        ${name}${isNow && !isActive ? ' •' : ''}
+      </button>`;
+    }).join('')}
+  `;
+}
+
+function stripChangeYear(dir) {
+  activeYear += dir;
+  // Keep activeMonth in new year if possible
+  const mo = activeMonth.split('-')[1];
+  activeMonth = activeYear + '-' + mo;
+  renderMonthStrip();
+  render();
+}
+
+function setActiveMonth(m) {
+  activeMonth = m;
+  activeYear = parseInt(m.split('-')[0]);
+  renderMonthStrip();
+  render();
+  const [y, mo] = m.split('-');
+  const names = t('monthsShort');
+  const balLabel = document.getElementById('headerBalLabel');
+  if (balLabel) balLabel.textContent = names[parseInt(mo)-1] + ' ' + y;
+}
+
 // ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
 function addExpense() {
@@ -1793,7 +1882,10 @@ function addExpense() {
   const cat    = document.getElementById('inCat').value;
   const desc   = document.getElementById('inDesc').value.trim();
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date: today() });
+  // Use activeMonth + today's day
+  const now = new Date();
+  const date = activeMonth + '-' + String(now.getDate()).padStart(2,'0');
+  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date });
   save(); render();
   showToast('Wydatek dodany ✓');
   document.getElementById('inAmount').value = '';
@@ -1830,7 +1922,9 @@ function addIncome() {
   const cat    = document.getElementById('incCat').value;
   const desc   = document.getElementById('incDesc').value.trim();
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date: today() });
+  const now = new Date();
+  const date = activeMonth + '-' + String(now.getDate()).padStart(2,'0');
+  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date });
   save(); render();
   showToast('Wpływ dodany ✓');
   document.getElementById('incAmount').value = '';
@@ -1852,13 +1946,11 @@ function deleteIncome(id) {
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
 function thisMonthExpenses() {
-  const m = new Date().toISOString().slice(0, 7);
-  return expenses.filter(e => e.date.startsWith(m));
+  return expenses.filter(e => e.date.startsWith(activeMonth));
 }
 
 function thisMonthIncomes() {
-  const m = new Date().toISOString().slice(0, 7);
-  return incomes.filter(i => i.date.startsWith(m));
+  return incomes.filter(i => i.date.startsWith(activeMonth));
 }
 
 function filteredExpenses() {
@@ -1874,6 +1966,7 @@ function filteredIncomes() {
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 
 function render() {
+  renderMonthStrip();
   renderList();
   renderStats();
   renderCharts();
@@ -1932,9 +2025,13 @@ function renderStats() {
 
 function renderList() {
   const el = document.getElementById('expenseList');
-  // merge and sort by date desc
-  const expItems = histFilter !== 'inc' ? expenses.slice(0, 50).map(e => ({ ...e, type: 'exp' })) : [];
-  const incItems = histFilter !== 'exp' ? incomes.slice(0, 50).map(i => ({ ...i, type: 'inc' })) : [];
+  // filter by activeMonth and merge
+  const expItems = histFilter !== 'inc'
+    ? expenses.filter(e => e.date.startsWith(activeMonth)).slice(0,60).map(e => ({ ...e, type: 'exp' }))
+    : [];
+  const incItems = histFilter !== 'exp'
+    ? incomes.filter(i => i.date.startsWith(activeMonth)).slice(0,60).map(i => ({ ...i, type: 'inc' }))
+    : [];
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id).slice(0, 60);
 
   if (!all.length) {
@@ -2117,11 +2214,27 @@ function sendChat() {
   const recentExp = expenses.slice(0,8)
     .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
   const recSummary = recurring.length
-    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : 'brak';
+    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : (lang === 'en' ? 'none' : 'brak');
 
-  const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
+  const isEN = lang === 'en';
 
-Dane użytkownika (bieżący miesiąc):
+  const systemPrompt = isEN
+    ? `You are a helpful financial assistant built into a home expense tracking app. Always respond in English, concisely and helpfully. Use emoji where appropriate. Do not use markdown asterisks — use HTML: <strong> for bold, <br> for new lines.
+
+User data (current month: ${activeMonth}):
+- Income: ${totalInc.toFixed(2)} PLN
+- Expenses: ${totalExp.toFixed(2)} PLN
+- Balance: ${balance.toFixed(2)} PLN
+- Expenses by category: ${catSummary || 'none'}
+- Fixed expenses: ${recSummary}
+
+Recent transactions:
+${recentExp || 'no transactions'}
+
+Answer based on this data. Give personalized financial advice and analyze spending patterns.`
+    : `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
+
+Dane użytkownika (bieżący miesiąc: ${activeMonth}):
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
@@ -2147,7 +2260,7 @@ Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i a
     if (data.content && data.content[0]) {
       addMessage('bot', data.content[0].text);
     } else {
-      addMessage('bot', 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
+      addMessage('bot', isEN ? 'Sorry, something went wrong. Please try again! 🤔' : 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
     }
   })
   .catch(() => {
@@ -2210,14 +2323,20 @@ function botReply(q) {
 
   const has = (...words) => words.some(w => lq.includes(w));
 
-  // POWITANIE
-  if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
-    return `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
+  const isEN = lang === 'en';
+
+  // GREETING
+  if (has('czesc','hej','halo','witaj','dzien dobry','siema','hello','hi','hey')) {
+    return isEN
+      ? `Hi! 👋 I'm your financial assistant.<br>I can analyze expenses, calculate balance and suggest savings tips.<br><br>Try: <em>"What's my balance?"</em> or <em>"What do I spend most on?"</em>`
+      : `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
   }
 
-  // BRAK DANYCH
+  // NO DATA
   if (!allExp.length && !incomes.length) {
-    return '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
+    return isEN
+      ? '📭 No entries yet. Add expenses and income in the 💰 tab!'
+      : '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
   }
 
   // SALDO
@@ -2341,8 +2460,12 @@ ${koment}`;
     return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań o swoje finanse — jestem tutaj!';
   }
 
-  // FALLBACK — inteligentny
-  const tips = [
+  // FALLBACK
+  const tips = isEN ? [
+    `💡 Try asking: <em>"What's my balance?"</em>, <em>"How much am I saving?"</em> or <em>"Give me advice"</em>`,
+    `📊 I can analyze your spending by category. Try: <em>"How much did I spend on food?"</em>`,
+    `🎯 Type <em>"Monthly summary"</em> for a full budget analysis!`,
+  ] : [
     `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
     `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydałam na jedzenie?"</em>`,
     `🎯 Wpisz <em>"Podsumowanie miesiąca"</em> żeby zobaczyć pełną analizę swojego budżetu!`,
@@ -2594,6 +2717,11 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
     applyLang();
+    const t = today();
+    const inDate = document.getElementById('inDate');
+    const incDate = document.getElementById('incDate');
+    if (inDate) inDate.value = t;
+    if (incDate) incDate.value = t;
     render(); renderRecurring(); renderGoals(); checkNotificationStatus();
   } else {
     currentUser = null;
@@ -3134,8 +3262,20 @@ function addToGoal(id, amount) {
   const g = goals.find(g => g.id === id);
   if (!g) return;
   g.saved = Math.min(g.target, g.saved + amount);
-  saveGoals(); renderGoals();
-  showToast(`+${fmt(amount)} dodane do celu "${g.name}" ✓`);
+  saveGoals();
+
+  // Automatycznie dodaj wydatek — pieniądze muszą skądś pochodzić!
+  expenses.unshift({
+    id: Date.now(),
+    amount,
+    cat: 'inne',
+    desc: (lang === 'en' ? '🎯 Savings: ' : '🎯 Oszczędności: ') + g.name,
+    date: today()
+  });
+  save();
+  render();
+  renderGoals();
+  showToast(`+${fmt(amount)} → ${g.name} 🎯`);
 }
 
 function deleteGoal(id) {
@@ -3251,8 +3391,19 @@ function selectMonth(val) {
   document.getElementById('mpDisplay').classList.remove('open');
 }
 
-// Init month picker
-document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
+function showApp() {
+  // noop — handled by auth listener
+}
+
+// Set default dates on load
+document.addEventListener('DOMContentLoaded', () => {
+  const t = today();
+  const inDate = document.getElementById('inDate');
+  const incDate = document.getElementById('incDate');
+  if (inDate) inDate.value = t;
+  if (incDate) incDate.value = t;
+  renderMonthPicker();
+});
 
 // ─── LANGUAGE / TŁUMACZENIA ──────────────────────────────────────────────────
 
