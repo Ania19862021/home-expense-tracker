@@ -2057,14 +2057,6 @@ function renderMonthlySummary() {
   const score = calcHealthScore() || 0;
   const scoreColor = score >= 80 ? '#58b19f' : score >= 60 ? '#6aab8e' : score >= 40 ? '#f0a500' : '#e1306c';
 
-  // Prognoza wydatków do końca miesiąca
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const daysPassed = now.getDate();
-  const daysLeft = daysInMonth - daysPassed;
-  const dailyAvg = daysPassed > 0 ? totalExp / daysPassed : 0;
-  const projected = Math.round(totalExp + dailyAvg * daysLeft);
-
   // Top 3 kategorie
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
@@ -2081,11 +2073,6 @@ function renderMonthlySummary() {
         <div style="font-size:0.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">💊 Zdrowie finansowe</div>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.3rem;color:${scoreColor}">${score}/100</div>
         <div style="font-size:0.7rem;color:var(--text2)">${score>=80?'Doskonale! 🟢':score>=60?'Dobrze 🟡':score>=40?'Uwaga 🟠':'Działaj! 🔴'}</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:12px">
-        <div style="font-size:0.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">📈 Prognoza wydatków</div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.3rem;color:var(--red)">${fmt(projected)}</div>
-        <div style="font-size:0.7rem;color:var(--text2)">do końca miesiąca (${daysLeft} dni)</div>
       </div>
     </div>
     ${top3.length ? `<div style="font-size:0.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">🏆 Top kategorie</div>
@@ -2645,6 +2632,48 @@ function showTab(name) {
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
+
+function confirmReset() {
+  const modal = document.createElement('div');
+  modal.id = 'resetModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:#00000060;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.15)">
+      <div style="font-size:2rem;text-align:center;margin-bottom:12px">🗑️</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;text-align:center;margin-bottom:8px">Wyzerować wszystkie dane?</div>
+      <div style="font-size:0.82rem;color:var(--text2);text-align:center;margin-bottom:24px;line-height:1.5">
+        Usunie wszystkie wydatki, wpływy, cele i stałe wydatki.<br>
+        <strong>Tej operacji nie można cofnąć.</strong>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('resetModal').remove()"
+          style="flex:1;padding:11px;border:1px solid var(--border);background:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;color:var(--text2)">
+          Anuluj
+        </button>
+        <button onclick="document.getElementById('resetModal').remove();resetAllData()"
+          style="flex:1;padding:11px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer">
+          Tak, wyzeruj
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function resetAllData() {
+  expenses  = [];
+  incomes   = [];
+  recurring = [];
+  goals     = [];
+  localStorage.removeItem('wydatki');
+  localStorage.removeItem('wplywy');
+  localStorage.removeItem('stale');
+  localStorage.removeItem('cele');
+  await saveToFirestore();
+  render();
+  renderRecurring();
+  renderGoals();
+  showToast('Wszystkie dane zostały usunięte ✓');
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
