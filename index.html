@@ -1338,7 +1338,7 @@
   </header>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('wydatki')">💰 Wydatki</button>
+    <button class="tab active" onclick="showTab('wydatki')">💰 Budżet</button>
     <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
     <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
     <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
@@ -1600,12 +1600,16 @@
           <label>Kategoria</label>
           <select id="recCat">
             <option value="dom">🏠 Dom (czynsz, media)</option>
+            <option value="kredyt">🏦 Kredyt hipoteczny</option>
+            <option value="pozyczka">💳 Pożyczka / rata</option>
+            <option value="transport">🚗 Transport</option>
             <option value="electronics">📱 Subskrypcje</option>
             <option value="education">📚 Studia / kursy</option>
             <option value="childcare">👶 Przedszkole / niania</option>
             <option value="zdrowie">💊 Zdrowie</option>
             <option value="sport">🏋️ Siłownia / sport</option>
-            <option value="transport">🚗 Transport</option>
+            <option value="rozrywka">🎬 Rozrywka</option>
+            <option value="cafe">☕ Kawiarnie</option>
             <option value="inne">📦 Inne</option>
           </select>
         </div>
@@ -1689,7 +1693,7 @@
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
   <button class="bnav-btn active" id="bnav-wydatki" onclick="showTab('wydatki')">
-    <span class="bicon">💰</span>Wydatki
+    <span class="bicon">💰</span>Budżet
   </button>
   <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
     <span class="bicon">📊</span>Przegląd
@@ -2022,8 +2026,14 @@ function renderMonthlySummary() {
   const content = document.getElementById('monthlySummaryContent');
   if (!card || !content) return;
 
-  const mExp = thisMonthExpenses();
-  const mInc = thisMonthIncomes();
+  // Podsumowanie zawsze na podstawie bieżącego miesiąca (lub wszystkich danych)
+  let mExp = thisMonthExpenses();
+  let mInc = thisMonthIncomes();
+  // Jeśli bieżący miesiąc pusty — weź wszystkie dane
+  if (!mExp.length && !mInc.length) {
+    mExp = expenses;
+    mInc = incomes;
+  }
   const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
   const totalInc = mInc.reduce((s, i) => s + i.amount, 0);
 
@@ -2495,12 +2505,16 @@ const INC_PLACEHOLDERS = {
 
 const REC_PLACEHOLDERS = {
   dom:         'np. czynsz, prąd, internet...',
+  kredyt:      'np. rata kredytu hipotecznego...',
+  pozyczka:    'np. rata pożyczki, chwilówka...',
+  transport:   'np. bilet miesięczny ZTM...',
   electronics: 'np. Netflix, Spotify, iCloud...',
   education:   'np. angielski, kurs online...',
   childcare:   'np. przedszkole Słoneczko...',
   zdrowie:     'np. abonament medyczny...',
   sport:       'np. karnet FitFabric...',
-  transport:   'np. bilet miesięczny ZTM...',
+  rozrywka:    'np. kino, gaming, hobby...',
+  cafe:        'np. kawa w pracy...',
   inne:        'np. nazwa stałego wydatku...',
 };
 
@@ -3166,21 +3180,26 @@ function exportPDF() {
     y += 8;
 
     goals.forEach((g, i) => {
+      if (y > 268) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
       const pct = Math.min(100, (g.saved/g.target*100));
       const barW = Math.max(1, pct * 0.88);
-      if (i % 2 === 0) { doc.setFillColor(250,250,250); doc.rect(lm-2, y-5, pw+4, 12, 'F'); }
+      if (i % 2 === 0) { doc.setFillColor(250,250,250); doc.rect(lm-2, y-5, pw+4, 14, 'F'); }
       doc.setTextColor(38,38,38);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.text(pl(g.name), lm, y);
+      doc.setTextColor(142,142,142);
+      doc.setFontSize(7);
+      doc.text(pl(fmt(g.target)) + ' cel', lm, y + 5);
       doc.setFillColor(239,239,239);
       doc.roundedRect(lm + 60, y - 4, 88, 5, 1, 1, 'F');
       doc.setFillColor(88,177,159);
-      doc.roundedRect(lm + 60, y - 4, barW, 5, 1, 1, 'F');
+      if (barW > 0) doc.roundedRect(lm + 60, y - 4, barW, 5, 1, 1, 'F');
       doc.setTextColor(88,177,159);
       doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
       doc.text(pct.toFixed(0) + '%  ' + pl(fmt(g.saved)) + ' / ' + pl(fmt(g.target)), lm+pw, y, { align: 'right' });
-      y += 12;
+      y += 16;
     });
   }
 
