@@ -2802,6 +2802,14 @@ async function loadUserData() {
       });
       if (expenses.length !== before) changed = true;
 
+      // Recalkuluj g.saved dla każdego celu na podstawie historii
+      // (żeby goals i historia były zawsze spójne)
+      goals.forEach(g => {
+        g.saved = expenses
+          .filter(e => isGoalSaving(e) && e.desc.includes(g.name))
+          .reduce((s, e) => s + e.amount, 0);
+      });
+
       if (changed) saveToFirestore();
     }
   } catch(e) { console.log('Load error:', e); }
