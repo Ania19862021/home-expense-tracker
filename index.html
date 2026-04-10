@@ -2039,11 +2039,11 @@ function renderMonthlySummary() {
   if (!card || !content) return;
 
   // Podsumowanie zawsze na podstawie bieżącego miesiąca (lub wszystkich danych)
-  let mExp = thisMonthExpenses();
+  let mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   let mInc = thisMonthIncomes();
   // Jeśli bieżący miesiąc pusty — weź wszystkie dane
   if (!mExp.length && !mInc.length) {
-    mExp = expenses;
+    mExp = expenses.filter(e => !isGoalSaving(e));
     mInc = incomes;
   }
   const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
@@ -2753,6 +2753,15 @@ async function loadUserData() {
       incomes   = data.incomes   || [];
       recurring = data.recurring || [];
       goals     = data.goals     || [];
+      // Migracja: stare wpłaty na cele miały cat:'inne' — naprawiamy
+      let migrated = false;
+      expenses.forEach(e => {
+        if (isGoalSaving(e) && e.cat !== 'oszczednosci') {
+          e.cat = 'oszczednosci';
+          migrated = true;
+        }
+      });
+      if (migrated) saveToFirestore();
     }
   } catch(e) { console.log('Load error:', e); }
 }
@@ -3303,14 +3312,15 @@ function addToGoal(id, amount) {
 function deleteGoal(id) {
   const g = goals.find(g => g.id === id);
   if (g) {
-    // Usuń też wszystkie wpłaty na ten cel z historii
+    // Usuń wpłaty na ten cel z historii
     expenses = expenses.filter(e => e.desc !== '🎯 Oszczędności: ' + g.name);
-    save();
+    save();   // zapisuje expenses + aktualizuje saldo
+    render(); // odświeża widok (saldo, historia, wykresy)
   }
   goals = goals.filter(g => g.id !== id);
   saveGoals();
   renderGoals();
-  showToast('Cel usunięty');
+  showToast('Cel i jego wpłaty usunięte');
 }
 
 function renderGoals() {
