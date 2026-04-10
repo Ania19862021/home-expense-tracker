@@ -1194,56 +1194,6 @@
   }
   .notif-btn:hover { opacity: 0.88; }
 
-  /* MONTH NAV */
-  .month-nav {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 16px; margin-bottom: 16px;
-  }
-  .month-nav-btn {
-    background: none; border: 1px solid var(--border); color: var(--text);
-    border-radius: 8px; width: 34px; height: 34px; font-size: 1rem;
-    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
-  }
-  .month-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .month-nav-label {
-    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
-    font-size: 1rem; color: var(--text);
-  }
-  .month-nav-today {
-    font-size: 0.7rem; color: var(--accent); font-weight: 600;
-    cursor: pointer; padding: 4px 10px; border: 1px solid var(--accent);
-    border-radius: 20px; background: none;
-  }
-  /* YEARLY SUMMARY */
-  .year-section { margin-top: 28px; }
-  .year-title {
-    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
-    font-size: 1rem; color: var(--text); margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .year-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px; margin-bottom: 20px;
-  }
-  .year-card {
-    background: var(--surface2); border-radius: 12px; padding: 14px;
-    border: 1px solid var(--border);
-  }
-  .year-card-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-  .year-card-val { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.2rem; }
-  .year-months { display: flex; flex-direction: column; gap: 6px; }
-  .year-month-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px; border-radius: 8px; background: var(--surface2);
-    cursor: pointer; transition: background 0.15s;
-  }
-  .year-month-row:hover { background: var(--surface); }
-  .year-month-name { font-weight: 600; font-size: 0.82rem; width: 50px; }
-  .year-month-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; }
-  .year-month-fill { height: 100%; border-radius: 99px; background: var(--red); transition: width 0.4s; }
-  .year-month-amt { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--red); width: 80px; text-align: right; }
-
   /* ── CUSTOM MONTH PICKER ──────────────────────────────── */
   .month-picker-wrap { position: relative; }
   .month-picker-input {
@@ -1403,16 +1353,6 @@
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
-
-    <!-- NAWIGACJA MIESIĘCZNA -->
-    <div class="month-nav">
-      <button class="month-nav-btn" onclick="navigateMonth(-1)">‹</button>
-      <div style="text-align:center">
-        <div class="month-nav-label" id="monthNavLabel">Kwiecień 2026</div>
-        <div style="font-size:0.68rem;color:var(--text2)" id="monthNavSub">bieżący miesiąc</div>
-      </div>
-      <button class="month-nav-btn" onclick="navigateMonth(1)">›</button>
-    </div>
 
     <!-- HEALTH SCORE -->
     <div class="health-bar" id="healthBar">
@@ -1646,40 +1586,6 @@
     </div>
   </div>
   <!-- STAŁE WYDATKI PANEL -->
-
-    <!-- PODSUMOWANIE ROCZNE -->
-    <div class="year-section">
-      <div class="year-title">📅 Podsumowanie roku <span id="yearLabel">2026</span></div>
-      <div class="year-grid">
-        <div class="year-card">
-          <div class="year-card-label">💚 Wpływy</div>
-          <div class="year-card-val" id="yearInc" style="color:var(--accent)">—</div>
-        </div>
-        <div class="year-card">
-          <div class="year-card-label">🔴 Wydatki</div>
-          <div class="year-card-val" id="yearExp" style="color:var(--red)">—</div>
-        </div>
-        <div class="year-card">
-          <div class="year-card-label">🎯 Na cele</div>
-          <div class="year-card-val" id="yearGoal" style="color:#405de6">—</div>
-        </div>
-        <div class="year-card">
-          <div class="year-card-label">💰 Saldo</div>
-          <div class="year-card-val" id="yearBal">—</div>
-        </div>
-        <div class="year-card">
-          <div class="year-card-label">📊 Oszczędności</div>
-          <div class="year-card-val" id="yearSavePct" style="color:var(--accent)">—</div>
-        </div>
-        <div class="year-card">
-          <div class="year-card-label">📈 Śr. miesięcznie</div>
-          <div class="year-card-val" id="yearAvgMonth" style="color:var(--text2)">—</div>
-        </div>
-      </div>
-      <div class="year-title" style="font-size:0.85rem">Wydatki per miesiąc</div>
-      <div class="year-months" id="yearMonthsList"></div>
-    </div>
-  </div>
 
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
@@ -1969,68 +1875,21 @@ function isGoalSaving(e) {
   return e.desc && e.desc.startsWith('🎯 Oszczędności:');
 }
 
-// ─── SELECTED MONTH (nawigacja) ──────────────────────────────────────────────
-let selectedMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-const TODAY_MONTH  = new Date().toISOString().slice(0, 7);
-
-const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
-                         'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
-const MONTH_NAMES_SHORT = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
-
-function navigateMonth(dir) {
-  const [y, m] = selectedMonth.split('-').map(Number);
-  const d = new Date(y, m - 1 + dir, 1);
-  // Nie pozwól na przyszłe miesiące (poza bieżącym)
-  const newM = d.toISOString().slice(0, 7);
-  if (newM > TODAY_MONTH) return;
-  selectedMonth = newM;
-  updateMonthNav();
-  render();
-  renderGoals();
+function thisMonthExpenses() {
+  const m = new Date().toISOString().slice(0, 7);
+  return expenses.filter(e => e.date.startsWith(m));
 }
 
-function updateMonthNav() {
-  const [y, m] = selectedMonth.split('-').map(Number);
-  const label = document.getElementById('monthNavLabel');
-  const sub   = document.getElementById('monthNavSub');
-  if (label) label.textContent = MONTH_NAMES_PL[m-1] + ' ' + y;
-  if (sub) {
-    const isCurrent = selectedMonth === TODAY_MONTH;
-    sub.textContent = isCurrent ? 'bieżący miesiąc' : '← kliknij › aby wrócić';
-    sub.style.color = isCurrent ? 'var(--accent)' : 'var(--text2)';
-  }
-  // Sync filterMonth w Przeglądzie
-  filterMonth = selectedMonth;
+// Wydatki BEZ odłożonych na cele (do alertów, zdrowia, wykresów)
+function thisMonthBudgetExpenses() {
+  const m = new Date().toISOString().slice(0, 7);
+  return expenses.filter(e => e.date.startsWith(m) && !isGoalSaving(e));
 }
 
-// ─── SELEKTORY ────────────────────────────────────────────────────────────────
-
-function getMonthExpenses(month) {
-  return expenses.filter(e => e.date.startsWith(month));
+function thisMonthIncomes() {
+  const m = new Date().toISOString().slice(0, 7);
+  return incomes.filter(i => i.date.startsWith(m));
 }
-function getMonthBudgetExpenses(month) {
-  return expenses.filter(e => e.date.startsWith(month) && !isGoalSaving(e));
-}
-function getMonthIncomes(month) {
-  return incomes.filter(i => i.date.startsWith(month));
-}
-function getYearExpenses(year) {
-  return expenses.filter(e => e.date.startsWith(year));
-}
-function getYearBudgetExpenses(year) {
-  return expenses.filter(e => e.date.startsWith(year) && !isGoalSaving(e));
-}
-function getYearGoalExpenses(year) {
-  return expenses.filter(e => e.date.startsWith(year) && isGoalSaving(e));
-}
-function getYearIncomes(year) {
-  return incomes.filter(i => i.date.startsWith(year));
-}
-
-// Backward-compatible aliasy (używają selectedMonth)
-function thisMonthExpenses()       { return getMonthExpenses(selectedMonth); }
-function thisMonthBudgetExpenses() { return getMonthBudgetExpenses(selectedMonth); }
-function thisMonthIncomes()        { return getMonthIncomes(selectedMonth); }
 
 function filteredExpenses() {
   if (!filterMonth) return expenses;
@@ -2053,7 +1912,6 @@ function render() {
   updateHeaderTotal();
   renderHealthScore();
   renderAlerts();
-  updateMonthNav();
 }
 
 function updateHeaderTotal() {
@@ -2108,11 +1966,13 @@ function renderStats() {
 
 function renderList() {
   const el = document.getElementById('expenseList');
+  // Pokaż tylko bieżący miesiąc — spójnie z renderStats i nagłówkiem
+  const m = new Date().toISOString().slice(0, 7);
   const expItems = histFilter !== 'inc'
-    ? getMonthExpenses(selectedMonth).map(e => ({ ...e, type: 'exp' }))
+    ? expenses.filter(e => e.date.startsWith(m)).map(e => ({ ...e, type: 'exp' }))
     : [];
   const incItems = histFilter !== 'exp'
-    ? getMonthIncomes(selectedMonth).map(i => ({ ...i, type: 'inc' }))
+    ? incomes.filter(i => i.date.startsWith(m)).map(i => ({ ...i, type: 'inc' }))
     : [];
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id);
 
@@ -2153,78 +2013,6 @@ function renderList() {
 }
 
 // ─── WYKRES KOŁOWY ───────────────────────────────────────────────────────────
-
-// ─── PODSUMOWANIE ROCZNE ─────────────────────────────────────────────────────
-
-function getYearData(year) {
-  const yExp   = getYearBudgetExpenses(year);
-  const yGoal  = getYearGoalExpenses(year);
-  const yInc   = getYearIncomes(year);
-  const totalExp  = yExp.reduce((s,e) => s+e.amount, 0);
-  const totalGoal = yGoal.reduce((s,e) => s+e.amount, 0);
-  const totalInc  = yInc.reduce((s,e) => s+e.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal;
-  const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
-  // Ile miesięcy ma dane
-  const months = [...new Set([
-    ...expenses.filter(e=>e.date.startsWith(year)).map(e=>e.date.slice(0,7)),
-    ...incomes.filter(i=>i.date.startsWith(year)).map(i=>i.date.slice(0,7))
-  ])];
-  const avgMonthExp = months.length > 0 ? totalExp / months.length : 0;
-  return { totalExp, totalGoal, totalInc, balance, savePct, months, avgMonthExp };
-}
-
-function renderYearlySummary() {
-  const year = selectedMonth.slice(0,4);
-  const yl = document.getElementById('yearLabel');
-  if (yl) yl.textContent = year;
-
-  const d = getYearData(year);
-  const set = (id, val, color) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = val;
-    if (color) el.style.color = color;
-  };
-
-  set('yearInc',      d.totalInc > 0 ? fmt(d.totalInc) : '—', 'var(--accent)');
-  set('yearExp',      d.totalExp > 0 ? fmt(d.totalExp) : '—', 'var(--red)');
-  set('yearGoal',     d.totalGoal > 0 ? fmt(d.totalGoal) : '—', '#405de6');
-  set('yearBal',      d.totalInc > 0 ? fmt(d.balance) : '—', d.balance >= 0 ? 'var(--accent)' : 'var(--red)');
-  set('yearSavePct',  d.totalInc > 0 ? d.savePct + '%' : '—');
-  set('yearAvgMonth', d.avgMonthExp > 0 ? fmt(d.avgMonthExp) + '/mies.' : '—', 'var(--text2)');
-
-  // Per-miesiąc breakdown
-  const listEl = document.getElementById('yearMonthsList');
-  if (!listEl) return;
-  const allMonths = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
-  const maxExp = Math.max(1, ...allMonths.map(m => getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0)));
-
-  listEl.innerHTML = allMonths.map(m => {
-    const mExp = getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0);
-    const mInc = getMonthIncomes(m).reduce((s,e)=>s+e.amount,0);
-    if (!mExp && !mInc) return ''; // pomiń puste miesiące
-    const pct = (mExp/maxExp*100).toFixed(0);
-    const mo = parseInt(m.slice(5))-1;
-    const isCurrent = m === TODAY_MONTH;
-    const isSelected = m === selectedMonth;
-    return `<div class="year-month-row" onclick="goToMonth('${m}')" 
-      style="${isSelected?'border:1px solid var(--accent);':''}${isCurrent?'background:var(--surface);':''}">
-      <span class="year-month-name" style="${isCurrent?'color:var(--accent);font-weight:800':''}">${MONTH_NAMES_SHORT[mo]}</span>
-      <div class="year-month-bar"><div class="year-month-fill" style="width:${pct}%"></div></div>
-      <span style="font-size:0.7rem;color:var(--accent);width:70px;text-align:right">${mInc>0?'+'+fmt(mInc):''}</span>
-      <span class="year-month-amt">${mExp>0?'-'+fmt(mExp):'—'}</span>
-    </div>`;
-  }).join('');
-}
-
-function goToMonth(month) {
-  selectedMonth = month;
-  updateMonthNav();
-  // Przełącz na zakładkę Budżet
-  showTab('wydatki');
-  render();
-}
 
 // ─── PODSUMOWANIE MIESIĄCA ────────────────────────────────────────────────────
 
@@ -2317,8 +2105,6 @@ function renderMonthButtons() {
 
 function setMonth(m, btn) {
   filterMonth = m;
-  // Sync selectedMonth jeśli wybrany konkretny miesiąc
-  if (m) { selectedMonth = m; updateMonthNav(); }
   document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderCharts();
@@ -2751,7 +2537,7 @@ function showTab(name) {
   const bnav = document.getElementById('bnav-' + name);
   if (bnav) bnav.classList.add('active');
 
-  if (name === 'przeglad') { renderCharts(); renderYearlySummary(); }
+  if (name === 'przeglad') { renderCharts(); }
   if (name === 'cele') renderGoals();
 }
 
@@ -2884,7 +2670,7 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('mainApp').style.display     = 'block';
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
-    updateMonthNav(); render(); renderGoals(); checkNotificationStatus();
+    render(); renderGoals(); checkNotificationStatus();
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
