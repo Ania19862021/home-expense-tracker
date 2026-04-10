@@ -1390,7 +1390,7 @@
       <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;" id="headerSub">domowy tracker finansów</div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
+    <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
       <div class="header-meta">
         <span id="headerBalLabel">saldo w tym miesiącu</span>
         <strong id="headerTotal">0,00 zł</strong>
@@ -1399,8 +1399,9 @@
   </header>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('wydatki')" id="tab-wydatki">💰 Wydatki</button>
+    <button class="tab active" onclick="showTab('wydatki')" id="tab-wydatki">💰 Budżet</button>
     <button class="tab" onclick="showTab('przeglad')" id="tab-przeglad">📊 Przegląd</button>
+    <button class="tab" onclick="showTab('rok')" id="tab-rok">📈 Rok</button>
     <button class="tab" onclick="showTab('stale')" id="tab-stale">📅 Stałe</button>
     <button class="tab" onclick="showTab('cele')" id="tab-cele">🎯 Cele</button>
     <button class="tab" onclick="showTab('czat')" id="tab-czat">🤖 Asystent</button>
@@ -1568,14 +1569,11 @@
 
   <!-- PRZEGLĄD PANEL -->
   <div class="panel" id="panel-przeglad">
-    <div class="filter-row">
-      <span class="filter-label">Miesiąc:</span>
-      <button class="month-btn active" onclick="setMonth(null, this)">Wszystkie</button>
-      <!-- dynamicznie dodawane -->
-    </div>
+    <!-- Month strip (shared with Wydatki) -->
+    <div class="month-strip" id="monthStripPrzeglad"></div>
 
     <div style="margin-bottom:20px">
-      <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+      <button onclick="exportPDF()" id="pdfBtn" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
         📄 Pobierz raport PDF
       </button>
     </div>
@@ -1610,6 +1608,55 @@
     <div class="chart-card" style="margin-bottom:20px;">
       <div class="chart-card-title" id="dailyChartTitle">Wydatki dzienne (ostatnie 14 dni)</div>
       <div id="dailyChart" style="display:flex;align-items:flex-end;gap:6px;height:80px;"></div>
+    </div>
+  </div>
+
+  <!-- ROK PANEL -->
+  <div class="panel" id="panel-rok">
+    <!-- Year navigation -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+      <button class="month-nav" onclick="rokChangeYear(-1)">‹</button>
+      <span id="rokYear" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.4rem;color:var(--text)"></span>
+      <button class="month-nav" onclick="rokChangeYear(1)">›</button>
+      <span id="rokTitleLabel" style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em"></span>
+    </div>
+
+    <!-- Annual stats -->
+    <div class="stats-row" style="margin-bottom:24px">
+      <div class="stat-card" style="--accent-glow:#b8f76520">
+        <div class="stat-label" id="rokIncLabel">💚 Wpływy roczne</div>
+        <div class="stat-value positive" id="rokIncome">0,00 zł</div>
+      </div>
+      <div class="stat-card" style="--accent-glow:#ff6b6b20">
+        <div class="stat-label" id="rokExpLabel">🔴 Wydatki roczne</div>
+        <div class="stat-value red" id="rokExpenses">0,00 zł</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="rokBalLabel">💰 Saldo roczne</div>
+        <div class="stat-value" id="rokBalance">0,00 zł</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="rokSaveLabel">📈 Śr. oszczędności</div>
+        <div class="stat-value" id="rokSavings">—</div>
+      </div>
+    </div>
+
+    <!-- Monthly breakdown -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-card-title" id="rokMonthlyTitle">Miesiąc po miesiącu</div>
+      <div id="rokMonthlyChart"></div>
+    </div>
+
+    <!-- Best/worst month + top category -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title" id="rokCatTitle">Top kategorie roku</div>
+        <div id="rokCatChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title" id="rokHighlightsTitle">Podsumowanie</div>
+        <div id="rokHighlights"></div>
+      </div>
     </div>
   </div>
 
@@ -1744,19 +1791,22 @@
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
   <button class="bnav-btn active" id="bnav-wydatki" onclick="showTab('wydatki')">
-    <span class="bicon">💰</span>Wydatki
+    <span class="bicon">💰</span>Budżet
   </button>
   <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
     <span class="bicon">📊</span>Przegląd
   </button>
+  <button class="bnav-btn" id="bnav-rok" onclick="showTab('rok')">
+    <span class="bicon">📅</span>Rok
+  </button>
   <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
-    <span class="bicon">📅</span>Stałe
+    <span class="bicon">📋</span>Stałe
   </button>
   <button class="bnav-btn" id="bnav-cele" onclick="showTab('cele')">
     <span class="bicon">🎯</span>Cele
   </button>
   <button class="bnav-btn" id="bnav-czat" onclick="showTab('czat')">
-    <span class="bicon">🤖</span>Asystent
+    <span class="bicon">🤖</span>AI
   </button>
 </nav>
 
@@ -1833,13 +1883,18 @@ function setHistFilter(f, btn) {
 
 let activeMonth = new Date().toISOString().slice(0, 7);
 let activeYear  = new Date().getFullYear();
+let rokYear     = new Date().getFullYear();
 
 function renderMonthStrip() {
-  const strip = document.getElementById('monthStrip');
-  if (!strip) return;
+  const strip1 = document.getElementById('monthStrip');
+  const strip2 = document.getElementById('monthStripPrzeglad');
+  if (strip1) _drawStrip(strip1);
+  if (strip2) _drawStrip(strip2);
+}
+
+function _drawStrip(strip) {
   const names = t('monthsShort');
   const currentYM = new Date().toISOString().slice(0, 7);
-
   strip.innerHTML = `
     <button class="month-nav" onclick="stripChangeYear(-1)">‹</button>
     <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.9rem;color:var(--text);flex-shrink:0;padding:0 4px">${activeYear}</span>
@@ -1954,13 +2009,11 @@ function thisMonthIncomes() {
 }
 
 function filteredExpenses() {
-  if (!filterMonth) return expenses;
-  return expenses.filter(e => e.date.startsWith(filterMonth));
+  return expenses.filter(e => e.date.startsWith(activeMonth));
 }
 
 function filteredIncomes() {
-  if (!filterMonth) return incomes;
-  return incomes.filter(i => i.date.startsWith(filterMonth));
+  return incomes.filter(i => i.date.startsWith(activeMonth));
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
@@ -2624,6 +2677,7 @@ function showTab(name) {
   if (name === 'przeglad') renderCharts();
   if (name === 'stale') renderRecurring();
   if (name === 'cele') renderGoals();
+  if (name === 'rok') renderRok();
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
@@ -3070,7 +3124,7 @@ function exportPDF() {
   doc.text(score + '/100', 157, 20);
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text('ZDROWIE FINANSOWE', 157, 25);
+  doc.text(pl(lang === 'en' ? 'FINANCIAL HEALTH' : 'ZDROWIE FINANSOWE'), 157, 25);
 
   y = 44;
 
@@ -3335,7 +3389,118 @@ function renderGoals() {
   }).join('');
 }
 
-// ─── CUSTOM MONTH PICKER ─────────────────────────────────────────────────────
+// ─── ROK (ANNUAL SUMMARY) ────────────────────────────────────────────────────
+
+function rokChangeYear(dir) {
+  rokYear += dir;
+  renderRok();
+}
+
+function renderRok() {
+  const isEN = lang === 'en';
+  const el = (id) => document.getElementById(id);
+  if (!el('rokYear')) return;
+
+  el('rokYear').textContent = rokYear;
+  el('rokTitleLabel').textContent = isEN ? 'Annual Summary' : 'Podsumowanie roczne';
+  el('rokIncLabel').textContent   = isEN ? '💚 Annual income'   : '💚 Wpływy roczne';
+  el('rokExpLabel').textContent   = isEN ? '🔴 Annual expenses' : '🔴 Wydatki roczne';
+  el('rokBalLabel').textContent   = isEN ? '💰 Annual balance'  : '💰 Saldo roczne';
+  el('rokSaveLabel').textContent  = isEN ? '📈 Avg. savings'    : '📈 Śr. oszczędności';
+  el('rokMonthlyTitle').textContent   = isEN ? 'Month by month'    : 'Miesiąc po miesiącu';
+  el('rokCatTitle').textContent       = isEN ? 'Top categories'    : 'Top kategorie roku';
+  el('rokHighlightsTitle').textContent = isEN ? 'Highlights'       : 'Podsumowanie';
+
+  const monthNames = t('monthsShort');
+  let totalInc = 0, totalExp = 0;
+  const monthData = [];
+
+  for (let m = 1; m <= 12; m++) {
+    const ym = rokYear + '-' + String(m).padStart(2,'0');
+    const mInc = incomes.filter(i => i.date.startsWith(ym)).reduce((s,i) => s+i.amount, 0);
+    const mExp = expenses.filter(e => e.date.startsWith(ym)).reduce((s,e) => s+e.amount, 0);
+    totalInc += mInc;
+    totalExp += mExp;
+    monthData.push({ m, ym, mInc, mExp, bal: mInc - mExp, name: monthNames[m-1] });
+  }
+
+  const totalBal = totalInc - totalExp;
+  const savePct = totalInc > 0 ? ((totalBal/totalInc)*100).toFixed(0) : null;
+
+  // Stats
+  el('rokIncome').textContent   = fmt(totalInc);
+  el('rokExpenses').textContent = fmt(totalExp);
+  const balEl = el('rokBalance');
+  balEl.textContent = fmt(totalBal);
+  balEl.style.color = totalBal >= 0 ? 'var(--accent)' : 'var(--red)';
+  el('rokSavings').textContent = savePct !== null ? savePct + '%' : '—';
+  el('rokSavings').style.color = savePct >= 20 ? 'var(--accent)' : savePct >= 10 ? 'var(--yellow)' : 'var(--red)';
+
+  // Monthly bar chart
+  const maxVal = Math.max(1, ...monthData.map(d => Math.max(d.mInc, d.mExp)));
+  el('rokMonthlyChart').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:120px;margin-top:12px">
+      ${monthData.map(d => {
+        const hInc = Math.max(2, (d.mInc/maxVal*100)).toFixed(0);
+        const hExp = Math.max(2, (d.mExp/maxVal*100)).toFixed(0);
+        const isCurrent = d.ym === activeMonth;
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="setActiveMonth('${d.ym}')" title="${d.name}: ${isEN?'Income':'Wpływy'} ${fmt(d.mInc)}, ${isEN?'Expenses':'Wydatki'} ${fmt(d.mExp)}">
+          <div style="width:100%;display:flex;gap:1px;align-items:flex-end;height:90px">
+            <div style="flex:1;background:${isCurrent?'#58b19f':'#58b19f60'};height:${hInc}%;border-radius:3px 3px 0 0;transition:height 0.4s"></div>
+            <div style="flex:1;background:${isCurrent?'var(--red)':'#e1306c60'};height:${hExp}%;border-radius:3px 3px 0 0;transition:height 0.4s"></div>
+          </div>
+          <div style="font-size:0.55rem;color:${isCurrent?'var(--accent)':'var(--text2)'};font-weight:${isCurrent?'700':'400'};text-align:center">${d.name}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:0.72rem;color:var(--text2)">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#58b19f;border-radius:2px;margin-right:4px"></span>${isEN?'Income':'Wpływy'}</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--red);border-radius:2px;margin-right:4px"></span>${isEN?'Expenses':'Wydatki'}</span>
+      <span style="font-style:italic">${isEN?'Click month to filter':'Kliknij miesiąc aby filtrować'}</span>
+    </div>`;
+
+  // Top categories for year
+  const catTotals = {};
+  expenses.filter(e => e.date.startsWith(String(rokYear))).forEach(e => {
+    catTotals[e.cat] = (catTotals[e.cat]||0) + e.amount;
+  });
+  const sortedCats = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxCat = sortedCats[0]?.[1] || 1;
+  el('rokCatChart').innerHTML = sortedCats.length ? sortedCats.map(([cat,val]) => {
+    const cm = CAT_META[cat]||CAT_META.inne;
+    const pct = (val/maxCat*100).toFixed(0);
+    return `<div class="bar-row">
+      <div class="bar-label">${cm.emoji} ${cm.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cm.color}"></div></div>
+      <div class="bar-val" style="color:${cm.color}">${fmt(val)}</div>
+    </div>`;
+  }).join('') : `<div style="color:var(--text2);font-size:0.8rem;text-align:center;padding:20px">${isEN?'No data':'Brak danych'}</div>`;
+
+  // Highlights
+  const withData = monthData.filter(d => d.mExp > 0 || d.mInc > 0);
+  const bestMonth = withData.length ? withData.reduce((a,b) => b.bal > a.bal ? b : a, withData[0]) : null;
+  const worstMonth = withData.length ? withData.reduce((a,b) => b.mExp > a.mExp ? b : a, withData[0]) : null;
+  const avgMonthlyInc = totalInc / 12;
+  const avgMonthlyExp = totalExp / 12;
+
+  el('rokHighlights').innerHTML = withData.length ? `
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+      ${bestMonth ? `<div style="background:#f0fdf4;border:1px solid #58b19f40;border-radius:10px;padding:12px">
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'🏆 Best month':'🏆 Najlepszy miesiąc'}</div>
+        <div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700">${bestMonth.name} — ${fmt(bestMonth.bal)} ${isEN?'surplus':'nadwyżki'}</div>
+      </div>` : ''}
+      ${worstMonth ? `<div style="background:#fff0f3;border:1px solid #e1306c40;border-radius:10px;padding:12px">
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'💸 Highest spending':'💸 Największe wydatki'}</div>
+        <div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700">${worstMonth.name} — ${fmt(worstMonth.mExp)}</div>
+      </div>` : ''}
+      <div style="background:var(--surface2);border-radius:10px;padding:12px">
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${isEN?'📊 Monthly average':'📊 Średnia miesięczna'}</div>
+        <div style="font-size:0.85rem">💚 ${fmt(avgMonthlyInc)} / 🔴 ${fmt(avgMonthlyExp)}</div>
+      </div>
+    </div>` : `<div style="color:var(--text2);font-size:0.8rem;text-align:center;padding:20px">${isEN?'No data for this year':'Brak danych dla tego roku'}</div>`;
+}
+
+
 
 let mpYear = new Date().getFullYear();
 let mpSelected = null;
@@ -3412,8 +3577,8 @@ let lang = localStorage.getItem('cf_lang') || 'pl';
 const T = {
   pl: {
     subtitle: 'domowy tracker finansów', balLabel: 'saldo w tym miesiącu', logout: 'Wyloguj',
-    tabWydatki: '💰 Wydatki', tabPrzeglad: '📊 Przegląd', tabStale: '📅 Stałe', tabCele: '🎯 Cele', tabCzat: '🤖 Asystent',
-    navWydatki: 'Wydatki', navPrzeglad: 'Przegląd', navStale: 'Stałe', navCele: 'Cele', navCzat: 'Asystent',
+    tabWydatki: '💰 Budżet', tabPrzeglad: '📊 Przegląd', tabStale: '📅 Stałe', tabCele: '🎯 Cele', tabCzat: '🤖 Asystent', tabRok: '📅 Rok',
+    navWydatki: 'Budżet', navPrzeglad: 'Przegląd', navStale: 'Stałe', navCele: 'Cele', navCzat: 'AI', navRok: 'Rok',
     addExpense: '➖ Dodaj wydatek', addIncome: '➕ Dodaj wpływ',
     amount: 'Kwota (zł)', category: 'Kategoria', source: 'Źródło', description: 'Opis',
     btnAddExp: 'Dodaj wydatek →', btnAddInc: 'Dodaj wpływ →', children: 'Liczba dzieci',
@@ -3459,8 +3624,8 @@ const T = {
   },
   en: {
     subtitle: 'home finance tracker', balLabel: 'balance this month', logout: 'Logout',
-    tabWydatki: '💰 Expenses', tabPrzeglad: '📊 Overview', tabStale: '📅 Fixed', tabCele: '🎯 Goals', tabCzat: '🤖 Assistant',
-    navWydatki: 'Expenses', navPrzeglad: 'Overview', navStale: 'Fixed', navCele: 'Goals', navCzat: 'Assistant',
+    tabWydatki: '💰 Budget', tabPrzeglad: '📊 Overview', tabStale: '📅 Fixed', tabCele: '🎯 Goals', tabCzat: '🤖 Assistant', tabRok: '📅 Year',
+    navWydatki: 'Budget', navPrzeglad: 'Overview', navStale: 'Fixed', navCele: 'Goals', navCzat: 'AI', navRok: 'Year',
     addExpense: '➖ Add expense', addIncome: '➕ Add income',
     amount: 'Amount (PLN)', category: 'Category', source: 'Source', description: 'Description',
     btnAddExp: 'Add expense →', btnAddInc: 'Add income →', children: 'Number of children',
@@ -3517,13 +3682,13 @@ function toggleLang() {
 function applyLang() {
   const isEN = lang === 'en';
   const btn = document.getElementById('langBtn');
-  if (btn) btn.textContent = isEN ? '🇵🇱 PL' : '🇬🇧 EN';
+  if (btn) btn.textContent = isEN ? 'PL' : 'EN';
 
   // Simple ID → translation key map
   const ids = {
     'headerSub': 'subtitle', 'headerBalLabel': 'balLabel', 'logoutBtn': 'logout',
     'tab-wydatki': 'tabWydatki', 'tab-przeglad': 'tabPrzeglad', 'tab-stale': 'tabStale',
-    'tab-cele': 'tabCele', 'tab-czat': 'tabCzat',
+    'tab-cele': 'tabCele', 'tab-czat': 'tabCzat', 'tab-rok': 'tabRok',
     'statIncLabel': 'statIncome', 'statExpLabel': 'statExpenses',
     'statBalLabel': 'statBalance', 'statSaveLabel': 'statSavings',
     'chartIncLabel': 'chartInc', 'chartExpLabel': 'chartExp', 'chartBalLabel': 'chartBal',
@@ -3545,8 +3710,8 @@ function applyLang() {
   });
 
   // Tabs with icons (bottom nav)
-  [['wydatki','navWydatki','💰'],['przeglad','navPrzeglad','📊'],['stale','navStale','📅'],
-   ['cele','navCele','🎯'],['czat','navCzat','🤖']].forEach(([id, key, icon]) => {
+  [['wydatki','navWydatki','💰'],['przeglad','navPrzeglad','📊'],['rok','navRok','📅'],
+   ['stale','navStale','📋'],['cele','navCele','🎯'],['czat','navCzat','🤖']].forEach(([id, key, icon]) => {
     const el = document.getElementById('bnav-' + id);
     if (el) el.innerHTML = `<span class="bicon">${icon}</span>${t(key)}`;
   });
