@@ -3082,13 +3082,15 @@ function exportPDF() {
       .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N');
   }
 
-  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
-  const mInc = thisMonthIncomes();
-  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
-  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance  = totalInc - totalExp;
-  const savePct  = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
-  const score    = calcHealthScore() || 0;
+  const mExp  = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e)); // tylko cele
+  const mInc  = thisMonthIncomes();
+  const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal; // spójne z aplikacją
+  const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
+  const score     = calcHealthScore() || 0;
 
   const now = new Date();
   const monthsNames = ['Styczen','Luty','Marzec','Kwiecien','Maj','Czerwiec','Lipiec','Sierpien','Wrzesien','Pazdziernik','Listopad','Grudzien'];
@@ -3136,10 +3138,10 @@ function exportPDF() {
 
   // ── SUMMARY BOXES (light style) ──
   const boxes = [
-    { label: 'WPLYWY',       value: pl(fmt(totalInc)), bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
-    { label: 'WYDATKI',      value: pl(fmt(totalExp)), bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
-    { label: 'SALDO',        value: pl(fmt(balance)),  bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
-    { label: 'OSZCZEDNOSCI', value: savePct + '%',     bg: [239,246,255], border: [64,93,230],   text: [64,93,230] },
+    { label: 'WPLYWY',       value: pl(fmt(totalInc)),  bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
+    { label: 'WYDATKI',      value: pl(fmt(totalExp)),  bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
+    { label: 'CELE',         value: pl(fmt(totalGoal)), bg: [239,246,255], border: [88,177,159],  text: [64,93,230] },
+    { label: 'SALDO',        value: pl(fmt(balance)),   bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
   ];
   const bw = 41;
   boxes.forEach((b, i) => {
