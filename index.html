@@ -3067,7 +3067,27 @@ function exportPDF() {
 
 let goals = JSON.parse(localStorage.getItem('cele') || '[]');
 
-const GOAL_EMOJIS = ['✈️','🏖️','📱','🚗','🏠','💍','🎓','💻','👗','🎸','🌍','💰'];
+// Inteligentne emoji na podstawie nazwy celu
+function goalEmoji(name) {
+  const n = (name || '').toLowerCase();
+  if (/dom|mieszk|house|home|nieruch|wynajem|remont/.test(n)) return '🏠';
+  if (/wakacj|urlop|wyjazd|podróż|podroz|travel|lot|hotel/.test(n)) return '✈️';
+  if (/auto|samoch|car|pojazd|motor|rower/.test(n)) return '🚗';
+  if (/telefon|phone|iphone|laptop|komputer|mac|tablet/.test(n)) return '📱';
+  if (/ślub|slub|wesele|pierśc|zaręcz/.test(n)) return '💍';
+  if (/studi|edukacj|kurs|nauka|szkol|angiel/.test(n)) return '🎓';
+  if (/emerytur|pension/.test(n)) return '🏦';
+  if (/dziecko|dzieci|baby|przedszkol/.test(n)) return '👶';
+  if (/remont|budow|meble/.test(n)) return '🔨';
+  if (/zdrowie|leczenie|szpital/.test(n)) return '💊';
+  if (/sport|silowni|fitness|basen/.test(n)) return '🏋️';
+  if (/oszczęd|oszczed|fundusz|rezerwow/.test(n)) return '💰';
+  if (/prezent|gift|urodzin/.test(n)) return '🎁';
+  if (/ogród|ogrod|garden/.test(n)) return '🌱';
+  // domyślne — losowe ale sensowne
+  const defaults = ['🎯','⭐','🚀','💎','🌟','🎪'];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
 
 function saveGoals() {
   localStorage.setItem('cele', JSON.stringify(goals));
@@ -3081,7 +3101,7 @@ function addGoal() {
   if (!name)   { showToast('Podaj nazwę celu!'); return; }
   if (!target || target <= 0) { showToast('Podaj kwotę celu!'); return; }
   if (!deadline) { showToast('Podaj termin!'); return; }
-  const emoji = GOAL_EMOJIS[Math.floor(Math.random() * GOAL_EMOJIS.length)];
+  const emoji = goalEmoji(name);
   goals.push({ id: Date.now(), name, target, deadline, saved: 0, emoji });
   saveGoals(); renderGoals();
   showToast('Cel dodany! 🎯');
@@ -3095,9 +3115,22 @@ function addGoal() {
 function addToGoal(id, amount) {
   const g = goals.find(g => g.id === id);
   if (!g) return;
-  g.saved = Math.min(g.target, g.saved + amount);
-  saveGoals(); renderGoals();
-  showToast(`+${fmt(amount)} dodane do celu "${g.name}" ✓`);
+  const actual = Math.min(amount, g.target - g.saved); // nie przekraczaj celu
+  if (actual <= 0) { showToast('Cel już osiągnięty! 🎉'); return; }
+  g.saved += actual;
+  // Tworzy wydatek — saldo automatycznie spada
+  expenses.unshift({
+    id: Date.now(),
+    amount: actual,
+    cat: 'inne',
+    desc: '🎯 Oszczędności: ' + g.name,
+    date: today()
+  });
+  save();
+  saveGoals();
+  render();
+  renderGoals();
+  showToast(`+${fmt(actual)} odłożone na "${g.name}" ✓`);
 }
 
 function deleteGoal(id) {
@@ -3107,7 +3140,9 @@ function deleteGoal(id) {
 }
 
 function renderGoals() {
-  document.getElementById('goalBadge').textContent = goals.length + ' celów';
+  const total = goals.length;
+  const badge = total === 1 ? '1 cel' : total <= 4 ? total + ' cele' : total + ' celów';
+  document.getElementById('goalBadge').textContent = badge;
   const el = document.getElementById('goalList');
   if (!goals.length) {
     el.innerHTML = '<div class="empty"><span class="icon">🎯</span>Brak celów oszczędnościowych.<br>Dodaj swój pierwszy cel!</div>';
@@ -3121,9 +3156,19 @@ function renderGoals() {
     const [dy, dm] = g.deadline.split('-').map(Number);
     const monthsLeft = (dy - now.getFullYear()) * 12 + (dm - now.getMonth() - 1);
     const monthlyNeeded = monthsLeft > 0 ? remaining / monthsLeft : remaining;
-    const color = done ? 'var(--accent)' : pct >= 75 ? 'var(--accent2)' : pct >= 40 ? 'var(--yellow)' : 'var(--red)';
+    // Kolor zależy od postępu i czasu
+    let color;
+    if (done) color = 'var(--accent)';
+    else if (monthsLeft <= 0) color = 'var(--red)';
+    else if (monthsLeft > 24 && pct < 30) color = '#405de6'; // niebieski — długoterminowy, spokojnie
+    else if (pct >= 75) color = 'var(--accent)';
+    else if (pct >= 40) color = 'var(--yellow)';
+    else if (monthsLeft <= 3) color = 'var(--red)';
+    else color = 'var(--yellow)';
     const months = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
     const deadlineStr = months[dm-1] + ' ' + dy;
+    // Sugerowana kwota wpłaty = miesięczna rata
+    const suggested = monthsLeft > 0 ? Math.ceil(monthlyNeeded) : 100;
     return `
       <div class="goal-card">
         <div class="goal-header">
@@ -3141,20 +3186,32 @@ function renderGoals() {
             <span class="goal-pct" style="color:${color}">${pct}%</span>
             ${done
               ? '<span style="color:var(--accent);margin-left:8px">🎉 Cel osiągnięty!</span>'
-              : `<span style="margin-left:8px">brakuje <strong>${fmt(remaining)}</strong>${monthsLeft > 0 ? ` · odkładaj ${fmt(monthlyNeeded)}/mies.` : ''}</span>`
+              : `<span style="margin-left:8px">brakuje <strong>${fmt(remaining)}</strong>${monthsLeft > 0 ? ` · odkładaj ${fmt(monthlyNeeded)}/mies.` : ' · termin minął!'}</span>`
             }
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="goal-deadline">📅 ${deadlineStr}</span>
             ${!done ? `
-              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 100)">+100 zł</button>
-              <button class="btn-goal-add" onclick="addToGoal(${g.id}, 500)">+500 zł</button>
-            ` : ''}
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" id="goalInput_${g.id}" placeholder="${suggested}"
+                  min="1" step="1" value="${suggested}"
+                  style="width:100px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;
+                    font-family:'Inter',sans-serif;font-size:0.82rem;background:var(--surface2);color:var(--text);outline:none">
+                <button class="btn-goal-add" onclick="addToGoalCustom(${g.id})">+ Odłóż</button>
+              </div>
+            ` : '🎉'}
             <button class="btn-delete" onclick="deleteGoal(${g.id})">✕</button>
           </div>
         </div>
       </div>`;
   }).join('');
+}
+
+function addToGoalCustom(id) {
+  const input = document.getElementById('goalInput_' + id);
+  const amount = parseFloat(input ? input.value : 0);
+  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
+  addToGoal(id, amount);
 }
 
 // ─── CUSTOM MONTH PICKER ─────────────────────────────────────────────────────
