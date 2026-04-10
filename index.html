@@ -1340,7 +1340,6 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('wydatki')">💰 Budżet</button>
     <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
-    <button class="tab" onclick="showTab('stale')">📅 Stałe</button>
     <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
     <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
   </div>
@@ -1587,58 +1586,6 @@
     </div>
   </div>
   <!-- STAŁE WYDATKI PANEL -->
-  <div class="panel" id="panel-stale">
-    <div class="form-card">
-      <div class="form-title">📅 Dodaj stały wydatek</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Kwota (zł)</label>
-          <input type="number" id="recAmount" placeholder="0,00" min="0" step="0.01">
-        </div>
-        <div class="field">
-          <label>Kategoria</label>
-          <select id="recCat">
-            <option value="dom">🏠 Dom (czynsz, media)</option>
-            <option value="kredyt">🏦 Kredyt hipoteczny</option>
-            <option value="pozyczka">💳 Pożyczka / rata</option>
-            <option value="transport">🚗 Transport</option>
-            <option value="electronics">📱 Subskrypcje</option>
-            <option value="education">📚 Studia / kursy</option>
-            <option value="childcare">👶 Przedszkole / niania</option>
-            <option value="zdrowie">💊 Zdrowie</option>
-            <option value="sport">🏋️ Siłownia / sport</option>
-            <option value="rozrywka">🎬 Rozrywka</option>
-            <option value="cafe">☕ Kawiarnie</option>
-            <option value="inne">📦 Inne</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Nazwa</label>
-          <input type="text" id="recName" placeholder="np. Czynsz, Netflix, Angielski...">
-        </div>
-        <div class="field">
-          <button class="btn-add" onclick="addRecurring()">Dodaj stały →</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-      <div>
-        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Suma stałych wydatków / miesiąc</div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.6rem;color:var(--red)" id="recTotal">0,00 zł</div>
-      </div>
-      <button class="btn-add" style="width:auto;padding:12px 24px" onclick="applyAllRecurring()">➕ Dodaj wszystkie do tego miesiąca</button>
-    </div>
-
-    <div class="section-header">
-      <div class="section-title">Twoje stałe wydatki</div>
-      <span class="badge" id="recBadge">0 pozycji</span>
-    </div>
-
-    <div id="recList">
-      <div class="empty"><span class="icon">📅</span>Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...</div>
-    </div>
-  </div>
 
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
@@ -1697,9 +1644,7 @@
   <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
     <span class="bicon">📊</span>Przegląd
   </button>
-  <button class="bnav-btn" id="bnav-stale" onclick="showTab('stale')">
-    <span class="bicon">📅</span>Stałe
-  </button>
+
   <button class="bnav-btn" id="bnav-cele" onclick="showTab('cele')">
     <span class="bicon">🎯</span>Cele
   </button>
@@ -1754,7 +1699,7 @@ const INC_META = {
 async function save() {
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('wplywy',  JSON.stringify(incomes));
-  await saveToFirestore(); // zapisuje expenses + incomes + recurring + goals
+  await saveToFirestore(); // zapisuje expenses + incomes + goals
 }
 
 // setState: zmień stan → zapisz → wyrenderuj
@@ -1762,16 +1707,13 @@ async function save() {
 async function setState(patch) {
   if (patch.expenses  !== undefined) expenses  = patch.expenses;
   if (patch.incomes   !== undefined) incomes   = patch.incomes;
-  if (patch.recurring !== undefined) recurring = patch.recurring;
   if (patch.goals     !== undefined) goals     = patch.goals;
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('wplywy',  JSON.stringify(incomes));
-  localStorage.setItem('stale',   JSON.stringify(recurring));
   localStorage.setItem('cele',    JSON.stringify(goals));
   await saveToFirestore();
   render();
   renderGoals();
-  renderRecurring();
 }
 
 function fmt(n) {
@@ -2291,8 +2233,7 @@ function sendChat() {
     .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`).join(', ');
   const recentExp = expenses.slice(0,8)
     .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
-  const recSummary = recurring.length
-    ? recurring.map(r=>`${r.name}: ${r.amount.toFixed(2)} zł/mies.`).join(', ') : 'brak';
+  const recSummary = 'brak'; // stałe wydatki usunięte
 
   const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
 
@@ -2301,7 +2242,6 @@ Dane użytkownika (bieżący miesiąc):
 - Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
 - Wydatki wg kategorii: ${catSummary || 'brak'}
-- Stałe wydatki: ${recSummary}
 
 Ostatnie transakcje:
 ${recentExp || 'brak transakcji'}
@@ -2428,10 +2368,6 @@ ${koment}`;
     if (topCm) porady.push(`💡 Największa kategoria to ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}). Warto ustalić tu miesięczny limit.`);
     if (catTotals['cafe'] && totalInc > 0 && catTotals['cafe']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['cafe']/totalInc*100).toFixed(0)}% Twoich wpływów (${fmt(catTotals['cafe'])}). Gotowanie w domu może sporo zaoszczędzić!`);
     if (catTotals['electronics'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['electronics'])}) — często płacimy za usługi których nie używamy.`);
-    if (recurring.length) {
-      const recTotal = recurring.reduce((s,r)=>s+r.amount,0);
-      porady.push(`📅 Masz ${recurring.length} stałych wydatków łącznie ${fmt(recTotal)}/mies. Warto je co jakiś czas przejrzeć.`);
-    }
     if (!porady.length) porady.push('💪 Twoje wydatki wyglądają rozsądnie! Tak trzymaj.');
     return `<strong>Moje porady dla Ciebie:</strong><br><br>${porady.join('<br><br>')}`;
   }
@@ -2505,14 +2441,6 @@ ${koment}`;
     }
   }
 
-  // STAŁE WYDATKI
-  if (has('stale','staly','staly wydatek','abonament','cykliczne')) {
-    if (!recurring.length) return '📅 Nie masz jeszcze zapisanych stałych wydatków. Dodaj je w zakładce 📅 Stałe!';
-    const recTotal = recurring.reduce((s,r)=>s+r.amount,0);
-    const lines = recurring.map(r=>`• ${r.name}: <strong>${fmt(r.amount)}</strong>`).join('<br>');
-    return `📅 <strong>Twoje stałe wydatki (${fmt(recTotal)}/mies.):</strong><br><br>${lines}`;
-  }
-
   // DZIĘKUJĘ
   if (has('dzieki','dziekuje','super','swietnie','spoko','ok dziek')) {
     return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań o swoje finanse — jestem tutaj!';
@@ -2579,87 +2507,11 @@ function updatePlaceholder(selectId, inputId, map) {
 // attach listeners after DOM ready
 document.getElementById('inCat').addEventListener('change',  () => updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS));
 document.getElementById('incCat').addEventListener('change', () => { updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS); toggleChildrenCount(); });
-document.getElementById('recCat').addEventListener('change', () => updatePlaceholder('recCat', 'recName', REC_PLACEHOLDERS));
 
 // set initial placeholders
 updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS);
 updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS);
-updatePlaceholder('recCat', 'recName', REC_PLACEHOLDERS);
 
-
-
-let recurring = JSON.parse(localStorage.getItem('stale') || '[]');
-
-function saveRecurring() {
-  localStorage.setItem('stale', JSON.stringify(recurring));
-  saveToFirestore(); // zapisuje cały stan: expenses + incomes + recurring + goals
-}
-
-function addRecurring() {
-  const amount = parseFloat(document.getElementById('recAmount').value);
-  const cat    = document.getElementById('recCat').value;
-  const name   = document.getElementById('recName').value.trim();
-  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  recurring.push({ id: Date.now(), amount, cat, name: name || CAT_META[cat].label });
-  saveRecurring();
-  renderRecurring();
-  showToast('Stały wydatek dodany ✓');
-  document.getElementById('recAmount').value = '';
-  document.getElementById('recName').value   = '';
-}
-
-function deleteRecurring(id) {
-  recurring = recurring.filter(r => r.id !== id);
-  saveRecurring();
-  renderRecurring();
-  showToast('Usunięto');
-}
-
-function applyRecurring(id) {
-  const r = recurring.find(r => r.id === id);
-  if (!r) return;
-  expenses.unshift({ id: Date.now(), amount: r.amount, cat: r.cat, desc: r.name + ' (stały)', date: today() });
-  save();
-  render();
-  showToast(r.name + ' dodano do wydatków ✓');
-}
-
-function applyAllRecurring() {
-  if (!recurring.length) { showToast('Brak stałych wydatków!'); return; }
-  recurring.forEach(r => {
-    expenses.unshift({ id: Date.now() + Math.random(), amount: r.amount, cat: r.cat, desc: r.name + ' (stały)', date: today() });
-  });
-  save();
-  render();
-  showToast('Wszystkie stałe dodane ✓');
-}
-
-function renderRecurring() {
-  const total = recurring.reduce((s, r) => s + r.amount, 0);
-  document.getElementById('recTotal').textContent = fmt(total);
-  document.getElementById('recBadge').textContent = recurring.length + ' pozycji';
-
-  const el = document.getElementById('recList');
-  if (!recurring.length) {
-    el.innerHTML = '<div class="empty"><span class="icon">📅</span>Brak stałych wydatków.<br>Dodaj np. czynsz, Netflix, przedszkole...</div>';
-    return;
-  }
-  el.innerHTML = recurring.map(r => {
-    const cm = CAT_META[r.cat] || CAT_META.inne;
-    return `
-      <div class="rec-item">
-        <div class="cat-dot" style="background:${cm.color}"></div>
-        <div class="rec-info">
-          <div class="rec-name">${r.name}</div>
-          <div class="rec-meta">${cm.emoji} ${cm.label}</div>
-        </div>
-        <span class="rec-freq">co miesiąc</span>
-        <div class="rec-amount">-${fmt(r.amount)}</div>
-        <button class="btn-apply" onclick="applyRecurring(${r.id})">+ Dodaj</button>
-        <button class="btn-delete" onclick="deleteRecurring(${r.id})">✕</button>
-      </div>`;
-  }).join('');
-}
 
 
 
@@ -2680,7 +2532,6 @@ function showTab(name) {
   if (bnav) bnav.classList.add('active');
 
   if (name === 'przeglad') { renderCharts(); }
-  if (name === 'stale') renderRecurring();
   if (name === 'cele') renderGoals();
 }
 
@@ -2715,15 +2566,12 @@ function confirmReset() {
 async function resetAllData() {
   expenses  = [];
   incomes   = [];
-  recurring = [];
   goals     = [];
   localStorage.removeItem('wydatki');
   localStorage.removeItem('wplywy');
-  localStorage.removeItem('stale');
   localStorage.removeItem('cele');
   await saveToFirestore();
   render();
-  renderRecurring();
   renderGoals();
   showToast('Wszystkie dane zostały usunięte ✓');
 }
@@ -2816,12 +2664,12 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('mainApp').style.display     = 'block';
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
-    render(); renderRecurring(); renderGoals(); checkNotificationStatus();
+    render(); renderGoals(); checkNotificationStatus();
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('mainApp').style.display     = 'none';
-    expenses = []; incomes = []; recurring = []; goals = [];
+    expenses = []; incomes = []; goals = [];
   }
 });
 
@@ -2833,7 +2681,6 @@ async function loadUserData() {
       const data = doc.data();
       expenses  = data.expenses  || [];
       incomes   = data.incomes   || [];
-      recurring = data.recurring || [];
       goals     = data.goals     || [];
 
       // Migracja: stare wpłaty na cele miały cat:'inne' — naprawiamy
@@ -2872,7 +2719,7 @@ async function saveToFirestore() {
   if (!currentUser) return;
   try {
     await db.collection('users').doc(currentUser.uid).set({
-      expenses, incomes, recurring, goals,
+      expenses, incomes, goals,
       updatedAt: new Date().toISOString()
     });
   } catch(e) { console.log('Save error:', e); }
@@ -3377,7 +3224,7 @@ function goalEmoji(name) {
 
 function saveGoals() {
   localStorage.setItem('cele', JSON.stringify(goals));
-  saveToFirestore(); // zapisuje cały stan: expenses + incomes + recurring + goals
+  saveToFirestore(); // zapisuje cały stan: expenses + incomes + goals
 }
 
 function addGoal() {
