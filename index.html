@@ -1843,9 +1843,20 @@ function deleteIncome(id) {
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
+function isGoalSaving(e) {
+  // Wydatki na cele oszczędnościowe — nie liczą się jako "wydatki" w budżecie
+  return e.desc && e.desc.startsWith('🎯 Oszczędności:');
+}
+
 function thisMonthExpenses() {
   const m = new Date().toISOString().slice(0, 7);
   return expenses.filter(e => e.date.startsWith(m));
+}
+
+// Wydatki BEZ odłożonych na cele (do alertów, zdrowia, wykresów)
+function thisMonthBudgetExpenses() {
+  const m = new Date().toISOString().slice(0, 7);
+  return expenses.filter(e => e.date.startsWith(m) && !isGoalSaving(e));
 }
 
 function thisMonthIncomes() {
@@ -1887,7 +1898,7 @@ function updateHeaderTotal() {
 }
 
 function renderStats() {
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
   const totalInc = mInc.reduce((s, i) => s + i.amount, 0);
@@ -1970,7 +1981,7 @@ function renderList() {
 // ─── WYKRES KOŁOWY ───────────────────────────────────────────────────────────
 
 function renderPieChart() {
-  const list = filteredExpenses();
+  const list = filteredExpenses().filter(e => !isGoalSaving(e));
   const catTotals = {};
   list.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const total = Object.values(catTotals).reduce((s, v) => s + v, 0);
@@ -2128,7 +2139,8 @@ function setMonth(m, btn) {
 }
 
 function renderCharts() {
-  const list    = filteredExpenses();
+  // W wykresach nie pokazuj oszczędności na cele jako kategorii "Inne"
+  const list    = filteredExpenses().filter(e => !isGoalSaving(e));
   const incList = filteredIncomes();
 
   const totalExp = list.reduce((s,e) => s+e.amount, 0);
@@ -2755,7 +2767,7 @@ async function saveToFirestore() {
 }
 
 function calcHealthScore() {
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -2814,7 +2826,7 @@ function renderHealthScore() {
 }
 
 function renderAlerts() {
-  const mExp = thisMonthExpenses();
+  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -3276,7 +3288,7 @@ function addToGoal(id, amount) {
   expenses.unshift({
     id: Date.now(),
     amount: actual,
-    cat: 'inne',
+    cat: 'oszczednosci',
     desc: '🎯 Oszczędności: ' + g.name,
     date: today()
   });
