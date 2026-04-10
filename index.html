@@ -3045,16 +3045,18 @@ function scheduleNotifications() {
 
 function sendDailyNotification() {
   if (Notification.permission !== 'granted') return;
-  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
-  const mInc = thisMonthIncomes();
-  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
-  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance  = totalInc - totalExp;
+  const mExp  = thisMonthBudgetExpenses();
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
+  const mInc  = thisMonthIncomes();
+  const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal;
   const score = calcHealthScore();
   let body = balance < 0
     ? `⚠️ Wydałaś ${fmt(Math.abs(balance))} więcej niż zarobiłaś!`
-    : totalInc > 0 && totalExp/totalInc > 0.8
-    ? `📊 Wydałaś już ${(totalExp/totalInc*100).toFixed(0)}% wpływów. Zostało: ${fmt(balance)}.`
+    : totalInc > 0 && (totalExp+totalGoal)/totalInc > 0.8
+    ? `📊 Wydałaś już ${((totalExp+totalGoal)/totalInc*100).toFixed(0)}% wpływów. Zostało: ${fmt(balance)}.`
     : `💰 Saldo: ${fmt(balance)} | Zdrowie finansowe: ${score}/100`;
   new Notification('💸 CashFlow — Dzienny raport', { body });
 }
