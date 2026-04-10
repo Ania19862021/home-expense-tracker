@@ -2782,15 +2782,27 @@ async function loadUserData() {
       incomes   = data.incomes   || [];
       recurring = data.recurring || [];
       goals     = data.goals     || [];
+
       // Migracja: stare wpłaty na cele miały cat:'inne' — naprawiamy
-      let migrated = false;
+      let changed = false;
       expenses.forEach(e => {
         if (isGoalSaving(e) && e.cat !== 'oszczednosci') {
           e.cat = 'oszczednosci';
-          migrated = true;
+          changed = true;
         }
       });
-      if (migrated) saveToFirestore();
+
+      // Czyszczenie: usuń oszczędności dla celów które już nie istnieją
+      const goalNames = goals.map(g => g.name);
+      const before = expenses.length;
+      expenses = expenses.filter(e => {
+        if (!isGoalSaving(e)) return true; // normalny wydatek — zostaje
+        // Oszczędność — zostaje tylko jeśli cel nadal istnieje
+        return goalNames.some(name => e.desc.includes(name));
+      });
+      if (expenses.length !== before) changed = true;
+
+      if (changed) saveToFirestore();
     }
   } catch(e) { console.log('Load error:', e); }
 }
