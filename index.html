@@ -1748,10 +1748,30 @@ const INC_META = {
   inne_inc:      { label: 'Inne',                  emoji: '💰' },
 };
 
-function save() {
+// ─── CENTRALNY ZAPIS STANU ───────────────────────────────────────────────────
+// Jedna funkcja do zapisu CAŁEGO stanu — eliminuje race conditions
+// i gwarantuje że Firestore zawsze ma kompletne dane
+async function save() {
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('wplywy',  JSON.stringify(incomes));
-  saveToFirestore();
+  await saveToFirestore(); // zapisuje expenses + incomes + recurring + goals
+}
+
+// setState: zmień stan → zapisz → wyrenderuj
+// Użycie: await setState({ expenses: [...], goals: [...] })
+async function setState(patch) {
+  if (patch.expenses  !== undefined) expenses  = patch.expenses;
+  if (patch.incomes   !== undefined) incomes   = patch.incomes;
+  if (patch.recurring !== undefined) recurring = patch.recurring;
+  if (patch.goals     !== undefined) goals     = patch.goals;
+  localStorage.setItem('wydatki', JSON.stringify(expenses));
+  localStorage.setItem('wplywy',  JSON.stringify(incomes));
+  localStorage.setItem('stale',   JSON.stringify(recurring));
+  localStorage.setItem('cele',    JSON.stringify(goals));
+  await saveToFirestore();
+  render();
+  renderGoals();
+  renderRecurring();
 }
 
 function fmt(n) {
@@ -1896,14 +1916,14 @@ function calc800Plus() {
 
 // ─── DELETE ──────────────────────────────────────────────────────────────────
 
-function deleteExpense(id) {
+async function deleteExpense(id) {
   expenses = expenses.filter(e => e.id !== id);
-  save(); render(); showToast('Usunięto');
+  await save(); render(); showToast('Usunięto');
 }
 
-function deleteIncome(id) {
+async function deleteIncome(id) {
   incomes = incomes.filter(i => i.id !== id);
-  save(); render(); showToast('Usunięto');
+  await save(); render(); showToast('Usunięto');
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -2004,10 +2024,15 @@ function renderStats() {
 
 function renderList() {
   const el = document.getElementById('expenseList');
-  // merge and sort by date desc
-  const expItems = histFilter !== 'inc' ? expenses.slice(0, 50).map(e => ({ ...e, type: 'exp' })) : [];
-  const incItems = histFilter !== 'exp' ? incomes.slice(0, 50).map(i => ({ ...i, type: 'inc' })) : [];
-  const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id).slice(0, 60);
+  // Pokaż tylko bieżący miesiąc — spójnie z renderStats i nagłówkiem
+  const m = new Date().toISOString().slice(0, 7);
+  const expItems = histFilter !== 'inc'
+    ? expenses.filter(e => e.date.startsWith(m)).map(e => ({ ...e, type: 'exp' }))
+    : [];
+  const incItems = histFilter !== 'exp'
+    ? incomes.filter(i => i.date.startsWith(m)).map(i => ({ ...i, type: 'inc' }))
+    : [];
+  const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id);
 
   if (!all.length) {
     el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!</div>';
@@ -2567,7 +2592,7 @@ let recurring = JSON.parse(localStorage.getItem('stale') || '[]');
 
 function saveRecurring() {
   localStorage.setItem('stale', JSON.stringify(recurring));
-  saveToFirestore();
+  saveToFirestore(); // zapisuje cały stan: expenses + incomes + recurring + goals
 }
 
 function addRecurring() {
@@ -3352,7 +3377,7 @@ function goalEmoji(name) {
 
 function saveGoals() {
   localStorage.setItem('cele', JSON.stringify(goals));
-  saveToFirestore();
+  saveToFirestore(); // zapisuje cały stan: expenses + incomes + recurring + goals
 }
 
 function addGoal() {
@@ -3364,7 +3389,7 @@ function addGoal() {
   if (!deadline) { showToast('Podaj termin!'); return; }
   const emoji = goalEmoji(name);
   goals.push({ id: Date.now(), name, target, deadline, saved: 0, emoji });
-  saveGoals(); renderGoals();
+  saveGoals(); render(); renderGoals();
   showToast('Cel dodany! 🎯');
   document.getElementById('goalName').value = '';
   document.getElementById('goalTarget').value = '';
