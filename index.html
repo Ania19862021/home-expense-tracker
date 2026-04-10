@@ -1514,7 +1514,7 @@
   <div class="panel" id="panel-przeglad">
     <div class="filter-row">
       <span class="filter-label">Miesiąc:</span>
-      <button class="month-btn active" onclick="setMonth(null, this)">Wszystkie</button>
+      <button class="month-btn" onclick="setMonth(null, this)">Wszystkie</button>
       <!-- dynamicznie dodawane -->
     </div>
 
@@ -1736,7 +1736,7 @@ const CAT_META = {
 
 let expenses = JSON.parse(localStorage.getItem('wydatki') || '[]');
 let incomes  = JSON.parse(localStorage.getItem('wplywy') || '[]');
-let filterMonth = null;
+let filterMonth = new Date().toISOString().slice(0, 7); // domyślnie bieżący miesiąc
 let histFilter = 'all';
 
 const INC_META = {
@@ -3341,15 +3341,21 @@ function addToGoal(id, amount) {
 function deleteGoal(id) {
   const g = goals.find(g => g.id === id);
   if (g) {
-    // Usuń wpłaty na ten cel z historii
-    expenses = expenses.filter(e => e.desc !== '🎯 Oszczędności: ' + g.name);
-    save();   // zapisuje expenses + aktualizuje saldo
-    render(); // odświeża widok (saldo, historia, wykresy)
+    // Usuń WSZYSTKIE wpłaty na ten cel z historii
+    // (sprawdzamy po opisie zawierającym nazwę celu)
+    const before = expenses.length;
+    expenses = expenses.filter(e =>
+      !(isGoalSaving(e) && e.desc.includes(g.name))
+    );
+    const removed = before - expenses.length;
+    save();
+    render();
+    if (removed > 0) console.log(`Usunięto ${removed} wpłat dla celu "${g.name}"`);
   }
   goals = goals.filter(g => g.id !== id);
   saveGoals();
   renderGoals();
-  showToast('Cel i jego wpłaty usunięte');
+  showToast('Cel i jego wpłaty usunięte ✓');
 }
 
 function renderGoals() {
