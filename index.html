@@ -1890,21 +1890,24 @@ function render() {
 }
 
 function updateHeaderTotal() {
-  const inc = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
-  const exp = thisMonthBudgetExpenses().reduce((s, e) => s + e.amount, 0);
-  const bal = inc - exp;
-  const el  = document.getElementById('headerTotal');
+  const inc  = thisMonthIncomes().reduce((s, i) => s + i.amount, 0);
+  const exp  = thisMonthBudgetExpenses().reduce((s, e) => s + e.amount, 0);
+  const goal = thisMonthExpenses().filter(e => isGoalSaving(e)).reduce((s, e) => s + e.amount, 0);
+  const bal  = inc - exp - goal;
+  const el   = document.getElementById('headerTotal');
   el.textContent = fmt(bal);
   el.style.color = bal >= 0 ? 'var(--accent)' : 'var(--red)';
 }
 
 function renderStats() {
   const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e)); // tylko cele
   const mInc = thisMonthIncomes();
-  const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
-  const totalInc = mInc.reduce((s, i) => s + i.amount, 0);
-  const balance  = totalInc - totalExp;
-  const savePct  = totalInc > 0 ? ((balance / totalInc) * 100).toFixed(0) : null;
+  const totalExp  = mExp.reduce((s, e) => s + e.amount, 0);
+  const totalGoal = mGoal.reduce((s, e) => s + e.amount, 0);
+  const totalInc  = mInc.reduce((s, i) => s + i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal; // saldo uwzględnia cele
+  const savePct   = totalInc > 0 ? ((balance / totalInc) * 100).toFixed(0) : null;
 
   document.getElementById('statIncome').textContent  = fmt(totalInc);
   document.getElementById('statMonth').textContent   = fmt(totalExp);
@@ -2046,14 +2049,15 @@ function renderMonthlySummary() {
     mExp = expenses.filter(e => !isGoalSaving(e));
     mInc = incomes;
   }
-  const totalExp = mExp.reduce((s, e) => s + e.amount, 0);
-  const totalInc = mInc.reduce((s, i) => s + i.amount, 0);
+  const totalExp  = mExp.reduce((s, e) => s + e.amount, 0);
+  const totalGoal = thisMonthExpenses().filter(e => isGoalSaving(e)).reduce((s,e) => s+e.amount, 0);
+  const totalInc  = mInc.reduce((s, i) => s + i.amount, 0);
 
   if (!totalExp && !totalInc) { card.style.display = 'none'; return; }
   card.style.display = 'block';
 
-  const balance = totalInc - totalExp;
-  const savePct = totalInc > 0 ? ((balance / totalInc) * 100).toFixed(0) : 0;
+  const balance = totalInc - totalExp - totalGoal;
+  const savePct = totalInc > 0 ? (((balance) / totalInc) * 100).toFixed(0) : 0;
   const score = calcHealthScore() || 0;
   const scoreColor = score >= 80 ? '#58b19f' : score >= 60 ? '#6aab8e' : score >= 40 ? '#f0a500' : '#e1306c';
 
@@ -2129,11 +2133,13 @@ function setMonth(m, btn) {
 function renderCharts() {
   // W wykresach nie pokazuj oszczędności na cele jako kategorii "Inne"
   const list    = filteredExpenses().filter(e => !isGoalSaving(e));
+  const goalExp = filteredExpenses().filter(e => isGoalSaving(e));
   const incList = filteredIncomes();
 
-  const totalExp = list.reduce((s,e) => s+e.amount, 0);
-  const totalInc = incList.reduce((s,i) => s+i.amount, 0);
-  const balance  = totalInc - totalExp;
+  const totalExp  = list.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = goalExp.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = incList.reduce((s,i) => s+i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal; // spójne z Budżetem
 
   // Update przegląd stats
   const ci = document.getElementById('chartIncome');
