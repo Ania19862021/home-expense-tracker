@@ -1547,7 +1547,7 @@
         <div id="catChart"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Top wydatki</div>
+        <div class="chart-card-title">Top kategorie</div>
         <div id="topList"></div>
       </div>
     </div>
@@ -1781,16 +1781,95 @@ function setHistFilter(f, btn) {
 
 // ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
+function checkDuplicate(list, cat, desc, isIncome) {
+  const m = today().slice(0, 7); // bieżący miesiąc
+  const normalizedDesc = (desc || '').toLowerCase().trim();
+  return list.find(e =>
+    e.date.startsWith(m) &&
+    e.cat === cat &&
+    (e.desc || '').toLowerCase().trim() === normalizedDesc
+  );
+}
+
+function showDuplicateModal(message, onConfirm) {
+  const modal = document.createElement('div');
+  modal.id = 'dupModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:#00000060;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.15)">
+      <div style="font-size:2rem;text-align:center;margin-bottom:12px">⚠️</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;text-align:center;margin-bottom:10px">Podobny wpis już istnieje</div>
+      <div style="font-size:0.82rem;color:var(--text2);text-align:center;margin-bottom:24px;line-height:1.6">${message}</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('dupModal').remove()"
+          style="flex:1;padding:11px;border:1px solid var(--border);background:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;color:var(--text2)">
+          Anuluj
+        </button>
+        <button id="dupConfirmBtn"
+          style="flex:1;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer">
+          Dodaj mimo to
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('dupConfirmBtn').onclick = () => {
+    document.getElementById('dupModal').remove();
+    onConfirm();
+  };
+}
+
 function addExpense() {
   const amount = parseFloat(document.getElementById('inAmount').value);
   const cat    = document.getElementById('inCat').value;
   const desc   = document.getElementById('inDesc').value.trim();
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  expenses.unshift({ id: Date.now(), amount, cat, desc: desc || CAT_META[cat].label, date: today() });
+  const finalDesc = desc || CAT_META[cat].label;
+
+  const dup = checkDuplicate(expenses, cat, finalDesc);
+  if (dup) {
+    const cm = CAT_META[cat] || CAT_META.inne;
+    showDuplicateModal(
+      `W tym miesiącu masz już wpis:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${cm.emoji} ${cm.label}, ${dup.date})`,
+      () => doAddExpense(amount, cat, finalDesc)
+    );
+    return;
+  }
+  doAddExpense(amount, cat, finalDesc);
+}
+
+function doAddExpense(amount, cat, desc) {
+  expenses.unshift({ id: Date.now(), amount, cat, desc, date: today() });
   save(); render();
   showToast('Wydatek dodany ✓');
   document.getElementById('inAmount').value = '';
   document.getElementById('inDesc').value   = '';
+}
+
+function addIncome() {
+  const amount = parseFloat(document.getElementById('incAmount').value);
+  const cat    = document.getElementById('incCat').value;
+  const desc   = document.getElementById('incDesc').value.trim();
+  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
+  const finalDesc = desc || INC_META[cat].label;
+
+  const dup = checkDuplicate(incomes, cat, finalDesc);
+  if (dup) {
+    const im = INC_META[cat] || INC_META.inne_inc;
+    showDuplicateModal(
+      `W tym miesiącu masz już wpis:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${im.emoji} ${im.label}, ${dup.date})`,
+      () => doAddIncome(amount, cat, finalDesc)
+    );
+    return;
+  }
+  doAddIncome(amount, cat, finalDesc);
+}
+
+function doAddIncome(amount, cat, desc) {
+  incomes.unshift({ id: Date.now(), amount, cat, desc, date: today() });
+  save(); render();
+  showToast('Wpływ dodany ✓');
+  document.getElementById('incAmount').value = '';
+  document.getElementById('incDesc').value   = '';
 }
 
 // ─── 800+ LOGIC ──────────────────────────────────────────────────────────────
@@ -1814,20 +1893,6 @@ function calc800Plus() {
   document.getElementById('incDesc').value = children === 1
     ? '800+ na 1 dziecko'
     : `800+ na ${children} dzieci (${children} x 800 zł)`;
-}
-
-// ─── ADD INCOME ──────────────────────────────────────────────────────────────
-
-function addIncome() {
-  const amount = parseFloat(document.getElementById('incAmount').value);
-  const cat    = document.getElementById('incCat').value;
-  const desc   = document.getElementById('incDesc').value.trim();
-  if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
-  incomes.unshift({ id: Date.now(), amount, cat, desc: desc || INC_META[cat].label, date: today() });
-  save(); render();
-  showToast('Wpływ dodany ✓');
-  document.getElementById('incAmount').value = '';
-  document.getElementById('incDesc').value   = '';
 }
 
 // ─── DELETE ──────────────────────────────────────────────────────────────────
@@ -2176,20 +2241,27 @@ function renderCharts() {
       }).join('');
   }
 
-  // Top list
+  // Top kategorie — sumy per kategoria (spójne z wykresem kołowym i słupkowym)
   const topEl = document.getElementById('topList');
-  const top = [...list].sort((a,b) => b.amount - a.amount).slice(0, 6);
-  if (!top.length) {
+  const topCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  if (!topCats.length) {
     topEl.innerHTML = '<div style="color:var(--text2);font-size:0.8rem;text-align:center;padding:20px">Brak danych</div>';
   } else {
-    topEl.innerHTML = top.map((e, i) => {
-      const cm = CAT_META[e.cat] || CAT_META.inne;
+    const maxVal = topCats[0][1];
+    topEl.innerHTML = topCats.map(([cat, val], i) => {
+      const cm = CAT_META[cat] || CAT_META.inne;
+      const pct = (val / maxVal * 100).toFixed(0);
       return `
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.75rem;color:var(--text2);width:20px">#${i+1}</span>
           <div class="cat-dot" style="background:${cm.color}"></div>
-          <div style="flex:1;font-size:0.8rem">${e.desc}</div>
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--red)">${fmt(e.amount)}</div>
+          <div style="flex:1">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:3px">${cm.emoji} ${cm.label}</div>
+            <div style="height:4px;background:var(--border);border-radius:99px">
+              <div style="height:100%;width:${pct}%;background:${cm.color};border-radius:99px"></div>
+            </div>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--red);white-space:nowrap">${fmt(val)}</div>
         </div>`;
     }).join('');
   }
@@ -3209,25 +3281,25 @@ function exportPDF() {
 
   y += 4;
 
-  // ── TOP WYDATKI ──
-  const top = [...mExp].sort((a,b) => b.amount - a.amount).slice(0, 8);
-  if (top.length) {
+  // ── TOP KATEGORIE (spójne z Przeglądem) ──
+  const topCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  if (topCats.length) {
+    if (y > 240) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
     doc.setTextColor(38,38,38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Top wydatki', lm, y);
+    doc.text('Top kategorie', lm, y);
     y += 2;
     doc.setDrawColor(239,239,239);
     doc.line(lm, y+2, lm+pw, y+2);
     y += 8;
 
-    top.forEach((e, i) => {
-      const cm = CAT_META[e.cat] || CAT_META.inne;
-      // alternating row bg
-      if (i % 2 === 0) {
-        doc.setFillColor(250,250,250);
-        doc.rect(lm - 2, y - 5, pw + 4, 10, 'F');
-      }
+    const maxCatVal = topCats[0][1];
+    topCats.forEach(([cat, val], i) => {
+      const cm = CAT_META[cat] || CAT_META.inne;
+      const pct = totalExp > 0 ? (val/totalExp*100).toFixed(0) : 0;
+      const barW = Math.max(1, (val/maxCatVal) * 85);
+      if (i % 2 === 0) { doc.setFillColor(250,250,250); doc.rect(lm-2, y-5, pw+4, 10, 'F'); }
       doc.setTextColor(142,142,142);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
@@ -3235,14 +3307,14 @@ function exportPDF() {
       doc.setTextColor(38,38,38);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(pl(e.desc.substring(0, 38)), lm + 8, y);
+      doc.text(pl(cm.pdfLabel || cm.label), lm + 8, y);
+      doc.setFillColor(239,239,239);
+      doc.roundedRect(lm + 70, y-3.5, 60, 4, 1, 1, 'F');
+      doc.setFillColor(193,53,132);
+      doc.roundedRect(lm + 70, y-3.5, Math.max(1,(val/maxCatVal)*60), 4, 1, 1, 'F');
       doc.setTextColor(225,48,108);
       doc.setFont('helvetica', 'bold');
-      doc.text(pl(fmt(e.amount)), lm + pw, y, { align: 'right' });
-      doc.setTextColor(142,142,142);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
-      doc.text(pl(cm.pdfLabel || cm.label) + ' · ' + e.date, lm + 8, y + 4);
+      doc.text(pl(fmt(val)) + ' (' + pct + '%)', lm+pw, y, { align: 'right' });
       y += 11;
       if (y > 270) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
     });
