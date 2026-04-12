@@ -1641,6 +1641,123 @@
     animation: fadeUp 0.4s ease;
   }
 
+
+  /* ── REKOMENDACJE DOLARKA ────────────────────────────────────────────────── */
+  .rec-section {
+    margin-top: 28px;
+  }
+  .rec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .rec-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-rec-refresh {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-rec-refresh:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-rec-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+  .rec-summary {
+    font-size: 0.82rem;
+    color: var(--text2);
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+  .rec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rec-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid transparent;
+    animation: fadeUp 0.3s ease;
+    line-height: 1.4;
+  }
+  .rec-card.danger  { background: #fff0f3; border-color: #e1306c30; }
+  .rec-card.warning { background: #fff8e6; border-color: #f59e0b30; }
+  .rec-card.success { background: #f0fdf4; border-color: #58b19f30; }
+  .rec-card.info    { background: #eff6ff; border-color: #405de630; }
+  .rec-card-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+  .rec-card-body { flex: 1; }
+  .rec-card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    margin-bottom: 3px;
+  }
+  .rec-card.danger  .rec-card-title { color: #9d174d; }
+  .rec-card.warning .rec-card-title { color: #92400e; }
+  .rec-card.success .rec-card-title { color: #065f46; }
+  .rec-card.info    .rec-card-title { color: #1e40af; }
+  .rec-card-desc { font-size: 0.8rem; color: var(--text2); }
+  .rec-card-saving {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+    align-self: center;
+  }
+  .rec-card.danger  .rec-card-saving { color: #9d174d; }
+  .rec-card.warning .rec-card-saving { color: #92400e; }
+  .rec-card.success .rec-card-saving { color: #065f46; }
+  .rec-card.info    .rec-card-saving { color: #1e40af; }
+  .rec-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .rec-spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rec-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text2);
+    font-size: 0.82rem;
+  }
+
 </style>
 </head>
 <body>
@@ -2046,6 +2163,23 @@
       </div>
       <div class="year-title" style="font-size:0.85rem">Wydatki per miesiąc</div>
       <div class="year-months" id="yearMonthsList"></div>
+    </div>
+
+    <!-- REKOMENDACJE DOLARKA -->
+    <div class="rec-section" id="recSection" style="display:none">
+      <div class="rec-header">
+        <div class="rec-title">🦁 Rekomendacje Dolarka</div>
+        <button class="btn-rec-refresh" id="btnRecRefresh" onclick="loadRecommendations()">
+          🔄 Odśwież
+        </button>
+      </div>
+      <div id="recSummary" class="rec-summary" style="display:none"></div>
+      <div class="rec-list" id="recList">
+        <div class="rec-loading">
+          <div class="rec-spinner"></div>
+          Dolarek analizuje Twoje finanse...
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3264,7 +3398,7 @@ function showTab(name) {
   const bnav = document.getElementById('bnav-' + name);
   if (bnav) bnav.classList.add('active');
 
-  if (name === 'przeglad') { renderCharts(); renderYearlySummary(); }
+  if (name === 'przeglad') { renderCharts(); renderYearlySummary(); loadRecommendations(); }
   if (name === 'cele') renderGoals();
 }
 
@@ -4358,6 +4492,113 @@ function hideWelcomeCard() {
     const el = document.getElementById(id);
     if (el) el.style.display = '';
   });
+}
+
+
+// ─── REKOMENDACJE DOLARKA ─────────────────────────────────────────────────────
+
+async function loadRecommendations() {
+  const section = document.getElementById('recSection');
+  const list    = document.getElementById('recList');
+  const summary = document.getElementById('recSummary');
+  const btn     = document.getElementById('btnRecRefresh');
+  if (!section || !list) return;
+
+  // Sprawdź czy mamy dane
+  if (expenses.length === 0 && incomes.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  if (btn) btn.disabled = true;
+  list.innerHTML = '<div class="rec-loading"><div class="rec-spinner"></div>Dolarek analizuje Twoje finanse...</div>';
+  if (summary) summary.style.display = 'none';
+
+  // Przygotuj dane finansowe
+  const year = selectedMonth.slice(0, 4);
+  const mExp  = thisMonthBudgetExpenses();
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
+  const mInc  = thisMonthIncomes();
+  const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal;
+  const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
+
+  // Kategorie wydatków
+  const catTotals = {};
+  mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat]||0) + e.amount; });
+  const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
+    .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(0)} zł (${totalInc>0?(val/totalInc*100).toFixed(0):0}% wpływów)`)
+    .join(', ');
+
+  // Dane roczne
+  const allMonths = Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
+  const yearlyData = allMonths.map(m => {
+    const mE = getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0);
+    const mI = getMonthIncomes(m).reduce((s,i)=>s+i.amount,0);
+    if (!mE && !mI) return null;
+    const mn = parseInt(m.slice(5))-1;
+    return `${MONTH_NAMES_SHORT[mn]}: wpływy ${mI.toFixed(0)} zł, wydatki ${mE.toFixed(0)} zł`;
+  }).filter(Boolean).join(' | ');
+
+  const dataPayload = `
+Bieżący miesiąc (${MONTH_NAMES_PL[parseInt(selectedMonth.slice(5))-1]} ${year}):
+- Wpływy: ${totalInc.toFixed(2)} zł
+- Wydatki: ${totalExp.toFixed(2)} zł
+- Wpłaty na cele: ${totalGoal.toFixed(2)} zł
+- Saldo: ${balance.toFixed(2)} zł
+- Oszczędności: ${savePct}% wpływów
+- Wydatki wg kategorii: ${catSummary || 'brak'}
+- Liczba celów oszczędnościowych: ${goals.length}
+
+Dane roczne ${year}:
+${yearlyData || 'brak danych'}
+  `.trim();
+
+  try {
+    const response = await fetch('/.netlify/functions/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: dataPayload }),
+    });
+
+    const result = await response.json();
+
+    if (result.error || !result.recommendations) {
+      list.innerHTML = '<div class="rec-empty">Nie udało się wygenerować rekomendacji. Spróbuj ponownie.</div>';
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    // Pokaż summary
+    if (result.summary && summary) {
+      summary.textContent = '🦁 ' + result.summary;
+      summary.style.display = 'block';
+    }
+
+    // Renderuj rekomendacje
+    list.innerHTML = result.recommendations.map(rec => {
+      const savingText = rec.saving > 0
+        ? `<div class="rec-card-saving">-${rec.saving} zł/mies.</div>`
+        : '';
+      return `
+        <div class="rec-card ${rec.type}">
+          <div class="rec-card-icon">${rec.icon}</div>
+          <div class="rec-card-body">
+            <div class="rec-card-title">${rec.title}</div>
+            <div class="rec-card-desc">${rec.desc}</div>
+          </div>
+          ${savingText}
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    list.innerHTML = '<div class="rec-empty">Błąd połączenia. Sprawdź internet i spróbuj ponownie.</div>';
+  }
+
+  if (btn) btn.disabled = false;
 }
 
 // ─── BANER KONTEKSTU MIESIĄCA ────────────────────────────────────────────────
