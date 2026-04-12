@@ -691,6 +691,7 @@
 
   .ftab.exp.active { background: var(--red); color: #fff; }
   .ftab.inc.active { background: var(--accent); color: #fff; }
+  .ftab.parse.active { background: linear-gradient(45deg, #f09433, #bc1888); color: #fff; }
 
   .income-form { display: none; }
   .income-form.visible { display: block; }
@@ -1406,6 +1407,121 @@
     color: #1e40af;
     font-weight: 600;
   }
+
+  /* ── OPISZ SŁOWNIE ───────────────────────────────────────────────────────── */
+  .parse-form { display: none; }
+  .parse-form.visible { display: block; }
+
+  .parse-textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+  .parse-textarea:focus { border-color: var(--accent); }
+  .parse-textarea::placeholder { color: var(--text2); }
+
+  .btn-parse {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .btn-parse:hover { opacity: 0.88; }
+  .btn-parse:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .parse-results {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.3s ease;
+  }
+  .parse-results.visible { display: flex; }
+
+  .parse-result-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .parse-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+  .parse-item:has(input[type=checkbox]:checked) { border-color: var(--accent); background: var(--surface); }
+
+  .parse-item-check { flex-shrink: 0; width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
+  .parse-item-info { flex: 1; min-width: 0; }
+  .parse-item-desc { font-size: 0.88rem; font-weight: 600; }
+  .parse-item-cat { font-size: 0.7rem; color: var(--text2); margin-top: 2px; }
+
+  .parse-item-amount {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .parse-item-amount.exp { color: var(--red); }
+  .parse-item-amount.inc { color: var(--accent); }
+
+  .parse-item-input {
+    width: 90px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    flex-shrink: 0;
+  }
+  .parse-item-input:focus { border-color: var(--accent); }
+
+  .btn-parse-add {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  .btn-parse-add:hover { opacity: 0.88; }
+
 </style>
 </head>
 <body>
@@ -1516,6 +1632,7 @@
       <div class="form-toggle">
         <button class="ftab exp active" id="ftabExp" onclick="switchForm('exp')">➖ Dodaj wydatek</button>
         <button class="ftab inc" id="ftabInc" onclick="switchForm('inc')">➕ Dodaj wpływ</button>
+        <button class="ftab" id="ftabParse" onclick="switchForm('parse')" style="background:none;color:var(--text2)">💬 Opisz słownie</button>
       </div>
 
       <!-- FORMULARZ WYDATKU -->
@@ -1610,6 +1727,22 @@
           <div class="field">
             <button class="btn-add" onclick="addIncome()">Dodaj wpływ →</button>
           </div>
+        </div>
+      </div>
+
+      <!-- FORMULARZ OPISZ SŁOWNIE -->
+      <div class="parse-form" id="parseForm">
+        <div style="font-size:0.78rem;color:var(--text2);margin-bottom:10px;line-height:1.5">
+          💡 Opisz swoje wydatki i wpływy naturalnym językiem — Dolarek je przeanalizuje i przygotuje listę do zatwierdzenia.
+        </div>
+        <textarea class="parse-textarea" id="parseTextarea"
+          placeholder="np. W marcu zarobiłam 8000 zł pensji, zapłaciłam 1500 zł czynszu, wydałam 600 zł na jedzenie, 200 zł na paliwo i 150 zł na Netflix..."></textarea>
+        <button class="btn-parse" id="btnParse" onclick="runParse()">🦁 Analizuj z Dolarkiem</button>
+
+        <div class="parse-results" id="parseResults">
+          <div class="parse-result-title">Znalezione transakcje — odznacz lub edytuj kwoty:</div>
+          <div id="parseItemsList"></div>
+          <button class="btn-parse-add" onclick="addParsedItems()">✅ Dodaj zaznaczone</button>
         </div>
       </div>
     </div>
@@ -1961,8 +2094,11 @@ function switchForm(type) {
   setDefaultDates();
   document.getElementById('expenseForm').classList.toggle('hidden', type !== 'exp');
   document.getElementById('incomeForm').classList.toggle('visible', type === 'inc');
+  document.getElementById('parseForm').classList.toggle('visible', type === 'parse');
   document.getElementById('ftabExp').classList.toggle('active', type === 'exp');
   document.getElementById('ftabInc').classList.toggle('active', type === 'inc');
+  const ftabParse = document.getElementById('ftabParse');
+  if (ftabParse) ftabParse.classList.toggle('active', type === 'parse');
 }
 
 function setHistFilter(f, btn) {
@@ -3871,6 +4007,119 @@ document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
 
 <script>
   
+
+
+// ─── OPISZ SŁOWNIE (AI PARSE) ────────────────────────────────────────────────
+
+let parsedItems = []; // przechowuje wyniki parsowania
+
+async function runParse() {
+  const text = document.getElementById('parseTextarea').value.trim();
+  if (!text) { showToast('Opisz swoje wydatki i wpływy!'); return; }
+
+  const btn = document.getElementById('btnParse');
+  btn.disabled = true;
+  btn.textContent = '⏳ Dolarek analizuje...';
+
+  const date = getInputDate('inDate');
+
+  try {
+    const response = await fetch('/.netlify/functions/parse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, date }),
+    });
+
+    const data = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      showToast('Nie udało się rozpoznać transakcji. Spróbuj inaczej opisać!');
+      btn.disabled = false;
+      btn.textContent = '🦁 Analizuj z Dolarkiem';
+      return;
+    }
+
+    parsedItems = data.items;
+    renderParsedItems();
+    document.getElementById('parseResults').classList.add('visible');
+    showToast(`Znaleziono ${parsedItems.length} transakcji! Sprawdź i zatwierdź ✓`);
+
+  } catch (err) {
+    showToast('Błąd połączenia. Spróbuj ponownie!');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🦁 Analizuj z Dolarkiem';
+}
+
+function renderParsedItems() {
+  const list = document.getElementById('parseItemsList');
+  list.innerHTML = parsedItems.map((item, i) => {
+    const isInc = item.type === 'inc';
+    const meta = isInc
+      ? (INC_META[item.cat] || INC_META.inne_inc)
+      : (CAT_META[item.cat] || CAT_META.inne);
+    const sign = isInc ? '+' : '-';
+    const amtClass = isInc ? 'inc' : 'exp';
+    return `
+      <div class="parse-item">
+        <input type="checkbox" class="parse-item-check" id="parseCheck_${i}" checked>
+        <div class="parse-item-info">
+          <div class="parse-item-desc">${item.desc}</div>
+          <div class="parse-item-cat">${meta.emoji} ${meta.label} · ${isInc ? 'Wpływ' : 'Wydatek'}</div>
+        </div>
+        <input type="number" class="parse-item-input" id="parseAmt_${i}"
+          value="${item.amount}" min="0.01" step="0.01">
+        <div class="parse-item-amount ${amtClass}">${sign}${item.amount.toFixed(2).replace('.', ',')} zł</div>
+      </div>`;
+  }).join('');
+
+  // Live update kwoty przy zmianie pola
+  parsedItems.forEach((item, i) => {
+    const input = document.getElementById('parseAmt_' + i);
+    const amtEl = input?.nextElementSibling;
+    if (input && amtEl) {
+      input.addEventListener('input', () => {
+        const val = parseFloat(input.value) || 0;
+        const sign = item.type === 'inc' ? '+' : '-';
+        amtEl.textContent = sign + val.toFixed(2).replace('.', ',') + ' zł';
+      });
+    }
+  });
+}
+
+async function addParsedItems() {
+  const date = getInputDate('inDate');
+  let added = 0;
+
+  for (let i = 0; i < parsedItems.length; i++) {
+    const checked = document.getElementById('parseCheck_' + i)?.checked;
+    if (!checked) continue;
+
+    const item = parsedItems[i];
+    const amount = parseFloat(document.getElementById('parseAmt_' + i)?.value) || item.amount;
+    if (!amount || amount <= 0) continue;
+
+    if (item.type === 'inc') {
+      incomes.unshift({ id: Date.now() + i, amount, cat: item.cat, desc: item.desc, date });
+    } else {
+      expenses.unshift({ id: Date.now() + i, amount, cat: item.cat, desc: item.desc, date });
+    }
+    added++;
+  }
+
+  if (added === 0) { showToast('Zaznacz przynajmniej jedną transakcję!'); return; }
+
+  await save();
+  render();
+  showToast(`Dodano ${added} transakcji! ✓`);
+
+  // Reset
+  parsedItems = [];
+  document.getElementById('parseTextarea').value = '';
+  document.getElementById('parseResults').classList.remove('visible');
+  switchForm('exp');
+}
 
 // ─── BANER KONTEKSTU MIESIĄCA ────────────────────────────────────────────────
 function updateMonthContextBanner() {
