@@ -1469,7 +1469,7 @@
     <button class="tab active" onclick="showTab('wydatki')">💰 Budżet</button>
     <button class="tab" onclick="showTab('przeglad')">📊 Przegląd</button>
     <button class="tab" onclick="showTab('cele')">🎯 Cele</button>
-    <button class="tab" onclick="showTab('czat')">🤖 Asystent</button>
+    <button class="tab" onclick="showTab('czat')">🦁 Dolarek</button>
   </div>
 
   <!-- USER BAR -->
@@ -1719,24 +1719,24 @@
   <div class="panel" id="panel-czat">
     <div class="chat-container">
       <div class="chat-header">
-        <div class="chat-avatar">🤖</div>
+        <div class="chat-avatar">🦁</div>
         <div>
-          <div class="chat-name">Asystent Finansowy</div>
-          <div class="chat-status">● online</div>
+          <div class="chat-name">Dolarek</div>
+          <div class="chat-status">● zawsze do usług</div>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="msg bot">
-          <div class="msg-av">🤖</div>
-          <div class="msg-bubble">Cześć! Jestem Twoim asystentem finansowym. Mogę analizować Twoje wydatki i odpowiadać na pytania. Zapytaj mnie o cokolwiek! 💰</div>
+          <div class="msg-av">🦁</div>
+          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żebyś zawsze była na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
         </div>
       </div>
       <div class="suggestions">
-        <button class="sug-btn" onclick="sendSuggestion(this)">Jakie moje saldo?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Ile oszczędzam?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Ile wydałam w tym miesiącu?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje saldo</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje oszczędności</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje wydatki</button>
         <button class="sug-btn" onclick="sendSuggestion(this)">Na co idzie najwięcej?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Podaj podsumowanie</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Podsumowanie</button>
       </div>
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Zadaj pytanie o swoje wydatki..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -1842,7 +1842,7 @@
     <span class="bicon">🎯</span>Cele
   </button>
   <button class="bnav-btn" id="bnav-czat" onclick="showTab('czat')">
-    <span class="bicon">🤖</span>Asystent
+    <span class="bicon">🦁</span>Dolarek
   </button>
 </nav>
 
@@ -2621,22 +2621,26 @@ function sendChat() {
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
     .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`).join(', ');
-  const recentExp = expenses.slice(0,8)
+  const recentExp = thisMonthBudgetExpenses().slice(0,10)
     .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
-  const recSummary = 'brak'; // stałe wydatki usunięte
+  const [sy, sm] = selectedMonth.split('-').map(Number);
+  const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
 
-  const systemPrompt = `Jesteś pomocnym asystentem finansowym wbudowanym w aplikację do śledzenia wydatków domowych. Odpowiadasz zawsze po polsku, krótko i konkretnie. Możesz używać emoji. Nie używaj markdown z gwiazdkami - używaj HTML: <strong> dla pogrubień, <br> dla nowych linii.
+  const systemPrompt = `Jesteś Dolarek — przyjacielski, ciepły i kompetentny asystent finansowy w aplikacji CashFlow. Masz osobowość króla finansów: jesteś pewny siebie, pomocny i motywujesz użytkownika do mądrego zarządzania pieniędzmi. Zawsze piszesz poprawnie po polsku. Odpowiadasz krótko, konkretnie i z pozytywną energią. Używasz emoji z umiarem. Nie używasz markdown — używasz HTML: <strong> dla pogrubień, <br> dla nowych linii.
 
-Dane użytkownika (bieżący miesiąc):
+WAŻNE: Poniżej są PRAWDZIWE dane użytkownika z jego aplikacji. Nie są to dane testowe ani przykładowe. Nigdy nie mów że dane są testowe lub przykładowe — to rzeczywiste dane użytkownika.
+Jeśli dane są zerowe lub brak transakcji, powiedz wprost że użytkownik nie dodał jeszcze wpisów za ten miesiąc.
+
+Analizowany miesiąc: ${monthLabel}
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
-- Wydatki wg kategorii: ${catSummary || 'brak'}
+- Wydatki wg kategorii: ${catSummary || 'brak wydatków'}
 
-Ostatnie transakcje:
-${recentExp || 'brak transakcji'}
+Transakcje z tego miesiąca:
+${recentExp || 'brak transakcji w tym miesiącu'}
 
-Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i analizuj wzorce wydatków.`;
+Odpowiadaj wyłącznie na podstawie tych danych.`;
 
   fetch('/.netlify/functions/chat', {
     method: 'POST',
@@ -2666,7 +2670,7 @@ Odpowiadaj na podstawie tych danych. Dawaj spersonalizowane porady finansowe i a
 
 function addMessage(role, text) {
   const el = document.getElementById('chatMessages');
-  const av = role === 'bot' ? '🤖' : '👤';
+  const av = role === 'bot' ? '🦁' : '👤';
   const div = document.createElement('div');
   div.className = `msg ${role}`;
   div.innerHTML = `<div class="msg-av">${av}</div><div class="msg-bubble">${text}</div>`;
@@ -2680,7 +2684,7 @@ function addTyping() {
   const div = document.createElement('div');
   div.className = 'msg bot';
   div.id = id;
-  div.innerHTML = `<div class="msg-av">🤖</div>
+  div.innerHTML = `<div class="msg-av">🦁</div>
     <div class="msg-bubble" style="color:var(--text2)">
       <span style="animation:blink 1s infinite">●</span>
       <span style="animation:blink 1s infinite 0.2s">●</span>
@@ -2721,7 +2725,7 @@ function botReply(q) {
 
   // POWITANIE
   if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
-    return `Cześć! 👋 Jestem Twoim asystentem finansowym.<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj mnie np: <em>"Jakie moje saldo?"</em> lub <em>"Na co wydaję najwięcej?"</em>`;
+    return `Hej! Jestem <strong>Dolarek</strong> — Twój król finansów! 🦁<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj np: <em>"Moje saldo"</em> lub <em>"Na co idzie najwięcej?"</em>`;
   }
 
   // BRAK DANYCH
