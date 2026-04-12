@@ -1728,7 +1728,7 @@
       <div class="chat-messages" id="chatMessages">
         <div class="msg bot">
           <div class="msg-av">🦁</div>
-          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żebyś zawsze była na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
+          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żeby zawsze był na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
         </div>
       </div>
       <div class="suggestions">
@@ -2626,7 +2626,12 @@ function sendChat() {
   const [sy, sm] = selectedMonth.split('-').map(Number);
   const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
 
+  const userName = currentUser?.displayName || null;
+  const userGreeting = userName ? `Imię użytkownika: ${userName}. Używaj imienia w rozmowie i dopasuj formę gramatyczną (rodzaj męski/żeński) do imienia.` : 'Imię użytkownika nieznane — używaj neutralnych form gramatycznych.';
+
   const systemPrompt = `Jesteś Dolarek — przyjacielski, ciepły i kompetentny asystent finansowy w aplikacji CashFlow. Masz osobowość króla finansów: jesteś pewny siebie, pomocny i motywujesz użytkownika do mądrego zarządzania pieniędzmi. Zawsze piszesz poprawnie po polsku. Odpowiadasz krótko, konkretnie i z pozytywną energią. Używasz emoji z umiarem. Nie używasz markdown — używasz HTML: <strong> dla pogrubień, <br> dla nowych linii.
+
+${userGreeting}
 
 WAŻNE: Poniżej są PRAWDZIWE dane użytkownika z jego aplikacji. Nie są to dane testowe ani przykładowe. Nigdy nie mów że dane są testowe lub przykładowe — to rzeczywiste dane użytkownika.
 Jeśli dane są zerowe lub brak transakcji, powiedz wprost że użytkownik nie dodał jeszcze wpisów za ten miesiąc.
@@ -2845,7 +2850,7 @@ ${koment}`;
   // FALLBACK — inteligentny
   const tips = [
     `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
-    `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydałam na jedzenie?"</em>`,
+    `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydano na jedzenie?"</em>`,
     `🎯 Wpisz <em>"Podsumowanie miesiąca"</em> żeby zobaczyć pełną analizę swojego budżetu!`,
   ];
   return tips[Math.floor(Math.random()*tips.length)];
@@ -3231,7 +3236,7 @@ function renderAlerts() {
 
     // PRZEKROCZENIE 80% budżetu do wydania
     if (totalExp > spendable && balance >= 0) {
-      alerts.push({ type: 'warning', icon: '📊', text: `<strong>Wydałaś więcej niż 80% wpływów</strong> (${fmt(totalExp)} z ${fmt(spendable)} dostępnych). Twoja poduszka oszczędnościowa maleje!` });
+      alerts.push({ type: 'warning', icon: '📊', text: `<strong>Wydano więcej niż 80% wpływów</strong> (${fmt(totalExp)} z ${fmt(spendable)} dostępnych). Poduszka oszczędnościowa maleje!` });
     }
 
     // KATEGORIE — alert gdy jedna kategoria > 25% kwoty do wydania
@@ -3360,9 +3365,9 @@ function sendDailyNotification() {
   const balance   = totalInc - totalExp - totalGoal;
   const score = calcHealthScore();
   let body = balance < 0
-    ? `⚠️ Wydałaś ${fmt(Math.abs(balance))} więcej niż zarobiłaś!`
+    ? `⚠️ Wydano ${fmt(Math.abs(balance))} więcej niż wpłynęło!`
     : totalInc > 0 && (totalExp+totalGoal)/totalInc > 0.8
-    ? `📊 Wydałaś już ${((totalExp+totalGoal)/totalInc*100).toFixed(0)}% wpływów. Zostało: ${fmt(balance)}.`
+    ? `📊 Wydano już ${((totalExp+totalGoal)/totalInc*100).toFixed(0)}% wpływów. Zostało: ${fmt(balance)}.`
     : `💰 Saldo: ${fmt(balance)} | Zdrowie finansowe: ${score}/100`;
   new Notification('💸 CashFlow — Dzienny raport', { body });
 }
