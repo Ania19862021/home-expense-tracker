@@ -1789,7 +1789,7 @@ const CAT_MIGRATION = {
 
 let expenses = JSON.parse(localStorage.getItem('wydatki') || '[]');
 let incomes  = JSON.parse(localStorage.getItem('wplywy') || '[]');
-let filterMonth = new Date().toISOString().slice(0, 7); // domyślnie bieżący miesiąc
+let filterMonth = localMonth(new Date()); // domyślnie bieżący miesiąc
 let histFilter = 'all';
 
 const INC_META = {
@@ -1830,7 +1830,11 @@ function fmt(n) {
 }
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  // Lokalny YYYY-MM-DD (toISOString daje UTC, co może być poprzedni dzień)
+  const d = new Date();
+  return d.getFullYear() + '-' +
+         String(d.getMonth() + 1).padStart(2, '0') + '-' +
+         String(d.getDate()).padStart(2, '0');
 }
 
 // ─── FORM TOGGLE ─────────────────────────────────────────────────────────────
@@ -1985,8 +1989,15 @@ function isGoalSaving(e) {
 }
 
 // ─── SELECTED MONTH (nawigacja) ──────────────────────────────────────────────
-let selectedMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-const TODAY_MONTH  = new Date().toISOString().slice(0, 7);
+
+// Bezpieczna funkcja — zwraca YYYY-MM w lokalnej strefie czasowej
+// toISOString() jest w UTC i może zwrócić poprzedni miesiąc dla UTC+2
+function localMonth(date) {
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+}
+
+let selectedMonth = localMonth(new Date()); // bieżący miesiąc
+const TODAY_MONTH  = localMonth(new Date()); // stała — bieżący miesiąc
 
 const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
                          'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
@@ -1995,8 +2006,9 @@ const MONTH_NAMES_SHORT = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz'
 function navigateMonth(dir) {
   const [y, m] = selectedMonth.split('-').map(Number);
   const d = new Date(y, m - 1 + dir, 1);
+  // Użyj lokalnej strefy czasowej — toISOString() może zwrócić zły miesiąc dla UTC+2
+  const newM = localMonth(d);
   // Nie pozwól na przyszłe miesiące (poza bieżącym)
-  const newM = d.toISOString().slice(0, 7);
   if (newM > TODAY_MONTH) return;
   selectedMonth = newM;
   updateMonthNav();
