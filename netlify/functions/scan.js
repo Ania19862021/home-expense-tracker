@@ -1,3 +1,5 @@
+// netlify/functions/scan.js
+// Skanowanie paragonów przez Claude Vision API
 const https = require('https');
 
 exports.handler = async (event) => {
@@ -56,13 +58,14 @@ exports.handler = async (event) => {
           type: 'text',
           text: `Przeanalizuj ten paragon i zwróć odpowiedź TYLKO jako czysty JSON bez żadnych komentarzy.
 Format odpowiedzi gdy rozpoznasz paragon:
-{"amount": 47.50, "category": "zywnosc", "desc": "Biedronka"}
+{"amount": 47.50, "category": "zywnosc", "desc": "Biedronka", "date": "2026-03-15"}
 Dostępne kategorie (wybierz jedną):
 zywnosc, restauracje, transport, mieszkanie, rachunki, zdrowie, rozrywka, sport, podroze, uroda, prezenty, edukacja, dzieci, kredyty, subskrypcje, inne
 Zasady:
 - amount: kwota do zapłaty (liczba, bez zł)
 - category: najbardziej pasująca kategoria
 - desc: nazwa sklepu lub opis (max 30 znaków)
+- date: data z paragonu w formacie YYYY-MM-DD (np. "2026-03-15"), lub null jeśli daty nie widać
 Jeśli NIE możesz odczytać kwoty lub to nie jest paragon:
 {"error": "nie_rozpoznano"}
 Odpowiedz TYLKO czystym JSON.`,
@@ -93,7 +96,7 @@ Odpowiedz TYLKO czystym JSON.`,
   });
 
   if (result.status !== 200) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'api_error' }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'api_error', detail: result.body }) };
   }
 
   try {
