@@ -2320,10 +2320,11 @@ function renderMonthlySummary() {
 }
 
 function renderMonthButtons() {
-  const months = [...new Set([
+  // Znajdź najwcześniejszy miesiąc z danymi
+  const allMonthsWithData = [...new Set([
     ...expenses.map(e => e.date.slice(0, 7)),
     ...incomes.map(i => i.date.slice(0, 7))
-  ])].sort().reverse();
+  ])].sort();
 
   const row = document.querySelector('.filter-row');
   const all = row.querySelector('.month-btn');
@@ -2331,13 +2332,32 @@ function renderMonthButtons() {
   row.appendChild(all);
   all.className = 'month-btn' + (!filterMonth ? ' active' : '');
 
-  months.forEach(m => {
+  if (!allMonthsWithData.length) return;
+
+  // Generuj kolejne miesiące od najwcześniejszego do dzisiaj
+  const names = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
+  const first = allMonthsWithData[0];
+  const [fy, fm] = first.split('-').map(Number);
+  const [ty, tm] = TODAY_MONTH.split('-').map(Number);
+
+  const months = [];
+  let y = fy, m = fm;
+  while (y < ty || (y === ty && m <= tm)) {
+    months.push(y + '-' + String(m).padStart(2, '0'));
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+
+  // Pokaż od najnowszego (reverse)
+  months.reverse().forEach(mo => {
     const b = document.createElement('button');
-    b.className = 'month-btn' + (filterMonth === m ? ' active' : '');
-    const [y, mo] = m.split('-');
-    const names = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
-    b.textContent = names[parseInt(mo)-1] + ' ' + y;
-    b.onclick = () => setMonth(m, b);
+    const hasData = allMonthsWithData.includes(mo);
+    b.className = 'month-btn' + (filterMonth === mo ? ' active' : '');
+    // Miesiące bez danych — szare, ale klikalne
+    if (!hasData) b.style.opacity = '0.45';
+    const [by, bmo] = mo.split('-');
+    b.textContent = names[parseInt(bmo)-1] + ' ' + by;
+    b.onclick = () => setMonth(mo, b);
     row.appendChild(b);
   });
 }
@@ -2703,23 +2723,22 @@ ${koment}`;
 }
 
 const EXP_PLACEHOLDERS = {
-  zywnosc:     'np. Biedronka, Lidl, Żabka...',
-  restauracje: 'np. lunch, kawiarnia, obiad na mieście...',
-  transport:   'np. paliwo, bilet miesięczny, Uber...',
-  mieszkanie:  'np. czynsz, wynajem, opłaty...',
+  zywnosc:     'np. Biedronka, Lidl, zakupy na tydzień...',
+  restauracje: 'np. Pizza Hut, lunch w pracy, kawa...',
+  transport:   'np. paliwo, bilet miesięczny ZTM, Uber...',
+  mieszkanie:  'np. czynsz, wynajem, opłata za garaż...',
   rachunki:    'np. prąd, gaz, internet, telefon...',
-  kredyty:     'np. rata kredytu, pożyczka...',
-  subskrypcje: 'np. Netflix, Spotify, iCloud...',
-  zdrowie:     'np. lekarz, apteka, badania...',
-  rozrywka:    'np. kino, Netflix, koncert...',
-  sport:       'np. karnet na silownie, basen...',
-  travel:      'np. lot do Barcelony, hotel...',
-  beauty:      'np. fryzjer, kosmetyki, manicure...',
-  gifts:       'np. urodziny mamy, Mikolajki...',
-  subskrypcje: 'np. Spotify, Netflix, ChatGPT, iCloud...',
-  education:   'np. kurs angielskiego, podrecznik...',
-  childcare:   'np. przedszkole, niania w piatek...',
-  inne:        'np. opis wydatku...',
+  kredyty:     'np. rata kredytu PKO, pożyczka gotówkowa...',
+  subskrypcje: 'np. Netflix, Spotify, iCloud, ChatGPT...',
+  zdrowie:     'np. wizyta u lekarza, apteka, badania...',
+  rozrywka:    'np. kino, koncert, gry, książki...',
+  sport:       'np. karnet na siłownię, basen, yoga...',
+  podroze:     'np. lot do Barcelony, hotel, Airbnb...',
+  uroda:       'np. fryzjer, kosmetyki, manicure...',
+  prezenty:    'np. urodziny mamy, Mikołajki, ślub...',
+  edukacja:    'np. kurs angielskiego, szkolenie, książki...',
+  dzieci:      'np. przedszkole Słoneczko, zajęcia, niania...',
+  inne:        'np. naprawy, opłaty, inne wydatki...',
 };
 
 const INC_PLACEHOLDERS = {
