@@ -1194,6 +1194,56 @@
   }
   .notif-btn:hover { opacity: 0.88; }
 
+  /* MONTH NAV */
+  .month-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 16px; margin-bottom: 16px;
+  }
+  .month-nav-btn {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; width: 34px; height: 34px; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .month-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .month-nav-label {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+    font-size: 1rem; color: var(--text);
+  }
+  .month-nav-today {
+    font-size: 0.7rem; color: var(--accent); font-weight: 600;
+    cursor: pointer; padding: 4px 10px; border: 1px solid var(--accent);
+    border-radius: 20px; background: none;
+  }
+  /* YEARLY SUMMARY */
+  .year-section { margin-top: 28px; }
+  .year-title {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+    font-size: 1rem; color: var(--text); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .year-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; margin-bottom: 20px;
+  }
+  .year-card {
+    background: var(--surface2); border-radius: 12px; padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .year-card-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .year-card-val { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.2rem; }
+  .year-months { display: flex; flex-direction: column; gap: 6px; }
+  .year-month-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 8px; background: var(--surface2);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .year-month-row:hover { background: var(--surface); }
+  .year-month-name { font-weight: 600; font-size: 0.82rem; width: 50px; }
+  .year-month-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; }
+  .year-month-fill { height: 100%; border-radius: 99px; background: var(--red); transition: width 0.4s; }
+  .year-month-amt { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--red); width: 80px; text-align: right; }
+
   /* ── CUSTOM MONTH PICKER ──────────────────────────────── */
   .month-picker-wrap { position: relative; }
   .month-picker-input {
@@ -1286,7 +1336,7 @@
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">Cash<span style="background:linear-gradient(45deg,#f09433,#bc1888);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Flow</span></div>
-    <div class="login-subtitle">Twój domowy tracker finansów 💸</div>
+    <div class="login-subtitle">Twój domowy budżet 💸</div>
 
     <div class="login-tabs">
       <button class="login-tab active" onclick="switchLoginTab('login', this)">Zaloguj się</button>
@@ -1329,10 +1379,10 @@
   <header>
     <div>
       <div class="logo">Cash<span>Flow</span></div>
-      <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;">domowy tracker finansów</div>
+      <div style="font-size:0.75rem;color:var(--text2);margin-top:4px;">Domowy budżet</div>
     </div>
     <div class="header-meta">
-      <span>saldo w tym miesiącu</span>
+      <span>Bilans miesiąca</span>
       <strong id="headerTotal">0,00 zł</strong>
     </div>
   </header>
@@ -1353,6 +1403,16 @@
 
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
+
+    <!-- NAWIGACJA MIESIĘCZNA -->
+    <div class="month-nav">
+      <button class="month-nav-btn" onclick="navigateMonth(-1)">‹</button>
+      <div style="text-align:center">
+        <div class="month-nav-label" id="monthNavLabel">Kwiecień 2026</div>
+        <div style="font-size:0.68rem;color:var(--text2)" id="monthNavSub">bieżący miesiąc</div>
+      </div>
+      <button class="month-nav-btn" onclick="navigateMonth(1)">›</button>
+    </div>
 
     <!-- HEALTH SCORE -->
     <div class="health-bar" id="healthBar">
@@ -1387,21 +1447,21 @@
           <div class="field">
             <label>Kategoria</label>
             <select id="inCat">
-              <option value="jedzenie">🍕 Jedzenie</option>
-              <option value="cafe">☕ Kawiarnie / restauracje</option>
+              <option value="zywnosc">🛒 Żywność</option>
+              <option value="restauracje">🍽️ Restauracje</option>
               <option value="transport">🚗 Transport</option>
-              <option value="dom">🏠 Dom</option>
-              <option value="kredyt">🏦 Kredyt hipoteczny</option>
-              <option value="pozyczka">💳 Pożyczka / rata</option>
+              <option value="mieszkanie">🏠 Mieszkanie</option>
+              <option value="rachunki">💡 Rachunki</option>
+              <option value="kredyty">🏦 Kredyty i pożyczki</option>
+              <option value="subskrypcje">📱 Subskrypcje</option>
               <option value="zdrowie">💊 Zdrowie</option>
               <option value="rozrywka">🎬 Rozrywka</option>
-              <option value="sport">🏋️ Sport / siłownia</option>
-              <option value="travel">✈️ Podróże / wakacje</option>
-              <option value="beauty">💄 Uroda / kosmetyki</option>
-              <option value="gifts">🎁 Prezenty</option>
-              <option value="electronics">📱 Subskrypcje</option>
-              <option value="education">📚 Studia / nauka / angielski</option>
-              <option value="childcare">👶 Przedszkole / niania</option>
+              <option value="sport">🏋️ Sport</option>
+              <option value="podroze">✈️ Podróże</option>
+              <option value="uroda">💄 Uroda</option>
+              <option value="prezenty">🎁 Prezenty</option>
+              <option value="edukacja">📚 Edukacja</option>
+              <option value="dzieci">👶 Dzieci</option>
               <option value="inne">📦 Inne</option>
             </select>
           </div>
@@ -1477,7 +1537,7 @@
 
     <!-- SALDO BAR -->
     <div class="saldo-bar" id="saldoBar">
-      <div style="font-size:0.75rem;color:var(--text2);white-space:nowrap">Wydane vs Wpływy</div>
+      <div style="font-size:0.75rem;color:var(--text2);white-space:nowrap">Wydatki vs wpływy</div>
       <div class="saldo-track">
         <div class="saldo-fill" id="saldoFill" style="width:0%;background:var(--red)"></div>
       </div>
@@ -1519,7 +1579,7 @@
 
     <div style="margin-bottom:20px">
       <button onclick="exportPDF()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-        📄 Pobierz raport PDF
+        📄 Pobierz raport (PDF)
       </button>
     </div>
 
@@ -1541,7 +1601,7 @@
 
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-card-title">Wydatki wg kategorii</div>
+        <div class="chart-card-title">Wydatki według kategorii</div>
         <div id="catChart"></div>
       </div>
       <div class="chart-card">
@@ -1587,6 +1647,40 @@
   </div>
   <!-- STAŁE WYDATKI PANEL -->
 
+    <!-- PODSUMOWANIE ROCZNE -->
+    <div class="year-section">
+      <div class="year-title">📅 Podsumowanie roku <span id="yearLabel">2026</span></div>
+      <div class="year-grid">
+        <div class="year-card">
+          <div class="year-card-label">💚 Wpływy</div>
+          <div class="year-card-val" id="yearInc" style="color:var(--accent)">—</div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-label">🔴 Wydatki</div>
+          <div class="year-card-val" id="yearExp" style="color:var(--red)">—</div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-label">🎯 Na cele</div>
+          <div class="year-card-val" id="yearGoal" style="color:#405de6">—</div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-label">💰 Saldo</div>
+          <div class="year-card-val" id="yearBal">—</div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-label">📊 Oszczędności</div>
+          <div class="year-card-val" id="yearSavePct" style="color:var(--accent)">—</div>
+        </div>
+        <div class="year-card">
+          <div class="year-card-label">📈 Śr. miesięcznie</div>
+          <div class="year-card-val" id="yearAvgMonth" style="color:var(--text2)">—</div>
+        </div>
+      </div>
+      <div class="year-title" style="font-size:0.85rem">Wydatki per miesiąc</div>
+      <div class="year-months" id="yearMonthsList"></div>
+    </div>
+  </div>
+
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
     <div class="form-card">
@@ -1604,7 +1698,7 @@
           <label>Termin</label>
           <div class="month-picker-wrap">
             <div class="month-picker-input" id="mpDisplay" onclick="toggleMonthPicker()">
-              <span id="mpText">Wybierz miesiąc</span>
+              <span id="mpText">Wybierz okres</span>
               <span>📅</span>
             </div>
             <div class="month-picker-dropdown" id="mpDropdown">
@@ -1659,23 +1753,38 @@
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const CAT_META = {
-  oszczednosci:{ label: 'Oszczędności / cel',   emoji: '🎯', color: '#58b19f',             pdfLabel: 'Oszczednosci' },
-  jedzenie:   { label: 'Jedzenie',                emoji: '🍕', color: 'var(--cat-food)',        pdfLabel: 'Jedzenie' },
-  cafe:       { label: 'Kawiarnie / restauracje', emoji: '☕', color: 'var(--cat-cafe)',         pdfLabel: 'Kawiarnie' },
-  transport:  { label: 'Transport',               emoji: '🚗', color: 'var(--cat-transport)',    pdfLabel: 'Transport' },
-  dom:        { label: 'Dom',                     emoji: '🏠', color: 'var(--cat-home)',         pdfLabel: 'Dom' },
-  kredyt:     { label: 'Kredyt hipoteczny',       emoji: '🏦', color: '#6366f1',                pdfLabel: 'Kredyt hipoteczny' },
-  pozyczka:   { label: 'Pożyczka / rata',         emoji: '💳', color: '#8b5cf6',                pdfLabel: 'Pozyczka / rata' },
-  zdrowie:    { label: 'Zdrowie',                 emoji: '💊', color: 'var(--cat-health)',       pdfLabel: 'Zdrowie' },
-  rozrywka:   { label: 'Rozrywka',                emoji: '🎬', color: 'var(--cat-fun)',          pdfLabel: 'Rozrywka' },
-  sport:      { label: 'Sport / siłownia',        emoji: '🏋️', color: 'var(--cat-sport)',       pdfLabel: 'Sport / silownia' },
-  travel:     { label: 'Podróże / wakacje',       emoji: '✈️', color: 'var(--cat-travel)',      pdfLabel: 'Podroze / wakacje' },
-  beauty:     { label: 'Uroda / kosmetyki',       emoji: '💄', color: 'var(--cat-beauty)',       pdfLabel: 'Uroda' },
-  gifts:      { label: 'Prezenty',                emoji: '🎁', color: 'var(--cat-gifts)',        pdfLabel: 'Prezenty' },
-  electronics:{ label: 'Subskrypcje',             emoji: '📱', color: 'var(--cat-electronics)', pdfLabel: 'Subskrypcje' },
-  education:  { label: 'Studia / nauka',          emoji: '📚', color: 'var(--cat-education)',    pdfLabel: 'Studia / nauka' },
-  childcare:  { label: 'Przedszkole / niania',    emoji: '👶', color: 'var(--cat-childcare)',    pdfLabel: 'Przedszkole' },
-  inne:       { label: 'Inne',                    emoji: '📦', color: 'var(--cat-other)',        pdfLabel: 'Inne' },
+  oszczednosci: { label: 'Oszczędności / cel',  emoji: '🎯', color: '#58b19f', pdfLabel: 'Oszczednosci' },
+  zywnosc:      { label: 'Żywność',             emoji: '🛒', color: '#e1306c', pdfLabel: 'Zywnosc' },
+  restauracje:  { label: 'Restauracje',          emoji: '🍽️', color: '#f77737', pdfLabel: 'Restauracje' },
+  transport:    { label: 'Transport',            emoji: '🚗', color: '#405de6', pdfLabel: 'Transport' },
+  mieszkanie:   { label: 'Mieszkanie',           emoji: '🏠', color: '#f09433', pdfLabel: 'Mieszkanie' },
+  rachunki:     { label: 'Rachunki',             emoji: '💡', color: '#6366f1', pdfLabel: 'Rachunki' },
+  zdrowie:      { label: 'Zdrowie',              emoji: '💊', color: '#58b19f', pdfLabel: 'Zdrowie' },
+  rozrywka:     { label: 'Rozrywka',             emoji: '🎬', color: '#833ab4', pdfLabel: 'Rozrywka' },
+  sport:        { label: 'Sport',                emoji: '🏋️', color: '#12b886', pdfLabel: 'Sport' },
+  podroze:      { label: 'Podróże',              emoji: '✈️', color: '#1c7ed6', pdfLabel: 'Podroze' },
+  uroda:        { label: 'Uroda',                emoji: '💄', color: '#c13584', pdfLabel: 'Uroda' },
+  prezenty:     { label: 'Prezenty',             emoji: '🎁', color: '#e64980', pdfLabel: 'Prezenty' },
+  edukacja:     { label: 'Edukacja',             emoji: '📚', color: '#f76707', pdfLabel: 'Edukacja' },
+  dzieci:       { label: 'Dzieci',               emoji: '👶', color: '#74c0fc', pdfLabel: 'Dzieci' },
+  kredyty:      { label: 'Kredyty i pożyczki',   emoji: '🏦', color: '#8b5cf6', pdfLabel: 'Kredyty' },
+  subskrypcje:  { label: 'Subskrypcje',          emoji: '📱', color: '#3bc9db', pdfLabel: 'Subskrypcje' },
+  inne:         { label: 'Inne',                 emoji: '📦', color: '#868e96', pdfLabel: 'Inne' },
+};
+
+// Mapa migracji starych kluczy → nowe (dla istniejących danych użytkowników)
+const CAT_MIGRATION = {
+  jedzenie:    'zywnosc',
+  cafe:        'restauracje',
+  dom:         'mieszkanie',
+  kredyt:      'kredyty',
+  pozyczka:    'kredyty',
+  travel:      'podroze',
+  beauty:      'uroda',
+  gifts:       'prezenty',
+  electronics: 'subskrypcje',
+  education:   'edukacja',
+  childcare:   'dzieci',
 };
 
 let expenses = JSON.parse(localStorage.getItem('wydatki') || '[]');
@@ -1875,21 +1984,68 @@ function isGoalSaving(e) {
   return e.desc && e.desc.startsWith('🎯 Oszczędności:');
 }
 
-function thisMonthExpenses() {
-  const m = new Date().toISOString().slice(0, 7);
-  return expenses.filter(e => e.date.startsWith(m));
+// ─── SELECTED MONTH (nawigacja) ──────────────────────────────────────────────
+let selectedMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+const TODAY_MONTH  = new Date().toISOString().slice(0, 7);
+
+const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+                         'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+const MONTH_NAMES_SHORT = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
+
+function navigateMonth(dir) {
+  const [y, m] = selectedMonth.split('-').map(Number);
+  const d = new Date(y, m - 1 + dir, 1);
+  // Nie pozwól na przyszłe miesiące (poza bieżącym)
+  const newM = d.toISOString().slice(0, 7);
+  if (newM > TODAY_MONTH) return;
+  selectedMonth = newM;
+  updateMonthNav();
+  render();
+  renderGoals();
 }
 
-// Wydatki BEZ odłożonych na cele (do alertów, zdrowia, wykresów)
-function thisMonthBudgetExpenses() {
-  const m = new Date().toISOString().slice(0, 7);
-  return expenses.filter(e => e.date.startsWith(m) && !isGoalSaving(e));
+function updateMonthNav() {
+  const [y, m] = selectedMonth.split('-').map(Number);
+  const label = document.getElementById('monthNavLabel');
+  const sub   = document.getElementById('monthNavSub');
+  if (label) label.textContent = MONTH_NAMES_PL[m-1] + ' ' + y;
+  if (sub) {
+    const isCurrent = selectedMonth === TODAY_MONTH;
+    sub.textContent = isCurrent ? 'bieżący miesiąc' : '← kliknij › aby wrócić';
+    sub.style.color = isCurrent ? 'var(--accent)' : 'var(--text2)';
+  }
+  // Sync filterMonth w Przeglądzie
+  filterMonth = selectedMonth;
 }
 
-function thisMonthIncomes() {
-  const m = new Date().toISOString().slice(0, 7);
-  return incomes.filter(i => i.date.startsWith(m));
+// ─── SELEKTORY ────────────────────────────────────────────────────────────────
+
+function getMonthExpenses(month) {
+  return expenses.filter(e => e.date.startsWith(month));
 }
+function getMonthBudgetExpenses(month) {
+  return expenses.filter(e => e.date.startsWith(month) && !isGoalSaving(e));
+}
+function getMonthIncomes(month) {
+  return incomes.filter(i => i.date.startsWith(month));
+}
+function getYearExpenses(year) {
+  return expenses.filter(e => e.date.startsWith(year));
+}
+function getYearBudgetExpenses(year) {
+  return expenses.filter(e => e.date.startsWith(year) && !isGoalSaving(e));
+}
+function getYearGoalExpenses(year) {
+  return expenses.filter(e => e.date.startsWith(year) && isGoalSaving(e));
+}
+function getYearIncomes(year) {
+  return incomes.filter(i => i.date.startsWith(year));
+}
+
+// Backward-compatible aliasy (używają selectedMonth)
+function thisMonthExpenses()       { return getMonthExpenses(selectedMonth); }
+function thisMonthBudgetExpenses() { return getMonthBudgetExpenses(selectedMonth); }
+function thisMonthIncomes()        { return getMonthIncomes(selectedMonth); }
 
 function filteredExpenses() {
   if (!filterMonth) return expenses;
@@ -1912,6 +2068,7 @@ function render() {
   updateHeaderTotal();
   renderHealthScore();
   renderAlerts();
+  updateMonthNav();
 }
 
 function updateHeaderTotal() {
@@ -1966,13 +2123,11 @@ function renderStats() {
 
 function renderList() {
   const el = document.getElementById('expenseList');
-  // Pokaż tylko bieżący miesiąc — spójnie z renderStats i nagłówkiem
-  const m = new Date().toISOString().slice(0, 7);
   const expItems = histFilter !== 'inc'
-    ? expenses.filter(e => e.date.startsWith(m)).map(e => ({ ...e, type: 'exp' }))
+    ? getMonthExpenses(selectedMonth).map(e => ({ ...e, type: 'exp' }))
     : [];
   const incItems = histFilter !== 'exp'
-    ? incomes.filter(i => i.date.startsWith(m)).map(i => ({ ...i, type: 'inc' }))
+    ? getMonthIncomes(selectedMonth).map(i => ({ ...i, type: 'inc' }))
     : [];
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id);
 
@@ -2013,6 +2168,78 @@ function renderList() {
 }
 
 // ─── WYKRES KOŁOWY ───────────────────────────────────────────────────────────
+
+// ─── PODSUMOWANIE ROCZNE ─────────────────────────────────────────────────────
+
+function getYearData(year) {
+  const yExp   = getYearBudgetExpenses(year);
+  const yGoal  = getYearGoalExpenses(year);
+  const yInc   = getYearIncomes(year);
+  const totalExp  = yExp.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = yGoal.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = yInc.reduce((s,e) => s+e.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal;
+  const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
+  // Ile miesięcy ma dane
+  const months = [...new Set([
+    ...expenses.filter(e=>e.date.startsWith(year)).map(e=>e.date.slice(0,7)),
+    ...incomes.filter(i=>i.date.startsWith(year)).map(i=>i.date.slice(0,7))
+  ])];
+  const avgMonthExp = months.length > 0 ? totalExp / months.length : 0;
+  return { totalExp, totalGoal, totalInc, balance, savePct, months, avgMonthExp };
+}
+
+function renderYearlySummary() {
+  const year = selectedMonth.slice(0,4);
+  const yl = document.getElementById('yearLabel');
+  if (yl) yl.textContent = year;
+
+  const d = getYearData(year);
+  const set = (id, val, color) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    if (color) el.style.color = color;
+  };
+
+  set('yearInc',      d.totalInc > 0 ? fmt(d.totalInc) : '—', 'var(--accent)');
+  set('yearExp',      d.totalExp > 0 ? fmt(d.totalExp) : '—', 'var(--red)');
+  set('yearGoal',     d.totalGoal > 0 ? fmt(d.totalGoal) : '—', '#405de6');
+  set('yearBal',      d.totalInc > 0 ? fmt(d.balance) : '—', d.balance >= 0 ? 'var(--accent)' : 'var(--red)');
+  set('yearSavePct',  d.totalInc > 0 ? d.savePct + '%' : '—');
+  set('yearAvgMonth', d.avgMonthExp > 0 ? fmt(d.avgMonthExp) + '/mies.' : '—', 'var(--text2)');
+
+  // Per-miesiąc breakdown
+  const listEl = document.getElementById('yearMonthsList');
+  if (!listEl) return;
+  const allMonths = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
+  const maxExp = Math.max(1, ...allMonths.map(m => getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0)));
+
+  listEl.innerHTML = allMonths.map(m => {
+    const mExp = getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0);
+    const mInc = getMonthIncomes(m).reduce((s,e)=>s+e.amount,0);
+    if (!mExp && !mInc) return ''; // pomiń puste miesiące
+    const pct = (mExp/maxExp*100).toFixed(0);
+    const mo = parseInt(m.slice(5))-1;
+    const isCurrent = m === TODAY_MONTH;
+    const isSelected = m === selectedMonth;
+    return `<div class="year-month-row" onclick="goToMonth('${m}')" 
+      style="${isSelected?'border:1px solid var(--accent);':''}${isCurrent?'background:var(--surface);':''}">
+      <span class="year-month-name" style="${isCurrent?'color:var(--accent);font-weight:800':''}">${MONTH_NAMES_SHORT[mo]}</span>
+      <div class="year-month-bar"><div class="year-month-fill" style="width:${pct}%"></div></div>
+      <span style="font-size:0.7rem;color:var(--accent);width:70px;text-align:right">${mInc>0?'+'+fmt(mInc):''}</span>
+      <span class="year-month-amt">${mExp>0?'-'+fmt(mExp):'—'}</span>
+    </div>`;
+  }).join('');
+}
+
+function goToMonth(month) {
+  selectedMonth = month;
+  updateMonthNav();
+  // Przełącz na zakładkę Budżet
+  showTab('wydatki');
+  render();
+}
 
 // ─── PODSUMOWANIE MIESIĄCA ────────────────────────────────────────────────────
 
@@ -2105,6 +2332,8 @@ function renderMonthButtons() {
 
 function setMonth(m, btn) {
   filterMonth = m;
+  // Sync selectedMonth jeśli wybrany konkretny miesiąc
+  if (m) { selectedMonth = m; updateMonthNav(); }
   document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderCharts();
@@ -2372,8 +2601,8 @@ ${koment}`;
     if (!totalExp) return 'Dodaj kilka wydatków, a podam Ci spersonalizowane porady!';
     const porady = [];
     if (topCm) porady.push(`💡 Największa kategoria to ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}). Warto ustalić tu miesięczny limit.`);
-    if (catTotals['cafe'] && totalInc > 0 && catTotals['cafe']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['cafe']/totalInc*100).toFixed(0)}% Twoich wpływów (${fmt(catTotals['cafe'])}). Gotowanie w domu może sporo zaoszczędzić!`);
-    if (catTotals['electronics'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['electronics'])}) — często płacimy za usługi których nie używamy.`);
+    if (catTotals['restauracje'] && totalInc > 0 && catTotals['restauracje']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['restauracje']/totalInc*100).toFixed(0)}% Twoich wpływów (${fmt(catTotals['restauracje'])}). Gotowanie w domu może sporo zaoszczędzić!`);
+    if (catTotals['subskrypcje'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['subskrypcje'])}) — często płacimy za usługi których nie używamy.`);
     if (!porady.length) porady.push('💪 Twoje wydatki wyglądają rozsądnie! Tak trzymaj.');
     return `<strong>Moje porady dla Ciebie:</strong><br><br>${porady.join('<br><br>')}`;
   }
@@ -2433,7 +2662,7 @@ ${koment}`;
     travel:      ['podroz','wakacj','lot','hotel','wyjazd'],
     beauty:      ['uroda','kosmetyk','fryzjer','manicure'],
     gifts:       ['prezent','podarunek','gift'],
-    electronics: ['elektronik','subskrypcj','netflix','spotify','telefon'],
+    subskrypcje: ['subskrypcj','netflix','spotify','telefon','streaming'],
     education:   ['studi','angielski','kurs','nauk','szkol'],
     childcare:   ['przedszkol','niani','dziecko'],
   };
@@ -2462,19 +2691,20 @@ ${koment}`;
 }
 
 const EXP_PLACEHOLDERS = {
-  jedzenie:    'np. Biedronka, Lidl, zakupy...',
-  cafe:        'np. Starbucks, lunch z kolezanka...',
+  zywnosc:     'np. Biedronka, Lidl, Żabka...',
+  restauracje: 'np. lunch, kawiarnia, obiad na mieście...',
   transport:   'np. paliwo, bilet miesięczny, Uber...',
-  dom:         'np. czynsz, prad, internet, gaz...',
-  kredyt:      'np. rata kredytu, bank PKO...',
-  pozyczka:    'np. rata pozyczki, chwilowka...',
-  zdrowie:     'np. wizyta u lekarza, apteka...',
+  mieszkanie:  'np. czynsz, wynajem, opłaty...',
+  rachunki:    'np. prąd, gaz, internet, telefon...',
+  kredyty:     'np. rata kredytu, pożyczka...',
+  subskrypcje: 'np. Netflix, Spotify, iCloud...',
+  zdrowie:     'np. lekarz, apteka, badania...',
   rozrywka:    'np. kino, Netflix, koncert...',
   sport:       'np. karnet na silownie, basen...',
   travel:      'np. lot do Barcelony, hotel...',
   beauty:      'np. fryzjer, kosmetyki, manicure...',
   gifts:       'np. urodziny mamy, Mikolajki...',
-  electronics: 'np. Spotify, Netflix, ChatGPT, iCloud...',
+  subskrypcje: 'np. Spotify, Netflix, ChatGPT, iCloud...',
   education:   'np. kurs angielskiego, podrecznik...',
   childcare:   'np. przedszkole, niania w piatek...',
   inne:        'np. opis wydatku...',
@@ -2495,7 +2725,7 @@ const REC_PLACEHOLDERS = {
   kredyt:      'np. rata kredytu hipotecznego...',
   pozyczka:    'np. rata pożyczki, chwilówka...',
   transport:   'np. bilet miesięczny ZTM...',
-  electronics: 'np. Netflix, Spotify, iCloud...',
+  subskrypcje: 'np. Netflix, Spotify, iCloud...',
   education:   'np. angielski, kurs online...',
   childcare:   'np. przedszkole Słoneczko...',
   zdrowie:     'np. abonament medyczny...',
@@ -2537,7 +2767,7 @@ function showTab(name) {
   const bnav = document.getElementById('bnav-' + name);
   if (bnav) bnav.classList.add('active');
 
-  if (name === 'przeglad') { renderCharts(); }
+  if (name === 'przeglad') { renderCharts(); renderYearlySummary(); }
   if (name === 'cele') renderGoals();
 }
 
@@ -2670,7 +2900,7 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('mainApp').style.display     = 'block';
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
-    render(); renderGoals(); checkNotificationStatus();
+    updateMonthNav(); render(); renderGoals(); checkNotificationStatus();
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
@@ -2689,8 +2919,16 @@ async function loadUserData() {
       incomes   = data.incomes   || [];
       goals     = data.goals     || [];
 
-      // Migracja: stare wpłaty na cele miały cat:'inne' — naprawiamy
+      // Migracja 1: stare klucze kategorii → nowe
       let changed = false;
+      expenses.forEach(e => {
+        if (CAT_MIGRATION[e.cat]) {
+          e.cat = CAT_MIGRATION[e.cat];
+          changed = true;
+        }
+      });
+
+      // Migracja 2: stare wpłaty na cele miały cat:'inne' — naprawiamy
       expenses.forEach(e => {
         if (isGoalSaving(e) && e.cat !== 'oszczednosci') {
           e.cat = 'oszczednosci';
@@ -2843,14 +3081,14 @@ function renderAlerts() {
       alerts.push({ type: 'warning', icon: cm.emoji, text: `<strong>${cm.label} pochłania ${(topCat[1]/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(topCat[1])}). To dużo jak na jedną kategorię — warto się zastanowić.` });
     }
 
-    // KAWIARNIE > 15% budżetu do wydania
-    if (catTotals['cafe'] && catTotals['cafe']/spendable > 0.15) {
-      alerts.push({ type: 'warning', icon: '☕', text: `<strong>Kawiarnie i restauracje to ${(catTotals['cafe']/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(catTotals['cafe'])}). Gotowanie w domu to prosta oszczędność!` });
+    // RESTAURACJE > 15% budżetu do wydania
+    if (catTotals['restauracje'] && catTotals['restauracje']/spendable > 0.15) {
+      alerts.push({ type: 'warning', icon: '🍽️', text: `<strong>Restauracje pochłaniają ${(catTotals['restauracje']/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(catTotals['restauracje'])}). Gotowanie w domu to prosta oszczędność!` });
     }
 
     // SUBSKRYPCJE > 10% budżetu do wydania
-    if (catTotals['electronics'] && catTotals['electronics']/spendable > 0.10) {
-      alerts.push({ type: 'warning', icon: '📱', text: `<strong>Subskrypcje i elektronika to ${(catTotals['electronics']/spendable*100).toFixed(0)}% budżetu</strong> (${fmt(catTotals['electronics'])}). Przejrzyj czy wszystkie są potrzebne.` });
+    if (catTotals['subskrypcje'] && catTotals['subskrypcje']/spendable > 0.10) {
+      alerts.push({ type: 'warning', icon: '📱', text: `<strong>Subskrypcje to ${(catTotals['subskrypcje']/spendable*100).toFixed(0)}% budżetu</strong> (${fmt(catTotals['subskrypcje'])}). Przejrzyj czy wszystkie są potrzebne.` });
     }
 
     // BRAK CELÓW
@@ -3082,7 +3320,7 @@ function exportPDF() {
     doc.setTextColor(38, 38, 38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Wydatki wg kategorii', lm, y);
+    doc.text('Wydatki według kategorii', lm, y);
     y += 2;
     doc.setDrawColor(239, 239, 239);
     doc.setLineWidth(0.5);
@@ -3213,7 +3451,7 @@ let goals = JSON.parse(localStorage.getItem('cele') || '[]');
 // Inteligentne emoji na podstawie nazwy celu
 function goalEmoji(name) {
   const n = (name || '').toLowerCase();
-  if (/dom|mieszk|house|home|nieruch|wynajem|remont/.test(n)) return '🏠';
+  if (/dom|mieszk|house|home|nieruch|wynajem|remont|mieszkanie/.test(n)) return '🏠';
   if (/wakacj|urlop|wyjazd|podróż|podroz|travel|lot|hotel/.test(n)) return '✈️';
   if (/auto|samoch|car|pojazd|motor|rower/.test(n)) return '🚗';
   if (/telefon|phone|iphone|laptop|komputer|mac|tablet/.test(n)) return '📱';
@@ -3252,7 +3490,7 @@ function addGoal() {
   document.getElementById('goalTarget').value = '';
   document.getElementById('goalDeadline').value = '';
   mpSelected = null;
-  document.getElementById('mpText').textContent = 'Wybierz miesiąc';
+  document.getElementById('mpText').textContent = 'Wybierz okres';
 }
 
 function addToGoal(id, amount) {
