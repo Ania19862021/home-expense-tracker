@@ -2616,12 +2616,14 @@ function sendChat() {
   const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
   const currentYear = selectedMonth.slice(0, 4);
 
-  // Dane wybranego miesiąca
-  const mExp = thisMonthBudgetExpenses();
-  const mInc = thisMonthIncomes();
-  const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
-  const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance  = totalInc - totalExp;
+  // Dane wybranego miesiąca — spójne z logiką aplikacji
+  const mExp  = thisMonthBudgetExpenses();
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
+  const mInc  = thisMonthIncomes();
+  const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
+  const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
+  const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
+  const balance   = totalInc - totalExp - totalGoal; // saldo = wpływy - wydatki - cele
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
@@ -2631,10 +2633,11 @@ function sendChat() {
   const allMonths = Array.from({length:12}, (_,i) => `${currentYear}-${String(i+1).padStart(2,'0')}`);
   const monthlySummary = allMonths.map(m => {
     const mE = getMonthBudgetExpenses(m).reduce((s,e) => s+e.amount, 0);
+    const mG = getMonthExpenses(m).filter(e => isGoalSaving(e)).reduce((s,e) => s+e.amount, 0);
     const mI = getMonthIncomes(m).reduce((s,i) => s+i.amount, 0);
-    if (!mE && !mI) return null;
+    if (!mE && !mI && !mG) return null;
     const mn = parseInt(m.slice(5)) - 1;
-    return `${MONTH_NAMES_SHORT[mn]}: wpływy ${mI.toFixed(2)} zł, wydatki ${mE.toFixed(2)} zł, saldo ${(mI-mE).toFixed(2)} zł`;
+    return `${MONTH_NAMES_SHORT[mn]}: wpływy ${mI.toFixed(2)} zł, wydatki ${mE.toFixed(2)} zł, cele ${mG.toFixed(2)} zł, saldo ${(mI-mE-mG).toFixed(2)} zł`;
   }).filter(Boolean).join('\n');
 
   // Ostatnie 30 transakcji z całej historii
@@ -2660,7 +2663,8 @@ Jeśli pytanie dotyczy konkretnego miesiąca — użyj danych z sekcji "Wybrany 
 Wybrany miesiąc: ${monthLabel}
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
-- Saldo: ${balance.toFixed(2)} zł
+- Wpłaty na cele oszczędnościowe: ${totalGoal.toFixed(2)} zł
+- Saldo (wpływy - wydatki - cele): ${balance.toFixed(2)} zł
 - Wydatki wg kategorii: ${catSummary || 'brak wydatków'}
 
 Podsumowanie roku ${currentYear} (per miesiąc):
