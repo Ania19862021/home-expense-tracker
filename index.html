@@ -2127,11 +2127,6 @@
       </div>
     </div>
 
-    <div class="chart-card" style="margin-bottom:20px;">
-      <div class="chart-card-title">Wydatki dzienne (ostatnie 14 dni)</div>
-      <div id="dailyChart" style="display:flex;align-items:flex-end;gap:6px;height:80px;"></div>
-    </div>
-
     <!-- PODSUMOWANIE ROCZNE -->
     <div class="year-section">
       <div class="year-title">📅 Podsumowanie roku <span id="yearLabel">2026</span></div>
@@ -3005,29 +3000,6 @@ function renderCharts() {
     }).join('');
   }
 
-  // Daily chart
-  const dailyEl = document.getElementById('dailyChart');
-  const days = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0, 10));
-  }
-  const dailyTotals = {};
-  list.forEach(e => { dailyTotals[e.date] = (dailyTotals[e.date] || 0) + e.amount; });
-  const maxDay = Math.max(1, ...days.map(d => dailyTotals[d] || 0));
-  dailyEl.innerHTML = days.map(d => {
-    const val = dailyTotals[d] || 0;
-    const h = Math.max(4, (val / maxDay * 70)).toFixed(0);
-    const isToday = d === today();
-    return `
-      <div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px" title="${d}: ${fmt(val)}">
-        <div style="width:100%;background:${isToday ? 'var(--accent)' : 'var(--surface2)'};height:${h}px;border-radius:4px 4px 0 0;
-          border:1px solid ${isToday ? 'var(--accent)' : 'var(--border)'};transition:height 0.4s ease;cursor:default"
-          onmouseover="this.style.background='var(--accent2)'" onmouseout="this.style.background='${isToday ? 'var(--accent)' : 'var(--surface2)'}'">
-        </div>
-        <div style="font-size:0.6rem;color:var(--text2)">${d.slice(5)}</div>
-      </div>`;
-  }).join('');
 }
 
 // ─── CHAT (Smart Assistant) ──────────────────────────────────────────────────
