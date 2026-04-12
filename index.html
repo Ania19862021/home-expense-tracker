@@ -1631,6 +1631,16 @@
     line-height: 1.5;
   }
 
+
+  /* ── WELCOME CARD (nowi użytkownicy) ─────────────────────────────────────── */
+  .welcome-card-wrap {
+    display: none;
+  }
+  .welcome-card-wrap.show {
+    display: block;
+    animation: fadeUp 0.4s ease;
+  }
+
 </style>
 </head>
 <body>
@@ -1725,6 +1735,45 @@
         <div style="font-size:0.68rem;color:var(--text2)" id="monthNavSub">bieżący miesiąc</div>
       </div>
       <button class="month-nav-btn" onclick="navigateMonth(1)">›</button>
+    </div>
+
+    <!-- WELCOME CARD (nowi użytkownicy) -->
+    <div class="welcome-card-wrap" id="welcomeCardWrap">
+      <div class="welcome-screen">
+        <div class="welcome-lion">🦁</div>
+        <div class="welcome-title">Witaj w CashFlow!</div>
+        <div class="welcome-sub">
+          Masz narzędzie które pomoże Ci kontrolować finanse i odkładać na marzenia.
+          Nie musisz być ekspertem — Dolarek poprowadzi Cię za rękę 💪
+        </div>
+        <div class="welcome-actions">
+          <button class="welcome-btn" onclick="switchForm('parse'); hideWelcomeCard()">
+            <span class="welcome-btn-icon">💬</span>
+            <div>
+              <div class="welcome-btn-label">Opisz słownie</div>
+              <div class="welcome-btn-desc">Napisz naturalnie, Dolarek resztą się zajmie</div>
+            </div>
+          </button>
+          <button class="welcome-btn" onclick="triggerScan()">
+            <span class="welcome-btn-icon">📷</span>
+            <div>
+              <div class="welcome-btn-label">Zeskanuj paragon</div>
+              <div class="welcome-btn-desc">AI odczyta kwotę i kategorię automatycznie</div>
+            </div>
+          </button>
+          <button class="welcome-btn" onclick="switchForm('exp'); hideWelcomeCard()">
+            <span class="welcome-btn-icon">✏️</span>
+            <div>
+              <div class="welcome-btn-label">Dodaj ręcznie</div>
+              <div class="welcome-btn-desc">Wypełnij formularz krok po kroku</div>
+            </div>
+          </button>
+        </div>
+        <div class="welcome-tip">
+          💡 <strong>Wskazówka:</strong> Zacznij od wpisania swoich miesięcznych wpływów —
+          wtedy Dolarek pokaże Ci ile możesz wydawać a ile odkładać.
+        </div>
+      </div>
     </div>
 
     <!-- HEALTH SCORE -->
@@ -1965,38 +2014,6 @@
       <div class="chart-card-title">Wydatki dzienne (ostatnie 14 dni)</div>
       <div id="dailyChart" style="display:flex;align-items:flex-end;gap:6px;height:80px;"></div>
     </div>
-  </div>
-
-  <!-- CZAT PANEL -->
-  <div class="panel" id="panel-czat">
-    <div class="chat-container">
-      <div class="chat-header">
-        <div class="chat-avatar">🦁</div>
-        <div>
-          <div class="chat-name">Dolarek</div>
-          <div class="chat-status">● zawsze do usług</div>
-        </div>
-      </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="msg bot">
-          <div class="msg-av">🦁</div>
-          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żeby zawsze był na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
-        </div>
-      </div>
-      <div class="suggestions">
-        <button class="sug-btn" onclick="sendSuggestion(this)">Moje saldo</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Moje oszczędności</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Moje wydatki</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Na co idzie najwięcej?</button>
-        <button class="sug-btn" onclick="sendSuggestion(this)">Podsumowanie</button>
-      </div>
-      <div class="chat-input-row">
-        <input type="text" id="chatInput" placeholder="Zadaj pytanie o swoje wydatki..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="btn-send" onclick="sendChat()">→</button>
-      </div>
-    </div>
-  </div>
-  <!-- STAŁE WYDATKI PANEL -->
 
     <!-- PODSUMOWANIE ROCZNE -->
     <div class="year-section">
@@ -2031,6 +2048,37 @@
       <div class="year-months" id="yearMonthsList"></div>
     </div>
   </div>
+
+  <!-- CZAT PANEL -->
+  <div class="panel" id="panel-czat">
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-avatar">🦁</div>
+        <div>
+          <div class="chat-name">Dolarek</div>
+          <div class="chat-status">● zawsze do usług</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg bot">
+          <div class="msg-av">🦁</div>
+          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żeby zawsze był na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
+        </div>
+      </div>
+      <div class="suggestions">
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje saldo</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje oszczędności</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Moje wydatki</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Na co idzie najwięcej?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">Podsumowanie</button>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Zadaj pytanie o swoje wydatki..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn-send" onclick="sendChat()">→</button>
+      </div>
+    </div>
+  </div>
+  <!-- STAŁE WYDATKI PANEL usunięte -->
 
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
@@ -2452,6 +2500,7 @@ function filteredIncomes() {
 function render() {
   updateMonthContextBanner();
   setDefaultDates();
+  renderWelcome();
   renderList();
   renderStats();
   renderCharts();
@@ -2524,47 +2573,7 @@ function renderList() {
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id);
 
   if (!all.length) {
-    // Brak danych w ogóle — pokaż ekran powitalny
-    if (expenses.length === 0 && incomes.length === 0) {
-      el.innerHTML = `
-        <div class="welcome-screen">
-          <div class="welcome-lion">🦁</div>
-          <div class="welcome-title">Witaj w CashFlow!</div>
-          <div class="welcome-sub">
-            Masz narzędzie które pomoże Ci kontrolować finanse i odkładać na marzenia.
-            Nie musisz być ekspertem — Dolarek poprowadzi Cię za rękę 💪
-          </div>
-          <div class="welcome-actions">
-            <button class="welcome-btn" onclick="switchForm('parse')">
-              <span class="welcome-btn-icon">💬</span>
-              <div>
-                <div class="welcome-btn-label">Opisz słownie</div>
-                <div class="welcome-btn-desc">Napisz naturalnie, Dolarek resztą się zajmie</div>
-              </div>
-            </button>
-            <button class="welcome-btn" onclick="triggerScan()">
-              <span class="welcome-btn-icon">📷</span>
-              <div>
-                <div class="welcome-btn-label">Zeskanuj paragon</div>
-                <div class="welcome-btn-desc">AI odczyta kwotę i kategorię automatycznie</div>
-              </div>
-            </button>
-            <button class="welcome-btn" onclick="switchForm('exp')">
-              <span class="welcome-btn-icon">✏️</span>
-              <div>
-                <div class="welcome-btn-label">Dodaj ręcznie</div>
-                <div class="welcome-btn-desc">Wypełnij formularz krok po kroku</div>
-              </div>
-            </button>
-          </div>
-          <div class="welcome-tip">
-            💡 <strong>Wskazówka:</strong> Zacznij od wpisania swoich miesięcznych wpływów —
-            wtedy Dolarek pokaże Ci ile możesz wydawać a ile odkładać.
-          </div>
-        </div>`;
-    } else {
-      el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów w tym miesiącu.</div>';
-    }
+    el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów w tym miesiącu.</div>';
     return;
   }
 
@@ -4289,7 +4298,7 @@ async function addParsedItems() {
 
 const DOLAREK_QUOTES = [
   "Zasada nr 1 finansów: płać najpierw sobie. Odłóż 20% zanim cokolwiek wydasz. 👑",
-  "Kawa w domu kosztuje 1 zł. W kawiarni 18 zł. Przez rok to różnica 3000 zł. Wybór należy do Ciebie ☕",
+  "Kawa w kawiarni 5 razy w tygodniu to ok. 4 500 zł rocznie. Zrobiona w domu — ok. 250 zł. Różnica: ponad 4 000 zł rocznie. Twój wybór ☕",
   "Budżet to nie klatka — to mapa do wolności finansowej. Im dokładniejsza, tym szybciej dotrzesz do celu 🗺️",
   "Bogaci ludzie nie wydają więcej niż zarabiają. To takie proste i takie trudne jednocześnie 💎",
   "Każda złotówka odłożona dziś, to wolność jutro. Dolarek to potwierdza 🦁",
@@ -4301,9 +4310,9 @@ const DOLAREK_QUOTES = [
   "Małe wydatki robią wielkie dziury. 50 zł dziennie to 18 000 zł rocznie 💸",
   "Inwestycja w wiedzę finansową zwraca się bardziej niż jakakolwiek lokata 📚",
   "Cel oszczędnościowy bez terminu to tylko marzenie. Daj mu datę — stanie się planem 🎯",
-  "Gotówka w portfelu znika szybciej niż karta. To nie magia — to psychologia 🧠",
+  "Kartą wydajemy średnio o 30% więcej niż gotówką — płatność nie boli tak samo. Uważaj przy zbliżeniach 🧠",
   "Dolarek sprawdził: ludzie którzy śledzą wydatki oszczędzają średnio 20% więcej. Tak jak Ty teraz! 💪",
-  "Nie chodzi o to żebyś była skąpa. Chodzi o to żebyś miała wybór — i kontrolę 👑",
+  "Kontrola budżetu to nie skąpstwo — to świadome decydowanie o tym, co naprawdę ważne 👑",
   "Każdy ekspert finansowy zaczął od pierwszego zapisanego wydatku. Brawo że tu jesteś! 🌟",
   "Zasada 50/30/20: 50% potrzeby, 30% przyjemności, 20% oszczędności. Prosta i działa ✅",
   "Najlepszy czas na oszczędzanie był wczoraj. Drugi najlepszy — teraz 🚀",
@@ -4322,6 +4331,33 @@ function showQuoteBanner() {
 function closeQuoteBanner() {
   const banner = document.getElementById('quoteBanner');
   if (banner) banner.classList.remove('show');
+}
+
+
+// ─── WELCOME CARD ────────────────────────────────────────────────────────────
+
+function renderWelcome() {
+  const wrap = document.getElementById('welcomeCardWrap');
+  if (!wrap) return;
+  const isNewUser = expenses.length === 0 && incomes.length === 0;
+  wrap.classList.toggle('show', isNewUser);
+
+  // Ukryj/pokaż elementy panelu gdy nowy użytkownik
+  const hideWhenNew = ['healthBar', 'alertsContainer', 'saldoBar', 'monthlySummaryCard'];
+  hideWhenNew.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isNewUser ? 'none' : '';
+  });
+}
+
+function hideWelcomeCard() {
+  const wrap = document.getElementById('welcomeCardWrap');
+  if (wrap) wrap.classList.remove('show');
+  // Przywróć widoczność elementów
+  ['healthBar', 'alertsContainer', 'saldoBar', 'monthlySummaryCard'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
 }
 
 // ─── BANER KONTEKSTU MIESIĄCA ────────────────────────────────────────────────
