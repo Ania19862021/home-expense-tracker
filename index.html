@@ -2612,7 +2612,12 @@ function sendChat() {
   const typingId = addTyping();
   isTyping = true;
 
-  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const [sy, sm] = selectedMonth.split('-').map(Number);
+  const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
+  const currentYear = selectedMonth.slice(0, 4);
+
+  // Dane wybranego miesiąca
+  const mExp = thisMonthBudgetExpenses();
   const mInc = thisMonthIncomes();
   const totalExp = mExp.reduce((s,e) => s+e.amount, 0);
   const totalInc = mInc.reduce((s,i) => s+i.amount, 0);
@@ -2621,10 +2626,26 @@ function sendChat() {
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
     .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`).join(', ');
-  const recentExp = thisMonthBudgetExpenses().slice(0,10)
-    .map(e=>`${e.date} ${e.desc} ${e.amount.toFixed(2)}zł (${CAT_META[e.cat]?.label||e.cat})`).join('\n');
-  const [sy, sm] = selectedMonth.split('-').map(Number);
-  const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
+
+  // Sumy per miesiąc — cały rok
+  const allMonths = Array.from({length:12}, (_,i) => `${currentYear}-${String(i+1).padStart(2,'0')}`);
+  const monthlySummary = allMonths.map(m => {
+    const mE = getMonthBudgetExpenses(m).reduce((s,e) => s+e.amount, 0);
+    const mI = getMonthIncomes(m).reduce((s,i) => s+i.amount, 0);
+    if (!mE && !mI) return null;
+    const mn = parseInt(m.slice(5)) - 1;
+    return `${MONTH_NAMES_SHORT[mn]}: wpływy ${mI.toFixed(2)} zł, wydatki ${mE.toFixed(2)} zł, saldo ${(mI-mE).toFixed(2)} zł`;
+  }).filter(Boolean).join('\n');
+
+  // Ostatnie 30 transakcji z całej historii
+  const allRecent = [...expenses.filter(e => !isGoalSaving(e)), ...incomes]
+    .sort((a,b) => b.id - a.id).slice(0, 30)
+    .map(e => {
+      const isInc = incomes.includes(e);
+      const meta = isInc ? (INC_META[e.cat]?.label || e.cat) : (CAT_META[e.cat]?.label || e.cat);
+      const sign = isInc ? '+' : '-';
+      return `${e.date} ${e.desc} ${sign}${e.amount.toFixed(2)} zł (${meta})`;
+    }).join('\n');
 
   const userName = currentUser?.displayName || null;
   const userGreeting = userName ? `Imię użytkownika: ${userName}. Używaj imienia w rozmowie i dopasuj formę gramatyczną (rodzaj męski/żeński) do imienia.` : 'Imię użytkownika nieznane — używaj neutralnych form gramatycznych.';
@@ -2633,17 +2654,20 @@ function sendChat() {
 
 ${userGreeting}
 
-WAŻNE: Poniżej są PRAWDZIWE dane użytkownika z jego aplikacji. Nie są to dane testowe ani przykładowe. Nigdy nie mów że dane są testowe lub przykładowe — to rzeczywiste dane użytkownika.
-Jeśli dane są zerowe lub brak transakcji, powiedz wprost że użytkownik nie dodał jeszcze wpisów za ten miesiąc.
+WAŻNE: Poniżej są PRAWDZIWE dane użytkownika z jego aplikacji. Nie są to dane testowe ani przykładowe. Nigdy nie mów że dane są testowe — to rzeczywiste dane użytkownika.
+Jeśli pytanie dotyczy konkretnego miesiąca — użyj danych z sekcji "Wybrany miesiąc". Jeśli dotyczy całego roku lub wielu miesięcy — użyj sekcji "Podsumowanie roku".
 
-Analizowany miesiąc: ${monthLabel}
+Wybrany miesiąc: ${monthLabel}
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
 - Saldo: ${balance.toFixed(2)} zł
 - Wydatki wg kategorii: ${catSummary || 'brak wydatków'}
 
-Transakcje z tego miesiąca:
-${recentExp || 'brak transakcji w tym miesiącu'}
+Podsumowanie roku ${currentYear} (per miesiąc):
+${monthlySummary || 'brak danych'}
+
+Ostatnie transakcje (wszystkie miesiące):
+${allRecent || 'brak transakcji'}
 
 Odpowiadaj wyłącznie na podstawie tych danych.`;
 
