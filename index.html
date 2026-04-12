@@ -1328,6 +1328,71 @@
     border-color: transparent;
   }
   .mp-month.past { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── SKANOWANIE PARAGONÓW ─────────────────────────────────────── */
+  .btn-scan {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: var(--surface2);
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .btn-scan:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+  .btn-scan.scanning { border-color: var(--accent); color: var(--accent); animation: scanPulse 1.2s infinite; }
+  @keyframes scanPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .scan-preview {
+    display: none;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .scan-preview img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    background: var(--surface2);
+    display: block;
+  }
+  .scan-preview-close {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scan-badge {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #f0fdf4;
+    border: 1px solid #58b19f40;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    color: #065f46;
+    animation: fadeUp 0.3s ease;
+  }
+  .scan-badge.error { background: #fff0f3; border-color: #e1306c40; color: #9d174d; }
 </style>
 </head>
 <body>
@@ -1439,6 +1504,16 @@
 
       <!-- FORMULARZ WYDATKU -->
       <div class="expense-form" id="expenseForm">
+
+        <!-- SKANOWANIE -->
+        <input type="file" id="scanFileInput" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(event)">
+        <button class="btn-scan" id="btnScan" onclick="triggerScan()">📷 Zeskanuj paragon (AI)</button>
+        <div class="scan-preview" id="scanPreview">
+          <img id="scanPreviewImg" src="" alt="Podgląd paragonu">
+          <button class="scan-preview-close" onclick="clearScan()">✕</button>
+        </div>
+        <div class="scan-badge" id="scanBadge"></div>
+
         <div class="form-grid">
           <div class="field">
             <label>Kwota (zł)</label>
@@ -3708,7 +3783,90 @@ document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
 </script>
 
 <script>
-  // Rejestracja Service Workera
+  
+// ─── SKANOWANIE PARAGONÓW ────────────────────────────────────────────────────
+
+function triggerScan() {
+  document.getElementById('scanFileInput').click();
+}
+
+function clearScan() {
+  document.getElementById('scanPreview').style.display = 'none';
+  document.getElementById('scanBadge').style.display = 'none';
+  document.getElementById('scanFileInput').value = '';
+  const btn = document.getElementById('btnScan');
+  btn.textContent = '📷 Zeskanuj paragon (AI)';
+  btn.classList.remove('scanning');
+}
+
+async function handleScanFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Plik za duży! Max 5MB'); return; }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const dataUrl = e.target.result;
+    document.getElementById('scanPreviewImg').src = dataUrl;
+    document.getElementById('scanPreview').style.display = 'block';
+
+    const btn = document.getElementById('btnScan');
+    btn.textContent = '⏳ Analizuję paragon...';
+    btn.classList.add('scanning');
+
+    const badge = document.getElementById('scanBadge');
+    badge.style.display = 'none';
+    badge.className = 'scan-badge';
+
+    try {
+      const base64 = dataUrl.split(',')[1];
+      const mediaType = file.type || 'image/jpeg';
+
+      const response = await fetch('/.netlify/functions/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mediaType }),
+      });
+
+      const data = await response.json();
+
+      if (data.error || !data.amount) {
+        badge.className = 'scan-badge error';
+        badge.innerHTML = '❌ Nie udało się odczytać paragonu. Sprawdź zdjęcie i spróbuj ponownie.';
+        badge.style.display = 'flex';
+        btn.textContent = '📷 Spróbuj ponownie';
+        btn.classList.remove('scanning');
+        return;
+      }
+
+      document.getElementById('inAmount').value = data.amount;
+      if (data.category) {
+        const sel = document.getElementById('inCat');
+        if ([...sel.options].some(o => o.value === data.category)) sel.value = data.category;
+      }
+      if (data.desc) document.getElementById('inDesc').value = data.desc;
+      updatePlaceholder('inCat', 'inDesc', EXP_PLACEHOLDERS);
+
+      const catMeta = CAT_META[data.category] || CAT_META.inne;
+      badge.className = 'scan-badge';
+      badge.innerHTML = '✅ Rozpoznano: <strong>' + data.desc + '</strong> — ' + data.amount.toFixed(2).replace('.', ',') + ' zł ' + catMeta.emoji + ' ' + catMeta.label;
+      badge.style.display = 'flex';
+      btn.textContent = '✅ Zeskanowano — sprawdź i dodaj';
+      btn.classList.remove('scanning');
+      showToast('Paragon zeskanowany! ✓');
+
+    } catch (err) {
+      badge.className = 'scan-badge error';
+      badge.innerHTML = '❌ Błąd połączenia. Spróbuj ponownie.';
+      badge.style.display = 'flex';
+      btn.textContent = '📷 Zeskanuj paragon (AI)';
+      btn.classList.remove('scanning');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// Rejestracja Service Workera
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
@@ -3716,7 +3874,9 @@ document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
         .catch(err => console.log('SW błąd rejestracji:', err));
     });
   }
+
 </script>
+
 
 </body>
 </html>
