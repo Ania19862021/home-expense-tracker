@@ -1974,13 +1974,11 @@ function setHistFilter(f, btn) {
 
 // ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
-function checkDuplicate(list, cat, desc, isIncome) {
-  const m = selectedMonth; // miesiąc który przeglądamy
-  const normalizedDesc = (desc || '').toLowerCase().trim();
+function checkDuplicate(list, cat, amount, date) {
   return list.find(e =>
-    e.date.startsWith(m) &&
+    e.date === date &&
     e.cat === cat &&
-    (e.desc || '').toLowerCase().trim() === normalizedDesc
+    e.amount === amount
   );
 }
 
@@ -2018,11 +2016,12 @@ function addExpense() {
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
   const finalDesc = desc || CAT_META[cat].label;
 
-  const dup = checkDuplicate(expenses, cat, finalDesc);
+  const date = getInputDate('inDate');
+  const dup = checkDuplicate(expenses, cat, amount, date);
   if (dup) {
     const cm = CAT_META[cat] || CAT_META.inne;
     showDuplicateModal(
-      `W tym miesiącu masz już wpis:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${cm.emoji} ${cm.label}, ${dup.date})`,
+      `Masz już wpis z tą samą kwotą, datą i kategorią:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${cm.emoji} ${cm.label}, ${dup.date})`,
       () => doAddExpense(amount, cat, finalDesc)
     );
     return;
@@ -2047,11 +2046,12 @@ function addIncome() {
   if (!amount || amount <= 0) { showToast('Podaj kwotę!'); return; }
   const finalDesc = desc || INC_META[cat].label;
 
-  const dup = checkDuplicate(incomes, cat, finalDesc);
+  const incDate = getInputDate('incDate');
+  const dup = checkDuplicate(incomes, cat, amount, incDate);
   if (dup) {
     const im = INC_META[cat] || INC_META.inne_inc;
     showDuplicateModal(
-      `W tym miesiącu masz już wpis:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${im.emoji} ${im.label}, ${dup.date})`,
+      `Masz już wpis z tą samą kwotą, datą i kategorią:<br><strong>${dup.desc}</strong> — ${fmt(dup.amount)}<br>(${im.emoji} ${im.label}, ${dup.date})`,
       () => doAddIncome(amount, cat, finalDesc)
     );
     return;
