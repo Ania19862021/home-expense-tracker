@@ -1522,6 +1522,115 @@
   }
   .btn-parse-add:hover { opacity: 0.88; }
 
+
+  /* ── BANNER Z CYTATEM ────────────────────────────────────────────────────── */
+  .quote-banner {
+    display: none;
+    background: linear-gradient(135deg, #fff8f0, #fff0f8);
+    border: 1px solid #f0943330;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.4s ease;
+    position: relative;
+  }
+  .quote-banner.show { display: flex; align-items: flex-start; gap: 12px; }
+  .quote-banner-avatar {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .quote-banner-text {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .quote-banner-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .quote-banner-close {
+    position: absolute;
+    top: 10px; right: 12px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .quote-banner-close:hover { color: var(--text); }
+
+  /* ── EKRAN POWITALNY ─────────────────────────────────────────────────────── */
+  .welcome-screen {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: center;
+    animation: fadeUp 0.4s ease;
+  }
+  .welcome-lion { font-size: 3.5rem; margin-bottom: 12px; }
+  .welcome-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .welcome-sub {
+    font-size: 0.85rem;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 28px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 320px;
+    margin: 0 auto 24px;
+  }
+  .welcome-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+  }
+  .welcome-btn:hover { border-color: var(--accent); background: var(--surface); transform: translateY(-1px); }
+  .welcome-btn-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .welcome-btn-label { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.88rem; color: var(--text); }
+  .welcome-btn-desc { font-size: 0.72rem; color: var(--text2); margin-top: 1px; }
+  .welcome-tip {
+    font-size: 0.75rem;
+    color: var(--text2);
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 380px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
 </style>
 </head>
 <body>
@@ -1595,6 +1704,16 @@
     <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
   </div>
 
+  <!-- BANNER Z CYTATEM DOLARKA -->
+  <div class="quote-banner" id="quoteBanner">
+    <div class="quote-banner-avatar">🦁</div>
+    <div class="quote-banner-text">
+      <div class="quote-banner-name">Dolarek mówi:</div>
+      <div id="quoteText"></div>
+    </div>
+    <button class="quote-banner-close" onclick="closeQuoteBanner()">✕</button>
+  </div>
+
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
 
@@ -1632,7 +1751,7 @@
       <div class="form-toggle">
         <button class="ftab exp active" id="ftabExp" onclick="switchForm('exp')">➖ Dodaj wydatek</button>
         <button class="ftab inc" id="ftabInc" onclick="switchForm('inc')">➕ Dodaj wpływ</button>
-        <button class="ftab" id="ftabParse" onclick="switchForm('parse')" style="background:none;color:var(--text2)">💬 Opisz słownie</button>
+        <button class="ftab parse" id="ftabParse" onclick="switchForm('parse')">💬 Opisz słownie</button>
       </div>
 
       <!-- FORMULARZ WYDATKU -->
@@ -2405,7 +2524,47 @@ function renderList() {
   const all = [...expItems, ...incItems].sort((a, b) => b.id - a.id);
 
   if (!all.length) {
-    el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów.<br>Dodaj pierwszy wydatek lub wpływ!</div>';
+    // Brak danych w ogóle — pokaż ekran powitalny
+    if (expenses.length === 0 && incomes.length === 0) {
+      el.innerHTML = `
+        <div class="welcome-screen">
+          <div class="welcome-lion">🦁</div>
+          <div class="welcome-title">Witaj w CashFlow!</div>
+          <div class="welcome-sub">
+            Masz narzędzie które pomoże Ci kontrolować finanse i odkładać na marzenia.
+            Nie musisz być ekspertem — Dolarek poprowadzi Cię za rękę 💪
+          </div>
+          <div class="welcome-actions">
+            <button class="welcome-btn" onclick="switchForm('parse')">
+              <span class="welcome-btn-icon">💬</span>
+              <div>
+                <div class="welcome-btn-label">Opisz słownie</div>
+                <div class="welcome-btn-desc">Napisz naturalnie, Dolarek resztą się zajmie</div>
+              </div>
+            </button>
+            <button class="welcome-btn" onclick="triggerScan()">
+              <span class="welcome-btn-icon">📷</span>
+              <div>
+                <div class="welcome-btn-label">Zeskanuj paragon</div>
+                <div class="welcome-btn-desc">AI odczyta kwotę i kategorię automatycznie</div>
+              </div>
+            </button>
+            <button class="welcome-btn" onclick="switchForm('exp')">
+              <span class="welcome-btn-icon">✏️</span>
+              <div>
+                <div class="welcome-btn-label">Dodaj ręcznie</div>
+                <div class="welcome-btn-desc">Wypełnij formularz krok po kroku</div>
+              </div>
+            </button>
+          </div>
+          <div class="welcome-tip">
+            💡 <strong>Wskazówka:</strong> Zacznij od wpisania swoich miesięcznych wpływów —
+            wtedy Dolarek pokaże Ci ile możesz wydawać a ile odkładać.
+          </div>
+        </div>`;
+    } else {
+      el.innerHTML = '<div class="empty"><span class="icon">🪙</span>Brak wpisów w tym miesiącu.</div>';
+    }
     return;
   }
 
@@ -3230,11 +3389,15 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('userEmail').textContent = user.displayName || user.email;
     await loadUserData();
     updateMonthNav(); render(); renderGoals(); checkNotificationStatus();
+    showQuoteBanner();
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('mainApp').style.display     = 'none';
     expenses = []; incomes = []; goals = [];
+    localStorage.removeItem('wydatki');
+    localStorage.removeItem('wplywy');
+    localStorage.removeItem('cele');
   }
 });
 
@@ -4119,6 +4282,46 @@ async function addParsedItems() {
   document.getElementById('parseTextarea').value = '';
   document.getElementById('parseResults').classList.remove('visible');
   switchForm('exp');
+}
+
+
+// ─── BANNER Z CYTATEM DOLARKA ────────────────────────────────────────────────
+
+const DOLAREK_QUOTES = [
+  "Zasada nr 1 finansów: płać najpierw sobie. Odłóż 20% zanim cokolwiek wydasz. 👑",
+  "Kawa w domu kosztuje 1 zł. W kawiarni 18 zł. Przez rok to różnica 3000 zł. Wybór należy do Ciebie ☕",
+  "Budżet to nie klatka — to mapa do wolności finansowej. Im dokładniejsza, tym szybciej dotrzesz do celu 🗺️",
+  "Bogaci ludzie nie wydają więcej niż zarabiają. To takie proste i takie trudne jednocześnie 💎",
+  "Każda złotówka odłożona dziś, to wolność jutro. Dolarek to potwierdza 🦁",
+  "Nie musisz dużo zarabiać żeby oszczędzać. Musisz wydawać mniej niż zarabiasz. To cała tajemnica 💡",
+  "Fundusz awaryjny = spokój ducha. Miej odłożone 3-6 miesięcy wydatków i śpij spokojnie 😴",
+  "Subskrypcje to cichy złodziej budżetu. Sprawdź dziś ile płacisz za rzeczy których nie używasz 📱",
+  "Zasada 24h: przed każdym większym zakupem poczekaj dobę. Połowa chęci mija sama 🛍️",
+  "Nie porównuj swojego budżetu z cudzym życiem na Instagramie. Porównuj z własnym celem 📊",
+  "Małe wydatki robią wielkie dziury. 50 zł dziennie to 18 000 zł rocznie 💸",
+  "Inwestycja w wiedzę finansową zwraca się bardziej niż jakakolwiek lokata 📚",
+  "Cel oszczędnościowy bez terminu to tylko marzenie. Daj mu datę — stanie się planem 🎯",
+  "Gotówka w portfelu znika szybciej niż karta. To nie magia — to psychologia 🧠",
+  "Dolarek sprawdził: ludzie którzy śledzą wydatki oszczędzają średnio 20% więcej. Tak jak Ty teraz! 💪",
+  "Nie chodzi o to żebyś była skąpa. Chodzi o to żebyś miała wybór — i kontrolę 👑",
+  "Każdy ekspert finansowy zaczął od pierwszego zapisanego wydatku. Brawo że tu jesteś! 🌟",
+  "Zasada 50/30/20: 50% potrzeby, 30% przyjemności, 20% oszczędności. Prosta i działa ✅",
+  "Najlepszy czas na oszczędzanie był wczoraj. Drugi najlepszy — teraz 🚀",
+  "Dolarek przypomina: szczęście nie zależy od wielkości portfela, ale od kontroli nad nim 🦁💛",
+];
+
+function showQuoteBanner() {
+  const banner = document.getElementById('quoteBanner');
+  const textEl = document.getElementById('quoteText');
+  if (!banner || !textEl) return;
+  const quote = DOLAREK_QUOTES[Math.floor(Math.random() * DOLAREK_QUOTES.length)];
+  textEl.textContent = quote;
+  banner.classList.add('show');
+}
+
+function closeQuoteBanner() {
+  const banner = document.getElementById('quoteBanner');
+  if (banner) banner.classList.remove('show');
 }
 
 // ─── BANER KONTEKSTU MIESIĄCA ────────────────────────────────────────────────
