@@ -47,7 +47,6 @@
     overflow-x: hidden;
   }
 
-  /* GRID NOISE OVERLAY */
   body::before {
     content: '';
     position: fixed;
@@ -65,7 +64,6 @@
     padding: 32px 24px;
   }
 
-  /* HEADER */
   header {
     display: flex;
     align-items: flex-end;
@@ -107,7 +105,6 @@
     letter-spacing: -0.02em;
   }
 
-  /* TABS */
   .tabs {
     display: flex;
     gap: 4px;
@@ -138,7 +135,6 @@
     color: #ffffff;
   }
 
-  /* PANEL */
   .panel { display: none; animation: fadeUp 0.3s ease; }
   .panel.active { display: block; }
 
@@ -152,7 +148,6 @@
     50% { opacity: 1; }
   }
 
-  /* STATS ROW */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -200,7 +195,6 @@
   .stat-value.accent { color: var(--accent); }
   .stat-value.red { color: var(--red); }
 
-  /* FORM */
   .form-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -280,7 +274,6 @@
 
   .btn-add:active { transform: translateY(0); }
 
-  /* EXPENSE LIST */
   .section-header {
     display: flex;
     justify-content: space-between;
@@ -379,7 +372,6 @@
     display: block;
   }
 
-  /* CHARTS PANEL */
   .charts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -445,7 +437,6 @@
     flex-shrink: 0;
   }
 
-  /* MONTH filter */
   .filter-row {
     display: flex;
     gap: 8px;
@@ -479,7 +470,6 @@
     color: var(--accent);
   }
 
-  /* CHAT PANEL */
   .chat-container {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -631,7 +621,6 @@
     color: var(--accent2);
   }
 
-  /* TOAST */
   .toast {
     position: fixed;
     bottom: 24px; right: 24px;
@@ -664,7 +653,6 @@
     font-family: 'Inter', sans-serif;
   }
 
-  /* INCOME TOGGLE */
   .form-toggle {
     display: flex;
     gap: 4px;
@@ -698,11 +686,9 @@
   .expense-form { display: block; }
   .expense-form.hidden { display: none; }
 
-  /* SALDO */
   .stat-value.positive { color: var(--accent); }
   .stat-value.negative { color: var(--red); }
 
-  /* INCOME ITEM */
   .income-item {
     background: var(--surface);
     border: 1px solid #b8f76530;
@@ -724,7 +710,6 @@
     flex-shrink: 0;
   }
 
-  /* SALDO BAR */
   .saldo-bar {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -753,7 +738,6 @@
     transition: width 0.5s cubic-bezier(.4,0,.2,1);
   }
 
-  /* HISTORY FILTER */
   .hist-tabs {
     display: flex;
     gap: 6px;
@@ -774,7 +758,6 @@
 
   .hist-tab.active { border-color: var(--accent); color: var(--accent); }
 
-  /* ── MOBILE ────────────────────────────────────────────── */
   @media (max-width: 600px) {
     .app { padding: 16px 14px 90px; }
     header { margin-bottom: 16px; padding-bottom: 16px; }
@@ -794,7 +777,6 @@
     .msg-bubble { max-width: 85%; font-size: 0.82rem; }
   }
 
-  /* BOTTOM NAV (mobile only) */
   .bottom-nav { display: none; }
 
   @media (max-width: 600px) {
@@ -829,7 +811,6 @@
     .bnav-btn.active { color: var(--accent); }
   }
 
-  /* RECURRING */
   .rec-item {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -878,7 +859,6 @@
     flex-shrink: 0;
   }
 
-  /* GOALS */
   .goal-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -963,7 +943,6 @@
   }
   .btn-goal-add:hover { background: var(--accent); color: #0e0f11; }
 
-  /* ── LOGIN SCREEN ─────────────────────────────────────── */
   .login-screen {
     position: fixed;
     inset: 0;
@@ -1119,7 +1098,6 @@
 
   .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
-  /* ── HEALTH SCORE ─────────────────────────────────────── */
   .health-bar {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1159,7 +1137,6 @@
   }
   .health-status { font-size: 0.8rem; font-weight: 600; margin-top: 4px; }
 
-  /* ── ALERTS ───────────────────────────────────────────── */
   .alerts-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
   .alert-item {
     border-radius: 12px;
@@ -1180,7 +1157,6 @@
   .alert-text { flex: 1; }
   .alert-text strong { font-weight: 700; }
 
-  /* NOTIFICATION BUTTON */
   .notif-btn {
     background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
     color: #fff;
@@ -1195,7 +1171,6 @@
   }
   .notif-btn:hover { opacity: 0.88; }
 
-  /* MONTH NAV */
   .month-nav {
     display: flex; align-items: center; justify-content: space-between;
     background: var(--surface); border: 1px solid var(--border);
@@ -1216,7 +1191,7 @@
     cursor: pointer; padding: 4px 10px; border: 1px solid var(--accent);
     border-radius: 20px; background: none;
   }
-  /* YEARLY SUMMARY */
+
   .year-section { margin-top: 28px; }
   .year-title {
     font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
@@ -1245,7 +1220,6 @@
   .year-month-fill { height: 100%; border-radius: 99px; background: var(--red); transition: width 0.4s; }
   .year-month-amt { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--red); width: 80px; text-align: right; }
 
-  /* ── CUSTOM MONTH PICKER ──────────────────────────────── */
   .month-picker-wrap { position: relative; }
   .month-picker-input {
     width: 100%;
@@ -1330,7 +1304,6 @@
   }
   .mp-month.past { opacity: 0.4; cursor: not-allowed; }
 
-  /* ── SKANOWANIE PARAGONÓW ─────────────────────────────────────── */
   .btn-scan {
     display: flex;
     align-items: center;
@@ -1408,7 +1381,6 @@
     font-weight: 600;
   }
 
-  /* ── OPISZ SŁOWNIE ───────────────────────────────────────────────────────── */
   .parse-form { display: none; }
   .parse-form.visible { display: block; }
 
@@ -1522,7 +1494,6 @@
   }
   .btn-parse-add:hover { opacity: 0.88; }
 
-
   /* ── BANNER Z CYTATEM ────────────────────────────────────────────────────── */
   .quote-banner {
     display: none;
@@ -1569,7 +1540,6 @@
   }
   .quote-banner-close:hover { color: var(--text); }
 
-  /* ── EKRAN POWITALNY ─────────────────────────────────────────────────────── */
   .welcome-screen {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1631,21 +1601,10 @@
     line-height: 1.5;
   }
 
+  .welcome-card-wrap { display: none; }
+  .welcome-card-wrap.show { display: block; animation: fadeUp 0.4s ease; }
 
-  /* ── WELCOME CARD (nowi użytkownicy) ─────────────────────────────────────── */
-  .welcome-card-wrap {
-    display: none;
-  }
-  .welcome-card-wrap.show {
-    display: block;
-    animation: fadeUp 0.4s ease;
-  }
-
-
-  /* ── REKOMENDACJE DOLARKA ────────────────────────────────────────────────── */
-  .rec-section {
-    margin-top: 28px;
-  }
+  .rec-section { margin-top: 28px; }
   .rec-header {
     display: flex;
     align-items: center;
@@ -1689,11 +1648,7 @@
     border-radius: 8px;
     line-height: 1.5;
   }
-  .rec-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .rec-list { display: flex; flex-direction: column; gap: 10px; }
   .rec-card {
     border-radius: 12px;
     padding: 14px 16px;
@@ -1751,13 +1706,7 @@
     flex-shrink: 0;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .rec-empty {
-    text-align: center;
-    padding: 20px;
-    color: var(--text2);
-    font-size: 0.82rem;
-  }
-
+  .rec-empty { text-align: center; padding: 20px; color: var(--text2); font-size: 0.82rem; }
 </style>
 </head>
 <body>
@@ -1831,11 +1780,11 @@
     <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
   </div>
 
-  <!-- BANNER Z CYTATEM DOLARKA -->
+  <!-- BANNER Z CYTATEM -->
   <div class="quote-banner" id="quoteBanner">
     <div class="quote-banner-avatar">🦁</div>
     <div class="quote-banner-text">
-      <div class="quote-banner-name">Dolarek mówi:</div>
+      <div class="quote-banner-name">Cytat dnia:</div>
       <div id="quoteText"></div>
     </div>
     <button class="quote-banner-close" onclick="closeQuoteBanner()">✕</button>
@@ -1844,7 +1793,6 @@
   <!-- WYDATKI PANEL -->
   <div class="panel active" id="panel-wydatki">
 
-    <!-- NAWIGACJA MIESIĘCZNA -->
     <div class="month-nav">
       <button class="month-nav-btn" onclick="navigateMonth(-1)">‹</button>
       <div style="text-align:center">
@@ -1859,9 +1807,10 @@
       <div class="welcome-screen">
         <div class="welcome-lion">🦁</div>
         <div class="welcome-title">Witaj w CashFlow!</div>
+        <!-- ZMIANA #4: welcome-sub z cytatem Franklina -->
         <div class="welcome-sub">
-          Masz narzędzie które pomoże Ci kontrolować finanse i odkładać na marzenia.
-          Nie musisz być ekspertem — Dolarek poprowadzi Cię za rękę 💪
+          Jak powiedział Benjamin Franklin: <em>«Inwestycja w wiedzę przynosi największe odsetki.»</em><br>
+          Zacznij od pierwszego wpisu — Dolarek zajmie się resztą 💪
         </div>
         <div class="welcome-actions">
           <button class="welcome-btn" onclick="switchForm('parse'); hideWelcomeCard()">
@@ -1903,7 +1852,7 @@
         </div>
         <div class="health-status" id="healthStatus">Dodaj dane żeby zobaczyć ocenę</div>
       </div>
-      <button class="notif-btn" id="notifBtn" onclick="requestNotifications()" title="Kliknij aby włączyć powiadomienia. Jeśli przeglądarka blokuje, kliknij ikonę 🔒 przy adresie → Uprawnienia → Powiadomienia → Zezwól">🔔 Włącz powiadomienia</button>
+      <button class="notif-btn" id="notifBtn" onclick="requestNotifications()" title="Kliknij aby włączyć powiadomienia">🔔 Włącz powiadomienia</button>
     </div>
 
     <!-- ALERTS -->
@@ -1922,8 +1871,6 @@
 
       <!-- FORMULARZ WYDATKU -->
       <div class="expense-form" id="expenseForm">
-
-        <!-- SKANOWANIE -->
         <input type="file" id="scanFileInput" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(event)">
         <button class="btn-scan" id="btnScan" onclick="triggerScan()">📷 Zeskanuj paragon (AI)</button>
         <div class="scan-preview" id="scanPreview">
@@ -2091,7 +2038,6 @@
     <div class="filter-row">
       <span class="filter-label">Miesiąc:</span>
       <button class="month-btn" onclick="setMonth(null, this)">Wszystkie</button>
-      <!-- dynamicznie dodawane -->
     </div>
 
     <div style="margin-bottom:20px">
@@ -2100,7 +2046,6 @@
       </button>
     </div>
 
-    <!-- INCOME VS EXPENSE SUMMARY -->
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card" style="--accent-glow:#b8f76520">
         <div class="stat-label">💚 Wpływy</div>
@@ -2127,7 +2072,6 @@
       </div>
     </div>
 
-    <!-- PODSUMOWANIE ROCZNE -->
     <div class="year-section">
       <div class="year-title">📅 Podsumowanie roku <span id="yearLabel">2026</span></div>
       <div class="year-grid">
@@ -2160,7 +2104,6 @@
       <div class="year-months" id="yearMonthsList"></div>
     </div>
 
-    <!-- REKOMENDACJE DOLARKA -->
     <div class="rec-section" id="recSection" style="display:none">
       <div class="rec-header">
         <div class="rec-title">🦁 Rekomendacje Dolarka</div>
@@ -2191,7 +2134,8 @@
       <div class="chat-messages" id="chatMessages">
         <div class="msg bot">
           <div class="msg-av">🦁</div>
-          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty król finansów! 👑<br><br>Znam każdy grosz w Twoim budżecie i jestem tu żeby pilnować żeby zawsze był na plusie 💪<br><br>Zapytaj mnie o cokolwiek — saldo, wydatki, oszczędności. Nie ma tematu którego się boję! 🦁💰</div>
+          <!-- ZMIANA #2: pierwsza wiadomość Dolarka z cytatem Buffetta -->
+          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty asystent finansowy. 🦁<br><br>Warren Buffett powiedział: <em>«Nie oszczędzaj tego, co zostało po wydatkach — wydawaj to, co zostało po oszczędzaniu.»</em><br><br>Gotowy analizować Twoje finanse. Zapytaj o saldo, wydatki lub oszczędności! 💰</div>
         </div>
       </div>
       <div class="suggestions">
@@ -2207,7 +2151,6 @@
       </div>
     </div>
   </div>
-  <!-- STAŁE WYDATKI PANEL usunięte -->
 
   <!-- CELE PANEL -->
   <div class="panel" id="panel-cele">
@@ -2256,7 +2199,7 @@
     </div>
   </div>
 
-</div><!-- end .app -->
+</div>
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
@@ -2266,7 +2209,6 @@
   <button class="bnav-btn" id="bnav-przeglad" onclick="showTab('przeglad')">
     <span class="bicon">📊</span>Przegląd
   </button>
-
   <button class="bnav-btn" id="bnav-cele" onclick="showTab('cele')">
     <span class="bicon">🎯</span>Cele
   </button>
@@ -2300,7 +2242,6 @@ const CAT_META = {
   inne:         { label: 'Inne',                 emoji: '📦', color: '#868e96', pdfLabel: 'Inne' },
 };
 
-// Mapa migracji starych kluczy → nowe (dla istniejących danych użytkowników)
 const CAT_MIGRATION = {
   jedzenie:    'zywnosc',
   cafe:        'restauracje',
@@ -2317,7 +2258,7 @@ const CAT_MIGRATION = {
 
 let expenses = JSON.parse(localStorage.getItem('wydatki') || '[]');
 let incomes  = JSON.parse(localStorage.getItem('wplywy') || '[]');
-let filterMonth = localMonth(new Date()); // domyślnie bieżący miesiąc
+let filterMonth = localMonth(new Date());
 let histFilter = 'all';
 
 const INC_META = {
@@ -2330,17 +2271,12 @@ const INC_META = {
   inne_inc:      { label: 'Inne',                  emoji: '💰' },
 };
 
-// ─── CENTRALNY ZAPIS STANU ───────────────────────────────────────────────────
-// Jedna funkcja do zapisu CAŁEGO stanu — eliminuje race conditions
-// i gwarantuje że Firestore zawsze ma kompletne dane
 async function save() {
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('wplywy',  JSON.stringify(incomes));
-  await saveToFirestore(); // zapisuje expenses + incomes + goals
+  await saveToFirestore();
 }
 
-// setState: zmień stan → zapisz → wyrenderuj
-// Użycie: await setState({ expenses: [...], goals: [...] })
 async function setState(patch) {
   if (patch.expenses  !== undefined) expenses  = patch.expenses;
   if (patch.incomes   !== undefined) incomes   = patch.incomes;
@@ -2358,33 +2294,26 @@ function fmt(n) {
 }
 
 function today() {
-  // Lokalny YYYY-MM-DD (toISOString daje UTC, co może być poprzedni dzień)
   const d = new Date();
   return d.getFullYear() + '-' +
          String(d.getMonth() + 1).padStart(2, '0') + '-' +
          String(d.getDate()).padStart(2, '0');
 }
 
-// Zwraca wybraną datę z pola — lub dzisiejszą jeśli puste
 function getInputDate(fieldId) {
   const val = document.getElementById(fieldId)?.value;
   return val || today();
 }
 
-// Ustaw datę domyślną — zawsze dopasowaną do wybranego miesiąca
 function setDefaultDates() {
-  // Jeśli bieżący miesiąc → dzisiaj, jeśli przeszły → pierwszy dzień miesiąca
   const defaultDate = selectedMonth === TODAY_MONTH
     ? today()
     : selectedMonth + '-01';
   const inDate  = document.getElementById('inDate');
   const incDate = document.getElementById('incDate');
-  // Ustaw tylko jeśli pole jest puste LUB data nie pasuje do wybranego miesiąca
   if (inDate  && !inDate.value.startsWith(selectedMonth))  inDate.value  = defaultDate;
   if (incDate && !incDate.value.startsWith(selectedMonth)) incDate.value = defaultDate;
 }
-
-// ─── FORM TOGGLE ─────────────────────────────────────────────────────────────
 
 function switchForm(type) {
   setDefaultDates();
@@ -2403,8 +2332,6 @@ function setHistFilter(f, btn) {
   btn.classList.add('active');
   renderList();
 }
-
-// ─── ADD EXPENSE ─────────────────────────────────────────────────────────────
 
 function checkDuplicate(list, cat, amount, date) {
   return list.find(e =>
@@ -2493,15 +2420,13 @@ function addIncome() {
 
 function doAddIncome(amount, cat, desc) {
   const date = getInputDate('incDate');
-  incomes.unshift({ id: Date.now(), amount, cat, desc, date });
+  incomes.unshift({ id: Date.now() + 1, amount, cat, desc, date });
   save(); render();
   showToast('Wpływ dodany ✓');
   document.getElementById('incAmount').value = '';
   document.getElementById('incDesc').value   = '';
   setDefaultDates();
 }
-
-// ─── 800+ LOGIC ──────────────────────────────────────────────────────────────
 
 function toggleChildrenCount() {
   const cat = document.getElementById('incCat').value;
@@ -2524,8 +2449,6 @@ function calc800Plus() {
     : `800+ na ${children} dzieci (${children} x 800 zł)`;
 }
 
-// ─── DELETE ──────────────────────────────────────────────────────────────────
-
 async function deleteExpense(id) {
   expenses = expenses.filter(e => e.id !== id);
   await save(); render(); showToast('Usunięto');
@@ -2536,23 +2459,16 @@ async function deleteIncome(id) {
   await save(); render(); showToast('Usunięto');
 }
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-
 function isGoalSaving(e) {
-  // Wydatki na cele oszczędnościowe — nie liczą się jako "wydatki" w budżecie
   return e.desc && e.desc.startsWith('🎯 Oszczędności:');
 }
 
-// ─── SELECTED MONTH (nawigacja) ──────────────────────────────────────────────
-
-// Bezpieczna funkcja — zwraca YYYY-MM w lokalnej strefie czasowej
-// toISOString() jest w UTC i może zwrócić poprzedni miesiąc dla UTC+2
 function localMonth(date) {
   return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
 }
 
-let selectedMonth = localMonth(new Date()); // bieżący miesiąc
-const TODAY_MONTH  = localMonth(new Date()); // stała — bieżący miesiąc
+let selectedMonth = localMonth(new Date());
+const TODAY_MONTH  = localMonth(new Date());
 
 const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
                          'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
@@ -2561,9 +2477,7 @@ const MONTH_NAMES_SHORT = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz'
 function navigateMonth(dir) {
   const [y, m] = selectedMonth.split('-').map(Number);
   const d = new Date(y, m - 1 + dir, 1);
-  // Użyj lokalnej strefy czasowej — toISOString() może zwrócić zły miesiąc dla UTC+2
   const newM = localMonth(d);
-  // Nie pozwól na przyszłe miesiące (poza bieżącym)
   if (newM > TODAY_MONTH) return;
   selectedMonth = newM;
   updateMonthNav();
@@ -2581,11 +2495,8 @@ function updateMonthNav() {
     sub.textContent = isCurrent ? 'bieżący miesiąc' : '← kliknij › aby wrócić';
     sub.style.color = isCurrent ? 'var(--accent)' : 'var(--text2)';
   }
-  // Sync filterMonth w Przeglądzie
   filterMonth = selectedMonth;
 }
-
-// ─── SELEKTORY ────────────────────────────────────────────────────────────────
 
 function getMonthExpenses(month) {
   return expenses.filter(e => e.date.startsWith(month));
@@ -2609,7 +2520,6 @@ function getYearIncomes(year) {
   return incomes.filter(i => i.date.startsWith(year));
 }
 
-// Backward-compatible aliasy (używają selectedMonth)
 function thisMonthExpenses()       { return getMonthExpenses(selectedMonth); }
 function thisMonthBudgetExpenses() { return getMonthBudgetExpenses(selectedMonth); }
 function thisMonthIncomes()        { return getMonthIncomes(selectedMonth); }
@@ -2623,8 +2533,6 @@ function filteredIncomes() {
   if (!filterMonth) return incomes;
   return incomes.filter(i => i.date.startsWith(filterMonth));
 }
-
-// ─── RENDER ──────────────────────────────────────────────────────────────────
 
 function render() {
   updateMonthContextBanner();
@@ -2652,13 +2560,13 @@ function updateHeaderTotal() {
 }
 
 function renderStats() {
-  const mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
-  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e)); // tylko cele
+  const mExp = thisMonthBudgetExpenses();
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc = thisMonthIncomes();
   const totalExp  = mExp.reduce((s, e) => s + e.amount, 0);
   const totalGoal = mGoal.reduce((s, e) => s + e.amount, 0);
   const totalInc  = mInc.reduce((s, i) => s + i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // saldo uwzględnia cele
+  const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? ((balance / totalInc) * 100).toFixed(0) : null;
 
   document.getElementById('statIncome').textContent  = fmt(totalInc);
@@ -2676,7 +2584,6 @@ function renderStats() {
     saveEl.textContent = '—';
   }
 
-  // Saldo bar
   if (totalInc > 0) {
     const pct = Math.min(100, (totalExp / totalInc * 100)).toFixed(0);
     document.getElementById('saldoFill').style.width = pct + '%';
@@ -2737,10 +2644,6 @@ function renderList() {
   }).join('');
 }
 
-// ─── WYKRES KOŁOWY ───────────────────────────────────────────────────────────
-
-// ─── PODSUMOWANIE ROCZNE ─────────────────────────────────────────────────────
-
 function getYearData(year) {
   const yExp   = getYearBudgetExpenses(year);
   const yGoal  = getYearGoalExpenses(year);
@@ -2750,7 +2653,6 @@ function getYearData(year) {
   const totalInc  = yInc.reduce((s,e) => s+e.amount, 0);
   const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
-  // Ile miesięcy ma dane
   const months = [...new Set([
     ...expenses.filter(e=>e.date.startsWith(year)).map(e=>e.date.slice(0,7)),
     ...incomes.filter(i=>i.date.startsWith(year)).map(i=>i.date.slice(0,7))
@@ -2779,7 +2681,6 @@ function renderYearlySummary() {
   set('yearSavePct',  d.totalInc > 0 ? d.savePct + '%' : '—');
   set('yearAvgMonth', d.avgMonthExp > 0 ? fmt(d.avgMonthExp) + '/mies.' : '—', 'var(--text2)');
 
-  // Per-miesiąc breakdown
   const listEl = document.getElementById('yearMonthsList');
   if (!listEl) return;
   const allMonths = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
@@ -2788,7 +2689,7 @@ function renderYearlySummary() {
   listEl.innerHTML = allMonths.map(m => {
     const mExp = getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0);
     const mInc = getMonthIncomes(m).reduce((s,e)=>s+e.amount,0);
-    if (!mExp && !mInc) return ''; // pomiń puste miesiące
+    if (!mExp && !mInc) return '';
     const pct = (mExp/maxExp*100).toFixed(0);
     const mo = parseInt(m.slice(5))-1;
     const isCurrent = m === TODAY_MONTH;
@@ -2806,22 +2707,17 @@ function renderYearlySummary() {
 function goToMonth(month) {
   selectedMonth = month;
   updateMonthNav();
-  // Przełącz na zakładkę Budżet
   showTab('wydatki');
   render();
 }
-
-// ─── PODSUMOWANIE MIESIĄCA ────────────────────────────────────────────────────
 
 function renderMonthlySummary() {
   const card = document.getElementById('monthlySummaryCard');
   const content = document.getElementById('monthlySummaryContent');
   if (!card || !content) return;
 
-  // Podsumowanie zawsze na podstawie bieżącego miesiąca (lub wszystkich danych)
-  let mExp = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  let mExp = thisMonthBudgetExpenses();
   let mInc = thisMonthIncomes();
-  // Jeśli bieżący miesiąc pusty — weź wszystkie dane
   if (!mExp.length && !mInc.length) {
     mExp = expenses.filter(e => !isGoalSaving(e));
     mInc = incomes;
@@ -2838,7 +2734,6 @@ function renderMonthlySummary() {
   const score = calcHealthScore() || 0;
   const scoreColor = score >= 80 ? '#58b19f' : score >= 60 ? '#6aab8e' : score >= 40 ? '#f0a500' : '#e1306c';
 
-  // Top 3 kategorie
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const top3 = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
@@ -2878,7 +2773,6 @@ function renderMonthlySummary() {
 }
 
 function renderMonthButtons() {
-  // Znajdź najwcześniejszy miesiąc z danymi
   const allMonthsWithData = [...new Set([
     ...expenses.map(e => e.date.slice(0, 7)),
     ...incomes.map(i => i.date.slice(0, 7))
@@ -2892,7 +2786,6 @@ function renderMonthButtons() {
 
   if (!allMonthsWithData.length) return;
 
-  // Generuj kolejne miesiące od najwcześniejszego do dzisiaj
   const names = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
   const first = allMonthsWithData[0];
   const [fy, fm] = first.split('-').map(Number);
@@ -2906,12 +2799,10 @@ function renderMonthButtons() {
     if (m > 12) { m = 1; y++; }
   }
 
-  // Pokaż od najnowszego (reverse)
   months.reverse().forEach(mo => {
     const b = document.createElement('button');
     const hasData = allMonthsWithData.includes(mo);
     b.className = 'month-btn' + (filterMonth === mo ? ' active' : '');
-    // Miesiące bez danych — szare, ale klikalne
     if (!hasData) b.style.opacity = '0.45';
     const [by, bmo] = mo.split('-');
     b.textContent = names[parseInt(bmo)-1] + ' ' + by;
@@ -2922,7 +2813,6 @@ function renderMonthButtons() {
 
 function setMonth(m, btn) {
   filterMonth = m;
-  // Sync selectedMonth jeśli wybrany konkretny miesiąc
   if (m) { selectedMonth = m; updateMonthNav(); }
   document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -2930,7 +2820,6 @@ function setMonth(m, btn) {
 }
 
 function renderCharts() {
-  // W wykresach nie pokazuj oszczędności na cele jako kategorii "Inne"
   const list    = filteredExpenses().filter(e => !isGoalSaving(e));
   const goalExp = filteredExpenses().filter(e => isGoalSaving(e));
   const incList = filteredIncomes();
@@ -2938,9 +2827,8 @@ function renderCharts() {
   const totalExp  = list.reduce((s,e) => s+e.amount, 0);
   const totalGoal = goalExp.reduce((s,e) => s+e.amount, 0);
   const totalInc  = incList.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // spójne z Budżetem
+  const balance   = totalInc - totalExp - totalGoal;
 
-  // Update przegląd stats
   const ci = document.getElementById('chartIncome');
   const ce = document.getElementById('chartExpenses');
   const cb = document.getElementById('chartBalance');
@@ -2951,7 +2839,6 @@ function renderCharts() {
     cb.className = 'stat-value ' + (balance >= 0 ? 'positive' : 'negative');
   }
 
-  // Category chart
   const catTotals = {};
   list.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const maxCat = Math.max(1, ...Object.values(catTotals));
@@ -2975,7 +2862,6 @@ function renderCharts() {
       }).join('');
   }
 
-  // Top kategorie — sumy per kategoria (spójne z wykresem kołowym i słupkowym)
   const topEl = document.getElementById('topList');
   const topCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0, 6);
   if (!topCats.length) {
@@ -2999,17 +2885,16 @@ function renderCharts() {
         </div>`;
     }).join('');
   }
-
 }
 
-// ─── CHAT (Smart Assistant) ──────────────────────────────────────────────────
+// ─── CHAT ────────────────────────────────────────────────────────────────────
 
 function sendSuggestion(btn) {
   document.getElementById('chatInput').value = btn.textContent;
   sendChat();
 }
 
-let isTyping = false; // rate limit — blokuje podczas oczekiwania na AI
+let isTyping = false;
 
 function sendChat() {
   if (isTyping) { showToast('Poczekaj na odpowiedź...'); return; }
@@ -3026,20 +2911,18 @@ function sendChat() {
   const monthLabel = MONTH_NAMES_PL[sm-1] + ' ' + sy;
   const currentYear = selectedMonth.slice(0, 4);
 
-  // Dane wybranego miesiąca — spójne z logiką aplikacji
   const mExp  = thisMonthBudgetExpenses();
   const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc  = thisMonthIncomes();
   const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
   const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
   const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // saldo = wpływy - wydatki - cele
+  const balance   = totalInc - totalExp - totalGoal;
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
     .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(2)} zł`).join(', ');
 
-  // Sumy per miesiąc — cały rok
   const allMonths = Array.from({length:12}, (_,i) => `${currentYear}-${String(i+1).padStart(2,'0')}`);
   const monthlySummary = allMonths.map(m => {
     const mE = getMonthBudgetExpenses(m).reduce((s,e) => s+e.amount, 0);
@@ -3050,7 +2933,6 @@ function sendChat() {
     return `${MONTH_NAMES_SHORT[mn]}: wpływy ${mI.toFixed(2)} zł, wydatki ${mE.toFixed(2)} zł, cele ${mG.toFixed(2)} zł, saldo ${(mI-mE-mG).toFixed(2)} zł`;
   }).filter(Boolean).join('\n');
 
-  // Ostatnie 30 transakcji z całej historii
   const allRecent = [...expenses.filter(e => !isGoalSaving(e)), ...incomes]
     .sort((a,b) => b.id - a.id).slice(0, 30)
     .map(e => {
@@ -3061,9 +2943,9 @@ function sendChat() {
     }).join('\n');
 
   const userName = currentUser?.displayName || null;
-  const userGreeting = userName ? `Imię użytkownika: ${userName}. Używaj imienia w rozmowie i dopasuj formę gramatyczną (rodzaj męski/żeński) do imienia.` : 'Imię użytkownika nieznane — używaj neutralnych form gramatycznych.';
+  const userGreeting = userName ? `Imię użytkownika: ${userName}. Używaj imienia w rozmowie i dopasuj formę gramatyczną do imienia.` : 'Imię użytkownika nieznane — używaj neutralnych form gramatycznych.';
 
-  const systemPrompt = `Jesteś Dolarek — przyjacielski, ciepły i kompetentny asystent finansowy w aplikacji CashFlow. Masz osobowość króla finansów: jesteś pewny siebie, pomocny i motywujesz użytkownika do mądrego zarządzania pieniędzmi. Zawsze piszesz poprawnie po polsku. Odpowiadasz krótko, konkretnie i z pozytywną energią. Używasz emoji z umiarem. Nie używasz markdown — używasz HTML: <strong> dla pogrubień, <br> dla nowych linii.
+  const systemPrompt = `Jesteś Dolarek — przyjacielski, ciepły i kompetentny asystent finansowy w aplikacji CashFlow. Masz osobowość eksperta finansowego: jesteś pewny siebie, pomocny i motywujesz użytkownika do mądrego zarządzania pieniędzmi. Zawsze piszesz poprawnie po polsku. Odpowiadasz krótko, konkretnie i z pozytywną energią. Używasz emoji z umiarem. Nie używasz markdown — używasz HTML: <strong> dla pogrubień, <br> dla nowych linii.
 
 ${userGreeting}
 
@@ -3149,14 +3031,14 @@ function botReply(q) {
     .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z')
     .replace(/ź/g,'z').replace(/ć/g,'c').replace(/ń/g,'n');
 
-  const mExp  = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const mExp  = thisMonthBudgetExpenses();
   const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc  = thisMonthIncomes();
   const allExp    = expenses;
   const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
   const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
   const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // spójne z aplikacją
+  const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : null;
 
   const catTotals = {};
@@ -3166,17 +3048,15 @@ function botReply(q) {
 
   const has = (...words) => words.some(w => lq.includes(w));
 
-  // POWITANIE
+  // ZMIANA #3: botReply powitanie z cytatem Mungera
   if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
-    return `Hej! Jestem <strong>Dolarek</strong> — Twój król finansów! 🦁<br>Mogę analizować Twoje wydatki, liczyć saldo i podpowiadać jak oszczędzać.<br><br>Zapytaj np: <em>"Moje saldo"</em> lub <em>"Na co idzie najwięcej?"</em>`;
+    return `Hej! Jestem <strong>Dolarek</strong> 🦁<br>Jak mawiał Charlie Munger: <em>«Nie zamierzałem być bogaty. Chciałem być niezależny.»</em><br><br>Pomogę Ci do tego dojść! Zapytaj np: <em>"Moje saldo"</em> lub <em>"Na co idzie najwięcej?"</em>`;
   }
 
-  // BRAK DANYCH
   if (!allExp.length && !incomes.length) {
     return '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
   }
 
-  // SALDO
   if (has('saldo','zostalo','zostaje','ile mam','bilans','stan konta')) {
     const emoji = balance >= 0 ? '✅' : '⚠️';
     const koment = balance >= 0
@@ -3188,7 +3068,6 @@ function botReply(q) {
 ${koment}`;
   }
 
-  // OSZCZĘDNOŚCI
   if (has('oszczedz','ile odkladam','ile zostan','ile zachowam','procent','odklade')) {
     if (!totalInc) return '💡 Dodaj najpierw wpływy (pensję itp.), żebym mogła policzyć ile oszczędzasz!';
     const emoji = +savePct >= 20 ? '🟢' : +savePct >= 10 ? '🟡' : '🔴';
@@ -3200,18 +3079,16 @@ ${koment}`;
     return `${emoji} <strong>Oszczędzasz ${savePct}% swoich wpływów</strong> (${fmt(balance)})<br><br>${rada}`;
   }
 
-  // PORADY / TIPS
   if (has('porada','podpowiedz','co robic','jak zaoszczed','tips','pomoz mi')) {
     if (!totalExp) return 'Dodaj kilka wydatków, a podam Ci spersonalizowane porady!';
     const porady = [];
     if (topCm) porady.push(`💡 Największa kategoria to ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}). Warto ustalić tu miesięczny limit.`);
-    if (catTotals['restauracje'] && totalInc > 0 && catTotals['restauracje']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['restauracje']/totalInc*100).toFixed(0)}% Twoich wpływów (${fmt(catTotals['restauracje'])}). Gotowanie w domu może sporo zaoszczędzić!`);
+    if (catTotals['restauracje'] && totalInc > 0 && catTotals['restauracje']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['restauracje']/totalInc*100).toFixed(0)}% Twoich wpływów. Gotowanie w domu może sporo zaoszczędzić!`);
     if (catTotals['subskrypcje'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['subskrypcje'])}) — często płacimy za usługi których nie używamy.`);
     if (!porady.length) porady.push('💪 Twoje wydatki wyglądają rozsądnie! Tak trzymaj.');
     return `<strong>Moje porady dla Ciebie:</strong><br><br>${porady.join('<br><br>')}`;
   }
 
-  // WPŁYWY
   if (has('wplywy','zarobil','zarobila','przychod','pensj','wyplat','ile zarabi')) {
     if (!totalInc) return '📭 Nie masz jeszcze wpisanych wpływów w tym miesiącu. Dodaj pensję lub inne przychody!';
     const incCats = {};
@@ -3220,7 +3097,6 @@ ${koment}`;
     return `💚 <strong>Wpływy w tym miesiącu: ${fmt(totalInc)}</strong><br><br>${lines}`;
   }
 
-  // PODSUMOWANIE
   if (has('podsumow','raport','analiz','zestawien','przegląd')) {
     const catLines = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,4)
       .map(([cat,val]) => {
@@ -3235,7 +3111,6 @@ ${koment}`;
 <strong>Top kategorie:</strong><br>${catLines||'brak danych'}`;
   }
 
-  // NAJWIĘKSZY wydatek
   if (has('najwieks','najdrozs','max wydatek','rekord')) {
     if (!allExp.length) return 'Brak wydatków do analizy.';
     const top = [...allExp].sort((a,b)=>b.amount-a.amount)[0];
@@ -3243,49 +3118,20 @@ ${koment}`;
     return `🏆 Twój największy wydatek to:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}`;
   }
 
-  // WYJAZD / WAKACJE
   if (has('wyjazd','wakacj','urlop','podroz','stac mnie','stac')) {
     if (!totalInc) return '💡 Dodaj swoje wpływy, żebym mogła ocenić czy stać Cię na wyjazd!';
     const msg = balance > 1000
-      ? `✅ Masz nadwyżkę ${fmt(balance)} — wygląda na to, że stać Cię na wyjazd! Pamiętaj jednak o odkładaniu na niespodziewane wydatki.`
+      ? `✅ Masz nadwyżkę ${fmt(balance)} — wygląda na to, że stać Cię na wyjazd!`
       : balance > 0
-      ? `🟡 Masz małą nadwyżkę (${fmt(balance)}). Na tani wyjazd może starczyć, ale warto poczekać kolejny miesiąc.`
-      : `⚠️ Niestety w tym miesiącu wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}. Wyjazd mógłby nadwyrężyć budżet.`;
+      ? `🟡 Masz małą nadwyżkę (${fmt(balance)}). Na tani wyjazd może starczyć.`
+      : `⚠️ Niestety w tym miesiącu wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}.`;
     return msg;
   }
 
-  // PYTANIE O KATEGORIĘ
-  const catKeywords = {
-    jedzenie:    ['jedzen','zakup','biedronk','lidl','sklep','spozywo'],
-    cafe:        ['kawiarni','restauracj','kawa','obiad','lunch'],
-    transport:   ['transport','paliw','auto','samochod','uber','bilet'],
-    dom:         ['dom','mieszkan','czynsz','prad','gaz','media'],
-    zdrowie:     ['zdrowi','lekarz','apteka','lekarstw'],
-    rozrywka:    ['rozrywk','film','kino','seriale','zabaw'],
-    sport:       ['sport','silowni','fitness','trening','basen'],
-    travel:      ['podroz','wakacj','lot','hotel','wyjazd'],
-    beauty:      ['uroda','kosmetyk','fryzjer','manicure'],
-    gifts:       ['prezent','podarunek','gift'],
-    subskrypcje: ['subskrypcj','netflix','spotify','telefon','streaming'],
-    education:   ['studi','angielski','kurs','nauk','szkol'],
-    childcare:   ['przedszkol','niani','dziecko'],
-  };
-  for (const [cat, keywords] of Object.entries(catKeywords)) {
-    if (keywords.some(k => lq.includes(k))) {
-      const total = mExp.filter(e=>e.cat===cat).reduce((s,e)=>s+e.amount,0);
-      const cm = CAT_META[cat];
-      const pct = totalExp > 0 ? (total/totalExp*100).toFixed(0) : 0;
-      const items = mExp.filter(e=>e.cat===cat).slice(0,3).map(e=>`• ${e.desc}: ${fmt(e.amount)}`).join('<br>');
-      return `${cm.emoji} <strong>${cm.label} w tym miesiącu: ${fmt(total)}</strong> (${pct}% wydatków)<br><br>${items||'Brak transakcji w tej kategorii.'}`;
-    }
-  }
-
-  // DZIĘKUJĘ
   if (has('dzieki','dziekuje','super','swietnie','spoko','ok dziek')) {
-    return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań o swoje finanse — jestem tutaj!';
+    return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań — jestem tutaj!';
   }
 
-  // FALLBACK — inteligentny
   const tips = [
     `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
     `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydano na jedzenie?"</em>`,
@@ -3323,36 +3169,16 @@ const INC_PLACEHOLDERS = {
   inne_inc:      'np. sprzedaz na OLX...',
 };
 
-const REC_PLACEHOLDERS = {
-  dom:         'np. czynsz, prąd, internet...',
-  kredyt:      'np. rata kredytu hipotecznego...',
-  pozyczka:    'np. rata pożyczki, chwilówka...',
-  transport:   'np. bilet miesięczny ZTM...',
-  subskrypcje: 'np. Netflix, Spotify, iCloud...',
-  education:   'np. angielski, kurs online...',
-  childcare:   'np. przedszkole Słoneczko...',
-  zdrowie:     'np. abonament medyczny...',
-  sport:       'np. karnet FitFabric...',
-  rozrywka:    'np. kino, gaming, hobby...',
-  cafe:        'np. kawa w pracy...',
-  inne:        'np. nazwa stałego wydatku...',
-};
-
 function updatePlaceholder(selectId, inputId, map) {
   const cat = document.getElementById(selectId).value;
   document.getElementById(inputId).placeholder = map[cat] || 'np. opis...';
 }
 
-// attach listeners after DOM ready
 document.getElementById('inCat').addEventListener('change',  () => updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS));
 document.getElementById('incCat').addEventListener('change', () => { updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS); toggleChildrenCount(); });
 
-// set initial placeholders
 updatePlaceholder('inCat',  'inDesc',  EXP_PLACEHOLDERS);
 updatePlaceholder('incCat', 'incDesc', INC_PLACEHOLDERS);
-
-
-
 
 function showTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -3361,20 +3187,16 @@ function showTab(name) {
 
   document.getElementById('panel-' + name).classList.add('active');
 
-  // desktop tabs
   document.querySelectorAll('.tab').forEach(t => {
     if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(name)) t.classList.add('active');
   });
 
-  // bottom nav
   const bnav = document.getElementById('bnav-' + name);
   if (bnav) bnav.classList.add('active');
 
   if (name === 'przeglad') { renderCharts(); renderYearlySummary(); loadRecommendations(); }
   if (name === 'cele') renderGoals();
 }
-
-// ─── TOAST ───────────────────────────────────────────────────────────────────
 
 function confirmReset() {
   const modal = document.createElement('div');
@@ -3421,7 +3243,6 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
-
 
 // ─── FIREBASE AUTH ────────────────────────────────────────────────────────────
 
@@ -3526,7 +3347,6 @@ async function loadUserData() {
       incomes   = data.incomes   || [];
       goals     = data.goals     || [];
 
-      // Migracja 1: stare klucze kategorii → nowe
       let changed = false;
       expenses.forEach(e => {
         if (CAT_MIGRATION[e.cat]) {
@@ -3535,7 +3355,6 @@ async function loadUserData() {
         }
       });
 
-      // Migracja 2: stare wpłaty na cele miały cat:'inne' — naprawiamy
       expenses.forEach(e => {
         if (isGoalSaving(e) && e.cat !== 'oszczednosci') {
           e.cat = 'oszczednosci';
@@ -3543,18 +3362,14 @@ async function loadUserData() {
         }
       });
 
-      // Czyszczenie: usuń oszczędności dla celów które już nie istnieją
       const goalNames = goals.map(g => g.name);
       const before = expenses.length;
       expenses = expenses.filter(e => {
-        if (!isGoalSaving(e)) return true; // normalny wydatek — zostaje
-        // Oszczędność — zostaje tylko jeśli cel nadal istnieje
+        if (!isGoalSaving(e)) return true;
         return goalNames.some(name => e.desc.includes(name));
       });
       if (expenses.length !== before) changed = true;
 
-      // Recalkuluj g.saved dla każdego celu na podstawie historii
-      // (żeby goals i historia były zawsze spójne)
       goals.forEach(g => {
         g.saved = expenses
           .filter(e => isGoalSaving(e) && e.desc.includes(g.name))
@@ -3569,7 +3384,7 @@ async function loadUserData() {
 async function saveToFirestore() {
   if (!currentUser) return;
   if (!navigator.onLine) {
-    console.warn('Offline — dane zapisane lokalnie, synchronizacja po połączeniu');
+    console.warn('Offline — dane zapisane lokalnie');
     return;
   }
   try {
@@ -3581,35 +3396,30 @@ async function saveToFirestore() {
 }
 
 function calcHealthScore() {
-  const mExp  = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const mExp  = thisMonthBudgetExpenses();
   const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc  = thisMonthIncomes();
   const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
   const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
   const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // spójne z resztą aplikacji
+  const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? (balance/totalInc)*100 : 0;
   if (!totalInc && !totalExp) return null;
 
-  // Pay Yourself First: celem jest 20% oszczędności
   let score = 0;
-
-  // 60 pkt za oszczędności (najważniejsze!)
   if (savePct >= 20)      score += 60;
   else if (savePct >= 15) score += 45;
   else if (savePct >= 10) score += 30;
   else if (savePct >= 5)  score += 15;
   else if (savePct >= 0)  score += 5;
-  else                    score += 0; // minus = 0
+  else                    score += 0;
 
-  // 20 pkt za kontrolę wydatków (max 80% wpływów)
   const spendRatio = totalInc > 0 ? totalExp/totalInc : 1;
   if (spendRatio <= 0.7)      score += 20;
   else if (spendRatio <= 0.8) score += 15;
   else if (spendRatio <= 0.9) score += 8;
   else if (spendRatio <= 1.0) score += 2;
 
-  // 20 pkt za cele oszczędnościowe
   if (goals.length > 0)               score += 10;
   if (goals.some(g => g.saved > 0))   score += 10;
 
@@ -3642,21 +3452,20 @@ function renderHealthScore() {
 }
 
 function renderAlerts() {
-  const mExp  = thisMonthBudgetExpenses(); // bez oszczędności na cele
+  const mExp  = thisMonthBudgetExpenses();
   const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc  = thisMonthIncomes();
   const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
   const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
   const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // spójne z resztą aplikacji
+  const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? (balance/totalInc)*100 : 0;
-  const spendable = totalInc * 0.80; // 80% do wydania po odłożeniu 20%
+  const spendable = totalInc * 0.80;
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
 
   const alerts = [];
 
-  // Brak danych
   if (!totalInc && !totalExp) {
     alerts.push({ type: 'info', icon: '👋', text: '<strong>Witaj w CashFlow!</strong> Dodaj swoje wpływy i wydatki żeby zobaczyć analizę budżetu.' });
     alerts.push({ type: 'info', icon: '💡', text: '<strong>Metoda Pay Yourself First:</strong> Gdy dodasz wpływy, od razu odkładaj 20%. Resztą (80%) zarządzaj swobodnie.' });
@@ -3664,8 +3473,6 @@ function renderAlerts() {
 
   if (totalInc > 0) {
     const saveTarget = totalInc * 0.20;
-
-    // OSZCZĘDNOŚCI — najważniejszy alert
     if (balance < 0) {
       alerts.push({ type: 'danger', icon: '🚨', text: `<strong>Wydajesz więcej niż zarabiasz!</strong> Minusowe saldo: ${fmt(Math.abs(balance))}. To sytuacja kryzysowa — natychmiast ogranicz wydatki!` });
     } else if (savePct < 10) {
@@ -3676,29 +3483,24 @@ function renderAlerts() {
       alerts.push({ type: 'success', icon: '🎉', text: `<strong>Odkładasz ${savePct.toFixed(0)}% wpływów</strong> — osiągasz cel metody Pay Yourself First! Świetna robota!` });
     }
 
-    // PRZEKROCZENIE 80% budżetu do wydania
     if (totalExp > spendable && balance >= 0) {
       alerts.push({ type: 'warning', icon: '📊', text: `<strong>Wydano więcej niż 80% wpływów</strong> (${fmt(totalExp)} z ${fmt(spendable)} dostępnych). Poduszka oszczędnościowa maleje!` });
     }
 
-    // KATEGORIE — alert gdy jedna kategoria > 25% kwoty do wydania
     const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
     if (topCat && spendable > 0 && topCat[1]/spendable > 0.25) {
       const cm = CAT_META[topCat[0]] || CAT_META.inne;
-      alerts.push({ type: 'warning', icon: cm.emoji, text: `<strong>${cm.label} pochłania ${(topCat[1]/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(topCat[1])}). To dużo jak na jedną kategorię — warto się zastanowić.` });
+      alerts.push({ type: 'warning', icon: cm.emoji, text: `<strong>${cm.label} pochłania ${(topCat[1]/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(topCat[1])}). To dużo jak na jedną kategorię.` });
     }
 
-    // RESTAURACJE > 15% budżetu do wydania
     if (catTotals['restauracje'] && catTotals['restauracje']/spendable > 0.15) {
       alerts.push({ type: 'warning', icon: '🍽️', text: `<strong>Restauracje pochłaniają ${(catTotals['restauracje']/spendable*100).toFixed(0)}% Twojego budżetu</strong> (${fmt(catTotals['restauracje'])}). Gotowanie w domu to prosta oszczędność!` });
     }
 
-    // SUBSKRYPCJE > 10% budżetu do wydania
     if (catTotals['subskrypcje'] && catTotals['subskrypcje']/spendable > 0.10) {
       alerts.push({ type: 'warning', icon: '📱', text: `<strong>Subskrypcje to ${(catTotals['subskrypcje']/spendable*100).toFixed(0)}% budżetu</strong> (${fmt(catTotals['subskrypcje'])}). Przejrzyj czy wszystkie są potrzebne.` });
     }
 
-    // BRAK CELÓW
     if (goals.length === 0) {
       alerts.push({ type: 'info', icon: '🎯', text: '<strong>Nie masz celów oszczędnościowych.</strong> Dodaj cel w zakładce 🎯 — to motywuje do odkładania 3x bardziej niż sama zasada!' });
     }
@@ -3725,7 +3527,6 @@ async function requestNotifications() {
   const isFirefox = navigator.userAgent.includes('Firefox');
   const isSafari  = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-  // If already granted — just enable
   if (Notification.permission === 'granted') {
     const btn = document.getElementById('notifBtn');
     if (btn) { btn.textContent = '✅ Włączone'; btn.style.background = '#58b19f'; }
@@ -3736,12 +3537,11 @@ async function requestNotifications() {
     return;
   }
 
-  // Show instructions modal first
   let browserName = isEdge ? 'Edge' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : 'Chrome';
   let instructions = {
     'Edge':    '1. Kliknij ikonę 🔒 przy adresie strony<br>2. Wybierz "Uprawnienia dla tej witryny"<br>3. Powiadomienia → <strong>Zezwalaj</strong><br>4. Odśwież stronę i spróbuj ponownie',
     'Firefox': '1. Kliknij ikonę 🔒 przy adresie strony<br>2. Kliknij "Więcej informacji"<br>3. Zakładka Uprawnienia → Powiadomienia → <strong>Zezwalaj</strong><br>4. Odśwież stronę',
-    'Safari':  '1. Menu Safari → Ustawienia dla tej witryny<br>2. Powiadomienia → <strong>Zezwól</strong><br>Na iPhone: dodaj do ekranu głównego',
+    'Safari':  '1. Menu Safari → Ustawienia dla tej witryny<br>2. Powiadomienia → <strong>Zezwól</strong>',
     'Chrome':  'Kliknij <strong>Zezwól</strong> w okienku które się pojawi!',
   }[browserName];
 
@@ -3828,7 +3628,6 @@ function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  // Helper to strip Polish chars for PDF compatibility
   function pl(str) {
     return (str || '').replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
       .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z').replace(/ź/g,'z')
@@ -3837,13 +3636,13 @@ function exportPDF() {
       .replace(/Ź/g,'Z').replace(/Ć/g,'C').replace(/Ń/g,'N');
   }
 
-  const mExp  = thisMonthBudgetExpenses(); // bez oszczędności na cele
-  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e)); // tylko cele
+  const mExp  = thisMonthBudgetExpenses();
+  const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
   const mInc  = thisMonthIncomes();
   const totalExp  = mExp.reduce((s,e) => s+e.amount, 0);
   const totalGoal = mGoal.reduce((s,e) => s+e.amount, 0);
   const totalInc  = mInc.reduce((s,i) => s+i.amount, 0);
-  const balance   = totalInc - totalExp - totalGoal; // spójne z aplikacją
+  const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
   const score     = calcHealthScore() || 0;
 
@@ -3855,11 +3654,9 @@ function exportPDF() {
   const lm = 18;
   const pw = 174;
 
-  // ── HEADER (light gradient) ──
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, 210, 297, 'F');
 
-  // Gradient header bar
   doc.setFillColor(240, 148, 51);
   doc.rect(0, 0, 53, 34, 'F');
   doc.setFillColor(220, 39, 67);
@@ -3877,7 +3674,6 @@ function exportPDF() {
   doc.setFontSize(8);
   doc.text('Wygenerowano: ' + now.toLocaleDateString('pl-PL'), lm, 30);
 
-  // Health score badge
   const scoreColor = score >= 80 ? [88,177,159] : score >= 60 ? [106,171,142] : score >= 40 ? [240,165,0] : [225,48,108];
   doc.setFillColor(...scoreColor);
   doc.roundedRect(155, 8, 36, 18, 4, 4, 'F');
@@ -3891,12 +3687,11 @@ function exportPDF() {
 
   y = 44;
 
-  // ── SUMMARY BOXES (light style) ──
   const boxes = [
-    { label: 'WPLYWY',       value: pl(fmt(totalInc)),  bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
-    { label: 'WYDATKI',      value: pl(fmt(totalExp)),  bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
-    { label: 'CELE',         value: pl(fmt(totalGoal)), bg: [239,246,255], border: [88,177,159],  text: [64,93,230] },
-    { label: 'SALDO',        value: pl(fmt(balance)),   bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
+    { label: 'WPLYWY',  value: pl(fmt(totalInc)),  bg: [240,253,250], border: [88,177,159],  text: [88,177,159] },
+    { label: 'WYDATKI', value: pl(fmt(totalExp)),  bg: [255,240,243], border: [225,48,108],  text: [225,48,108] },
+    { label: 'CELE',    value: pl(fmt(totalGoal)), bg: [239,246,255], border: [88,177,159],  text: [64,93,230] },
+    { label: 'SALDO',   value: pl(fmt(balance)),   bg: balance>=0 ? [240,253,250] : [255,240,243], border: balance>=0 ? [88,177,159] : [225,48,108], text: balance>=0 ? [88,177,159] : [225,48,108] },
   ];
   const bw = 41;
   boxes.forEach((b, i) => {
@@ -3918,7 +3713,6 @@ function exportPDF() {
 
   y += 30;
 
-  // ── KATEGORIE ──
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
   const sortedCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]);
@@ -3927,7 +3721,7 @@ function exportPDF() {
     doc.setTextColor(38, 38, 38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Wydatki według kategorii', lm, y);
+    doc.text('Wydatki wedlug kategorii', lm, y);
     y += 2;
     doc.setDrawColor(239, 239, 239);
     doc.setLineWidth(0.5);
@@ -3944,7 +3738,6 @@ function exportPDF() {
       doc.setFont('helvetica', 'normal');
       doc.text(pl(cm.pdfLabel || cm.label), lm, y);
 
-      // light bar
       doc.setFillColor(245,245,245);
       doc.roundedRect(lm + 52, y - 4, 88, 5, 1, 1, 'F');
       doc.setFillColor(193, 53, 132);
@@ -3962,48 +3755,8 @@ function exportPDF() {
 
   y += 4;
 
-  // ── TOP KATEGORIE (spójne z Przeglądem) ──
-  const topCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0, 8);
-  if (topCats.length) {
-    if (y > 240) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
-    doc.setTextColor(38,38,38);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Top kategorie', lm, y);
-    y += 2;
-    doc.setDrawColor(239,239,239);
-    doc.line(lm, y+2, lm+pw, y+2);
-    y += 8;
-
-    const maxCatVal = topCats[0][1];
-    topCats.forEach(([cat, val], i) => {
-      const cm = CAT_META[cat] || CAT_META.inne;
-      const pct = totalExp > 0 ? (val/totalExp*100).toFixed(0) : 0;
-      const barW = Math.max(1, (val/maxCatVal) * 85);
-      if (i % 2 === 0) { doc.setFillColor(250,250,250); doc.rect(lm-2, y-5, pw+4, 10, 'F'); }
-      doc.setTextColor(142,142,142);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.text('#' + (i+1), lm, y);
-      doc.setTextColor(38,38,38);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.text(pl(cm.pdfLabel || cm.label), lm + 8, y);
-      doc.setFillColor(239,239,239);
-      doc.roundedRect(lm + 70, y-3.5, 60, 4, 1, 1, 'F');
-      doc.setFillColor(193,53,132);
-      doc.roundedRect(lm + 70, y-3.5, Math.max(1,(val/maxCatVal)*60), 4, 1, 1, 'F');
-      doc.setTextColor(225,48,108);
-      doc.setFont('helvetica', 'bold');
-      doc.text(pl(fmt(val)) + ' (' + pct + '%)', lm+pw, y, { align: 'right' });
-      y += 11;
-      if (y > 270) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
-    });
-  }
-
-  // ── CELE ──
   if (goals.length) {
-    y += 4;
+    if (y > 240) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,210,297,'F'); y = 20; }
     doc.setTextColor(38,38,38);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
@@ -4037,7 +3790,6 @@ function exportPDF() {
     });
   }
 
-  // ── FOOTER ──
   doc.setFillColor(249,249,249);
   doc.rect(0, 285, 210, 12, 'F');
   doc.setDrawColor(239,239,239);
@@ -4051,11 +3803,8 @@ function exportPDF() {
   showToast('Raport PDF pobrany! 📄');
 }
 
-
-
 let goals = JSON.parse(localStorage.getItem('cele') || '[]');
 
-// Inteligentne emoji na podstawie nazwy celu
 function goalEmoji(name) {
   const n = (name || '').toLowerCase();
   if (/dom|mieszk|house|home|nieruch|wynajem|remont|mieszkanie/.test(n)) return '🏠';
@@ -4072,14 +3821,13 @@ function goalEmoji(name) {
   if (/oszczęd|oszczed|fundusz|rezerwow/.test(n)) return '💰';
   if (/prezent|gift|urodzin/.test(n)) return '🎁';
   if (/ogród|ogrod|garden/.test(n)) return '🌱';
-  // domyślne — losowe ale sensowne
   const defaults = ['🎯','⭐','🚀','💎','🌟','🎪'];
   return defaults[Math.floor(Math.random() * defaults.length)];
 }
 
 function saveGoals() {
   localStorage.setItem('cele', JSON.stringify(goals));
-  saveToFirestore(); // zapisuje cały stan: expenses + incomes + goals
+  saveToFirestore();
 }
 
 function addGoal() {
@@ -4103,9 +3851,8 @@ function addGoal() {
 function addToGoal(id, amount) {
   const g = goals.find(g => g.id === id);
   if (!g) return;
-  const actual = Math.min(amount, g.target - g.saved); // nie przekraczaj celu
+  const actual = Math.min(amount, g.target - g.saved);
   if (actual <= 0) { showToast('Cel już osiągnięty! 🎉'); return; }
-  // Dodaj wydatek do historii
   expenses.unshift({
     id: Date.now(),
     amount: actual,
@@ -4113,7 +3860,6 @@ function addToGoal(id, amount) {
     desc: '🎯 Oszczędności: ' + g.name,
     date: selectedMonth + '-01'
   });
-  // g.saved zawsze = suma z historii (spójność)
   g.saved = expenses
     .filter(e => isGoalSaving(e) && e.desc.includes(g.name))
     .reduce((s, e) => s + e.amount, 0);
@@ -4128,19 +3874,14 @@ function addToGoal(id, amount) {
 function deleteGoal(id) {
   const g = goals.find(g => g.id === id);
   if (g) {
-    // Usuń WSZYSTKIE wpłaty na ten cel z historii
-    // (sprawdzamy po opisie zawierającym nazwę celu)
-    const before = expenses.length;
     expenses = expenses.filter(e =>
       !(isGoalSaving(e) && e.desc.includes(g.name))
     );
-    const removed = before - expenses.length;
-    // Zapisz razem expenses i goals w jednym Firestore write
   }
   goals = goals.filter(g => g.id !== id);
   localStorage.setItem('wydatki', JSON.stringify(expenses));
   localStorage.setItem('cele', JSON.stringify(goals));
-  saveToFirestore(); // jeden zapis zamiast dwóch
+  saveToFirestore();
   render();
   renderGoals();
   showToast('Cel i jego wpłaty usunięte ✓');
@@ -4163,18 +3904,16 @@ function renderGoals() {
     const [dy, dm] = g.deadline.split('-').map(Number);
     const monthsLeft = (dy - now.getFullYear()) * 12 + (dm - now.getMonth() - 1);
     const monthlyNeeded = monthsLeft > 0 ? remaining / monthsLeft : remaining;
-    // Kolor zależy od postępu i czasu
     let color;
     if (done) color = 'var(--accent)';
     else if (monthsLeft <= 0) color = 'var(--red)';
-    else if (monthsLeft > 24 && pct < 30) color = '#405de6'; // niebieski — długoterminowy, spokojnie
+    else if (monthsLeft > 24 && pct < 30) color = '#405de6';
     else if (pct >= 75) color = 'var(--accent)';
     else if (pct >= 40) color = 'var(--yellow)';
     else if (monthsLeft <= 3) color = 'var(--red)';
     else color = 'var(--yellow)';
     const months = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
     const deadlineStr = months[dm-1] + ' ' + dy;
-    // Sugerowana kwota wpłaty = miesięczna rata
     const suggested = monthsLeft > 0 ? Math.ceil(monthlyNeeded) : 100;
     return `
       <div class="goal-card">
@@ -4233,7 +3972,6 @@ function toggleMonthPicker() {
   const isOpen = dd.classList.toggle('open');
   btn.classList.toggle('open', isOpen);
   if (isOpen) renderMonthPicker();
-  // Close on outside click
   if (isOpen) {
     setTimeout(() => {
       document.addEventListener('click', closeMpOutside, { once: true });
@@ -4276,20 +4014,13 @@ function selectMonth(val) {
   document.getElementById('mpDisplay').classList.remove('open');
 }
 
-// Init month picker
 document.addEventListener('DOMContentLoaded', () => { renderMonthPicker(); });
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-// checkSession() above handles initialization
 </script>
 
 <script>
-  
-
-
 // ─── OPISZ SŁOWNIE (AI PARSE) ────────────────────────────────────────────────
 
-let parsedItems = []; // przechowuje wyniki parsowania
+let parsedItems = [];
 
 async function runParse() {
   const text = document.getElementById('parseTextarea').value.trim();
@@ -4352,7 +4083,6 @@ function renderParsedItems() {
       </div>`;
   }).join('');
 
-  // Live update kwoty przy zmianie pola
   parsedItems.forEach((item, i) => {
     const input = document.getElementById('parseAmt_' + i);
     const amtEl = input?.nextElementSibling;
@@ -4392,34 +4122,43 @@ async function addParsedItems() {
   render();
   showToast(`Dodano ${added} transakcji! ✓`);
 
-  // Reset
   parsedItems = [];
   document.getElementById('parseTextarea').value = '';
   document.getElementById('parseResults').classList.remove('visible');
   switchForm('exp');
 }
 
-
-// ─── BANNER Z CYTATEM DOLARKA ────────────────────────────────────────────────
+// ─── ZMIANA #1: DOLAREK_QUOTES — 28 zweryfikowanych cytatów ──────────────────
 
 const DOLAREK_QUOTES = [
-  "Zasada nr 1 finansów: płać najpierw sobie. Odłóż 20% zanim cokolwiek wydasz. 👑",
-  "Kawa w kawiarni 5 razy w tygodniu to ok. 4 500 zł rocznie. Zrobiona w domu — ok. 250 zł. Różnica: ponad 4 000 zł rocznie. Twój wybór ☕",
-  "Budżet to nie klatka — to mapa do wolności finansowej. Im dokładniejsza, tym szybciej dotrzesz do celu 🗺️",
-  "Bogaci ludzie nie wydają więcej niż zarabiają. To takie proste i takie trudne jednocześnie 💎",
-  "Nie musisz dużo zarabiać żeby oszczędzać. Musisz wydawać mniej niż zarabiasz. To cała tajemnica 💡",
-  "Fundusz awaryjny = spokój ducha. Miej odłożone 3-6 miesięcy wydatków i śpij spokojnie 😴",
-  "Subskrypcje to cichy złodziej budżetu. Sprawdź dziś ile płacisz za rzeczy których nie używasz 📱",
-  "Zasada 24h: przed każdym większym zakupem poczekaj dobę. Większość impulsów mija sama 🛍️",
-  "Nie porównuj swojego budżetu z cudzym życiem na Instagramie. Porównuj z własnym celem 📊",
-  "Inwestycja w wiedzę finansową zwraca się bardziej niż jakakolwiek lokata 📚",
-  "Cel oszczędnościowy bez terminu to tylko marzenie. Daj mu datę — stanie się planem 🎯",
-  "Kartą wydajemy średnio o 30% więcej niż gotówką. Uważaj przy zbliżeniach 🧠",
-  "Dolarek sprawdził: ludzie którzy śledzą wydatki oszczędzają średnio 20% więcej. Tak jak Ty teraz! 💪",
-  "Kontrola budżetu to nie skąpstwo — to świadome decydowanie o tym co naprawdę ważne 👑",
-  "Zasada 50/30/20: 50% potrzeby, 30% przyjemności, 20% oszczędności. Prosta i działa ✅",
-  "Najlepszy czas na oszczędzanie był wczoraj. Drugi najlepszy — teraz 🚀",
-  "Szczęście nie zależy od wielkości portfela, ale od kontroli nad nim 🦁💛",
+  "«Nie oszczędzaj tego, co zostało po wydatkach — wydawaj to, co zostało po oszczędzaniu.» — Warren Buffett, inwestor",
+  "«Cena jest tym, co płacisz. Wartość jest tym, co dostajesz.» — Warren Buffett, inwestor",
+  "«Zasada nr 1: nigdy nie trać pieniędzy. Zasada nr 2: nigdy nie zapomnij zasady nr 1.» — Warren Buffett, inwestor",
+  "«Bój się, gdy inni są chciwi — i bądź chciwy, gdy inni się boją.» — Warren Buffett, inwestor",
+  "«Inwestycja w wiedzę przynosi największe odsetki.» — Benjamin Franklin, mąż stanu",
+  "«Strzeż się małych wydatków — mała nieszczelność zatopi wielki statek.» — Benjamin Franklin, mąż stanu",
+  "«Droga do bogactwa zależy głównie od dwóch słów: pracowitość i oszczędność.» — Benjamin Franklin, mąż stanu",
+  "«Na tym świecie pewne są tylko dwie rzeczy: śmierć i podatki.» — Benjamin Franklin, mąż stanu",
+  "«Są dwa sposoby na szczęście: zmniejszyć potrzeby lub powiększyć środki. Mądry robi obie rzeczy jednocześnie.» — Benjamin Franklin, mąż stanu",
+  "«Inteligentny inwestor to realista, który sprzedaje optymistom i kupuje od pesymistów.» — Benjamin Graham, ojciec inwestowania wartościowego",
+  "«Nie zamierzałem być bogaty. Chciałem być niezależny.» — Charlie Munger, wiceprezes Berkshire Hathaway",
+  "«Każdego dnia staraj się być odrobinę mądrzejszy niż byłeś rano.» — Charlie Munger, wiceprezes Berkshire Hathaway",
+  "«Ubogi nie jest ten, kto mało ma — lecz ten, kto pragnie więcej.» — Seneka, filozof rzymski",
+  "«Oszczędność zawiera w sobie wszystkie inne cnoty.» — Cyceron, mąż stanu i filozof",
+  "«Bogactwo nie polega na posiadaniu wielu dóbr, lecz na nielicznych potrzebach.» — Epiktet, filozof stoicki",
+  "«Bogactwo nie polega na pieniądzach ani złocie, lecz na tym, co za nie można kupić.» — Adam Smith, ekonomista",
+  "«Nigdy nie wydawaj pieniędzy zanim je zarobiłeś.» — Thomas Jefferson, prezydent USA",
+  "«Nie ma godności bardziej imponującej i niezależności ważniejszej niż życie w granicach własnych możliwości.» — Calvin Coolidge, prezydent USA",
+  "«Szczęście nie leży w samym posiadaniu pieniędzy — leży w radości z osiągnięcia i dreszczu twórczego wysiłku.» — Franklin D. Roosevelt, prezydent USA",
+  "«To nie pracodawca płaci wynagrodzenia. Pracodawca tylko przekazuje pieniądze. Wynagrodzenia płaci klient.» — Henry Ford, przemysłowiec",
+  "«Kiedy chodzi o pieniądze, wszyscy wyznają tę samą religię.» — Voltaire, pisarz i filozof",
+  "«Znaczenie pieniądza wynika z tego, że jest łącznikiem między teraźniejszością a przyszłością.» — John Maynard Keynes, ekonomista",
+  "«Wielu ludzi nie dba o pieniądze dopóki im nie zabraknie — i tak samo traktuje czas.» — Johann Wolfgang von Goethe, pisarz",
+  "«Jeśli panujemy nad naszym bogactwem, jesteśmy bogaci i wolni. Jeśli bogactwo panuje nad nami — jesteśmy biedni.» — Edmund Burke, polityk i filozof",
+  "«Inflacja to jedyna forma opodatkowania, którą można nałożyć bez ustawy.» — Milton Friedman, ekonomista noblista",
+  "«Darmowy lunch nie istnieje.» — Milton Friedman, ekonomista noblista",
+  "«Zbyt wielu ludzi wydaje pieniądze, których nie zarobiło, na rzeczy, których nie chce, by imponować ludziom, których nie lubi.» — Will Rogers, satyryk",
+  "«Bogactwo to zdolność do pełnego doświadczania życia.» — Henry David Thoreau, pisarz i filozof",
 ];
 
 function showQuoteBanner() {
@@ -4436,7 +4175,6 @@ function closeQuoteBanner() {
   if (banner) banner.classList.remove('show');
 }
 
-
 // ─── WELCOME CARD ────────────────────────────────────────────────────────────
 
 function renderWelcome() {
@@ -4445,7 +4183,6 @@ function renderWelcome() {
   const isNewUser = expenses.length === 0 && incomes.length === 0;
   wrap.classList.toggle('show', isNewUser);
 
-  // Ukryj/pokaż elementy panelu gdy nowy użytkownik
   const hideWhenNew = ['healthBar', 'alertsContainer', 'saldoBar', 'monthlySummaryCard'];
   hideWhenNew.forEach(id => {
     const el = document.getElementById(id);
@@ -4456,13 +4193,11 @@ function renderWelcome() {
 function hideWelcomeCard() {
   const wrap = document.getElementById('welcomeCardWrap');
   if (wrap) wrap.classList.remove('show');
-  // Przywróć widoczność elementów
   ['healthBar', 'alertsContainer', 'saldoBar', 'monthlySummaryCard'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = '';
   });
 }
-
 
 // ─── REKOMENDACJE DOLARKA ─────────────────────────────────────────────────────
 
@@ -4473,7 +4208,6 @@ async function loadRecommendations() {
   const btn     = document.getElementById('btnRecRefresh');
   if (!section || !list) return;
 
-  // Sprawdź czy mamy dane
   if (expenses.length === 0 && incomes.length === 0) {
     section.style.display = 'none';
     return;
@@ -4484,7 +4218,6 @@ async function loadRecommendations() {
   list.innerHTML = '<div class="rec-loading"><div class="rec-spinner"></div>Dolarek analizuje Twoje finanse...</div>';
   if (summary) summary.style.display = 'none';
 
-  // Przygotuj dane finansowe
   const year = selectedMonth.slice(0, 4);
   const mExp  = thisMonthBudgetExpenses();
   const mGoal = thisMonthExpenses().filter(e => isGoalSaving(e));
@@ -4495,14 +4228,12 @@ async function loadRecommendations() {
   const balance   = totalInc - totalExp - totalGoal;
   const savePct   = totalInc > 0 ? ((balance/totalInc)*100).toFixed(0) : 0;
 
-  // Kategorie wydatków
   const catTotals = {};
   mExp.forEach(e => { catTotals[e.cat] = (catTotals[e.cat]||0) + e.amount; });
   const catSummary = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
     .map(([cat,val]) => `${CAT_META[cat]?.label||cat}: ${val.toFixed(0)} zł (${totalInc>0?(val/totalInc*100).toFixed(0):0}% wpływów)`)
     .join(', ');
 
-  // Dane roczne
   const allMonths = Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
   const yearlyData = allMonths.map(m => {
     const mE = getMonthBudgetExpenses(m).reduce((s,e)=>s+e.amount,0);
@@ -4541,13 +4272,11 @@ ${yearlyData || 'brak danych'}
       return;
     }
 
-    // Pokaż summary
     if (result.summary && summary) {
       summary.textContent = '🦁 ' + result.summary;
       summary.style.display = 'block';
     }
 
-    // Renderuj rekomendacje
     list.innerHTML = result.recommendations.map(rec => {
       const savingText = rec.saving > 0
         ? `<div class="rec-card-saving">-${rec.saving} zł/mies.</div>`
@@ -4571,6 +4300,7 @@ ${yearlyData || 'brak danych'}
 }
 
 // ─── BANER KONTEKSTU MIESIĄCA ────────────────────────────────────────────────
+
 function updateMonthContextBanner() {
   const banner = document.getElementById('monthContextBanner');
   const text   = document.getElementById('monthContextText');
@@ -4645,7 +4375,6 @@ async function handleScanFile(event) {
         if ([...sel.options].some(o => o.value === data.category)) sel.value = data.category;
       }
       if (data.desc) document.getElementById('inDesc').value = data.desc;
-      // Wpisz datę z paragonu jeśli AI ją rozpoznała
       if (data.date && /^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
         document.getElementById('inDate').value = data.date;
       }
@@ -4671,17 +4400,14 @@ async function handleScanFile(event) {
   reader.readAsDataURL(file);
 }
 
-// Rejestracja Service Workera
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('SW zarejestrowany:', reg.scope))
-        .catch(err => console.log('SW błąd rejestracji:', err));
-    });
-  }
-
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW zarejestrowany:', reg.scope))
+      .catch(err => console.log('SW błąd rejestracji:', err));
+  });
+}
 </script>
-
 
 </body>
 </html>
