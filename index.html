@@ -2284,14 +2284,14 @@
         <div class="chat-avatar">🦁</div>
         <div>
           <div class="chat-name">Dolarek</div>
-          <div class="chat-status">● zawsze do usług</div>
+          <div class="chat-status">● ekspert finansowy</div>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="msg bot">
           <div class="msg-av">🦁</div>
           <!-- ZMIANA #2: pierwsza wiadomość Dolarka z cytatem Buffetta -->
-          <div class="msg-bubble">Hej! Jestem <strong>Dolarek</strong> — Twój osobisty asystent finansowy. 🦁<br><br>Warren Buffett powiedział: <em>«Nie oszczędzaj tego, co zostało po wydatkach — wydawaj to, co zostało po oszczędzaniu.»</em><br><br>Gotowy analizować Twoje finanse. Zapytaj o saldo, wydatki lub oszczędności! 💰</div>
+          <div class="msg-bubble">Dzień dobry. Jestem <strong>Dolarek</strong> — Twój ekspert ds. finansów osobistych i cash flow.<br><br>Analizuję Twój budżet, identyfikuję wycieki finansowe i proponuję konkretne działania — nie ogólne porady.<br><br>Zacznijmy od pytania: jakie masz dziś największe wyzwanie finansowe?</div>
         </div>
       </div>
       <div class="suggestions">
@@ -3104,27 +3104,47 @@ function sendChat() {
   const userName = currentUser?.displayName || null;
   const userGreeting = userName ? `Imię użytkownika: ${userName}. Używaj imienia w rozmowie i dopasuj formę gramatyczną do imienia.` : 'Imię użytkownika nieznane — używaj neutralnych form gramatycznych.';
 
-  const systemPrompt = `Jesteś Dolarek — przyjacielski, ciepły i kompetentny asystent finansowy w aplikacji CashFlow. Masz osobowość eksperta finansowego: jesteś pewny siebie, pomocny i motywujesz użytkownika do mądrego zarządzania pieniędzmi. Zawsze piszesz poprawnie po polsku. Odpowiadasz krótko, konkretnie i z pozytywną energią. Używasz emoji z umiarem. Nie używasz markdown — używasz HTML: <strong> dla pogrubień, <br> dla nowych linii.
+  const systemPrompt = `Jesteś Dolarek — ekspert finansowy i doradca ds. cash flow w aplikacji CashFlow. Specjalizujesz się w finansach osobistych, zarządzaniu przepływami pieniężnymi, strategiach budżetowych, planowaniu finansowym i podstawach inwestowania.
+
+OSOBOWOŚĆ I STYL:
+- Jesteś przyjazny i empatyczny, ale zawsze profesjonalny
+- Komunikujesz się konwersacyjnie, ale ekspercko
+- Jesteś pewny swojej wiedzy — bez protekcjonalnego tonu
+- Koncentrujesz się na realnej poprawie sytuacji finansowej użytkownika
+- Piszesz poprawnie po polsku
+- Używasz HTML: <strong> dla pogrubień, <br> dla nowych linii — zero markdown
+- Emoji używasz bardzo oszczędnie, tylko gdy wzmacniają przekaz
+
+KLUCZOWE KOMPETENCJE — zawsze:
+- Analizujesz konkretne dane użytkownika, nie używasz ogólników
+- Wyjaśniasz DLACZEGO, nie tylko CO robić
+- Identyfikujesz konkretne problemy z cash flow i "wycieki" finansowe
+- Wskazujesz obszary do poprawy z liczbami i procentami
+- Uzasadniasz każdą rekomendację zasadami ekonomii
+
+CZEGO NIE ROBISZ:
+- Nie dajesz porad bez oparcia w danych użytkownika
+- Nie używasz protekcjonalnego tonu
+- Nie ignorujesz kontekstu
+- Nie mówisz "świetnie!" gdy sytuacja finansowa jest zła
 
 ${userGreeting}
 
-WAŻNE: Poniżej są PRAWDZIWE dane użytkownika z jego aplikacji. Nie są to dane testowe ani przykładowe. Nigdy nie mów że dane są testowe — to rzeczywiste dane użytkownika.
-Jeśli pytanie dotyczy konkretnego miesiąca — użyj danych z sekcji "Wybrany miesiąc". Jeśli dotyczy całego roku lub wielu miesięcy — użyj sekcji "Podsumowanie roku".
-
+DANE UŻYTKOWNIKA (prawdziwe, nie testowe):
 Wybrany miesiąc: ${monthLabel}
 - Wpływy: ${totalInc.toFixed(2)} zł
 - Wydatki: ${totalExp.toFixed(2)} zł
-- Wpłaty na cele oszczędnościowe: ${totalGoal.toFixed(2)} zł
-- Saldo (wpływy - wydatki - cele): ${balance.toFixed(2)} zł
+- Wpłaty na cele: ${totalGoal.toFixed(2)} zł
+- Saldo: ${balance.toFixed(2)} zł
 - Wydatki wg kategorii: ${catSummary || 'brak wydatków'}
 
-Podsumowanie roku ${currentYear} (per miesiąc):
+Podsumowanie roku ${currentYear}:
 ${monthlySummary || 'brak danych'}
 
-Ostatnie transakcje (wszystkie miesiące):
+Ostatnie transakcje:
 ${allRecent || 'brak transakcji'}
 
-Odpowiadaj wyłącznie na podstawie tych danych.`;
+Analizuj wyłącznie na podstawie tych danych. Jeśli danych brakuje — powiedz użytkownikowi co konkretnie dodać.`;
 
   fetch('/.netlify/functions/chat', {
     method: 'POST',
@@ -3141,7 +3161,7 @@ Odpowiadaj wyłącznie na podstawie tych danych.`;
     if (data.content && data.content[0]) {
       addMessage('bot', data.content[0].text);
     } else {
-      addMessage('bot', 'Przepraszam, coś poszło nie tak. Spróbuj ponownie! 🤔');
+      addMessage('bot', 'Wystąpił problem z połączeniem. Spróbuj ponownie za chwilę.');
     }
   })
   .catch(() => {
@@ -3207,96 +3227,109 @@ function botReply(q) {
 
   const has = (...words) => words.some(w => lq.includes(w));
 
-  // ZMIANA #3: botReply powitanie z cytatem Mungera
+  // Powitanie
   if (has('czesc','hej','halo','witaj','dzien dobry','siema')) {
-    return `Hej! Jestem <strong>Dolarek</strong> 🦁<br>Jak mawiał Charlie Munger: <em>«Nie zamierzałem być bogaty. Chciałem być niezależny.»</em><br><br>Pomogę Ci do tego dojść! Zapytaj np: <em>"Moje saldo"</em> lub <em>"Na co idzie najwięcej?"</em>`;
+    return `Dzień dobry. Jestem <strong>Dolarek</strong> — ekspert ds. finansów osobistych i cash flow.<br><br>Analizuję Twój budżet, identyfikuję wycieki finansowe i proponuję konkretne działania oparte na danych.<br><br>Od czego zaczniemy? Możesz zapytać o <em>saldo</em>, <em>oszczędności</em> lub <em>podsumowanie miesiąca</em>.`;
   }
 
   if (!allExp.length && !incomes.length) {
-    return '📭 Nie masz jeszcze żadnych wpisów. Dodaj wydatki i wpływy w zakładce 💰, a pomogę Ci je przeanalizować!';
+    return `Nie ma jeszcze żadnych danych do analizy.<br><br>Aby móc wydać konkretne rekomendacje, potrzebuję:<br>1. Wpływów (pensja, inne przychody)<br>2. Wydatków z tego miesiąca<br><br>Zacznij od zakładki 💰 — im więcej danych, tym precyzyjniejsza analiza.`;
   }
 
   if (has('saldo','zostalo','zostaje','ile mam','bilans','stan konta')) {
-    const emoji = balance >= 0 ? '✅' : '⚠️';
-    const koment = balance >= 0
-      ? `Świetnie! Masz nadwyżkę ${fmt(balance)}.`
-      : `Uwaga! Wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}.`;
-    return `${emoji} <strong>Saldo tego miesiąca: ${fmt(balance)}</strong><br><br>
-💚 Wpływy: ${fmt(totalInc)}<br>
-🔴 Wydatki: ${fmt(totalExp)}<br><br>
-${koment}`;
+    const ocena = balance < 0
+      ? `<strong>Saldo jest ujemne — to sytuacja wymagająca natychmiastowej reakcji.</strong> Wydajesz ${fmt(Math.abs(balance))} więcej niż zarabiasz. Główne źródła: przejrzyj kategorie wydatków i zidentyfikuj co można ciąć.`
+      : balance < totalInc * 0.1
+      ? `Saldo jest dodatnie, ale wynosi zaledwie ${savePct}% wpływów. Ekonomiści zalecają minimum 20% jako bufor bezpieczeństwa. Masz lukę do wypełnienia.`
+      : `Saldo ${fmt(balance)} stanowi ${savePct}% wpływów — to dobry wynik. Zasada Pay Yourself First działa w Twoim przypadku.`;
+    return `<strong>Saldo: ${fmt(balance)}</strong><br><br>Wpływy: ${fmt(totalInc)} | Wydatki: ${fmt(totalExp)}<br><br>${ocena}`;
   }
 
   if (has('oszczedz','ile odkladam','ile zostan','ile zachowam','procent','odklade')) {
-    if (!totalInc) return '💡 Dodaj najpierw wpływy (pensję itp.), żebym mogła policzyć ile oszczędzasz!';
-    const emoji = +savePct >= 20 ? '🟢' : +savePct >= 10 ? '🟡' : '🔴';
-    const rada = +savePct >= 20
-      ? 'Doskonale! Oszczędzasz więcej niż 20% — jesteś na dobrej drodze! 🎉'
+    if (!totalInc) return `Brak danych o wpływach. Dodaj pensję lub inne przychody — bez tego nie mogę ocenić stopy oszczędności.`;
+    const target = totalInc * 0.20;
+    const gap = target - balance;
+    const ocena = +savePct >= 20
+      ? `Osiągasz rekomendowaną stopę oszczędności (20%+). Kolejny krok to zainwestowanie nadwyżki — trzymanie gotówki na koncie to realna strata przez inflację.`
+      : +savePct >= 10
+      ? `Odkładasz ${savePct}% wpływów — to poniżej optymalnego progu 20%. Do celu brakuje ${fmt(gap)} miesięcznie. ${topCm ? `Największy potencjał oszczędności: ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}).` : ''}`
       : +savePct >= 0
-      ? `Mogłabyś spróbować odkładać więcej. ${topCm ? `Sprawdź czy da się ograniczyć wydatki na ${topCm.emoji} ${topCm.label}.` : ''}`
-      : '⚠️ Wydajesz więcej niż zarabiasz. Warto przejrzeć stałe wydatki!';
-    return `${emoji} <strong>Oszczędzasz ${savePct}% swoich wpływów</strong> (${fmt(balance)})<br><br>${rada}`;
+      ? `Stopa oszczędności ${savePct}% jest krytycznie niska. Do minimum (20%) brakuje ${fmt(gap)}/mies. Konieczna analiza wydatków i eliminacja "wycieków".`
+      : `Ujemna stopa oszczędności — wydajesz więcej niż zarabiasz. To nie jest kwestia optymalizacji, to kwestia stabilności finansowej.`;
+    return `<strong>Oszczędzasz ${savePct}% wpływów</strong> — ${fmt(balance)} miesięcznie.<br><br>${ocena}`;
   }
 
   if (has('porada','podpowiedz','co robic','jak zaoszczed','tips','pomoz mi')) {
-    if (!totalExp) return 'Dodaj kilka wydatków, a podam Ci spersonalizowane porady!';
-    const porady = [];
-    if (topCm) porady.push(`💡 Największa kategoria to ${topCm.emoji} <strong>${topCm.label}</strong> (${fmt(topCat[1])}). Warto ustalić tu miesięczny limit.`);
-    if (catTotals['restauracje'] && totalInc > 0 && catTotals['restauracje']/totalInc > 0.15) porady.push(`☕ Kawiarnie i restauracje to ${(catTotals['restauracje']/totalInc*100).toFixed(0)}% Twoich wpływów. Gotowanie w domu może sporo zaoszczędzić!`);
-    if (catTotals['subskrypcje'] > 100) porady.push(`📱 Sprawdź swoje subskrypcje (${fmt(catTotals['subskrypcje'])}) — często płacimy za usługi których nie używamy.`);
-    if (!porady.length) porady.push('💪 Twoje wydatki wyglądają rozsądnie! Tak trzymaj.');
-    return `<strong>Moje porady dla Ciebie:</strong><br><br>${porady.join('<br><br>')}`;
+    if (!totalExp) return `Brak danych o wydatkach. Dodaj transakcje, a przeprowadzę pełną diagnostykę cash flow.`;
+    const rekomendacje = [];
+    if (topCm) rekomendacje.push(`<strong>Priorytet 1 — ${topCm.emoji} ${topCm.label} (${fmt(topCat[1])})</strong><br>To Twoja największa kategoria. Ustal miesięczny limit — badania pokazują, że samo śledzenie wydatków redukuje konsumpcję w tej kategorii o 15-20%.`);
+    if (catTotals['restauracje'] && totalInc > 0 && catTotals['restauracje']/totalInc > 0.12) rekomendacje.push(`<strong>Wyciek — Restauracje (${fmt(catTotals['restauracje'])})</strong><br>To ${(catTotals['restauracje']/totalInc*100).toFixed(0)}% wpływów. Zastąpienie połowy posiłków na zewnątrz gotowaniem w domu może zaoszczędzić ${fmt(catTotals['restauracje']*0.4)}/mies.`);
+    if (catTotals['subskrypcje'] > 80) rekomendacje.push(`<strong>Wyciek — Subskrypcje (${fmt(catTotals['subskrypcje'])})</strong><br>Zrób audyt: wypisz wszystkie subskrypcje i sprawdź które używasz aktywnie. Nieużywane usługi to "cichy złodziej" budżetu.`);
+    if (balance < 0) rekomendacje.push(`<strong>Priorytet krytyczny — ujemne saldo</strong><br>Zanim przejdziesz do optymalizacji, zatrzymaj krwawienie: zidentyfikuj 2-3 największe wydatki i je ogranicz.`);
+    if (!rekomendacje.length) rekomendacje.push(`Twoja struktura wydatków wygląda racjonalnie. Kolejny krok: czy masz fundusz awaryjny (3-6 miesięcy wydatków = ${fmt((totalExp)*4)})?`);
+    return `<strong>Analiza i rekomendacje:</strong><br><br>${rekomendacje.join('<br><br>')}`;
   }
 
   if (has('wplywy','zarobil','zarobila','przychod','pensj','wyplat','ile zarabi')) {
-    if (!totalInc) return '📭 Nie masz jeszcze wpisanych wpływów w tym miesiącu. Dodaj pensję lub inne przychody!';
+    if (!totalInc) return `Brak zarejestrowanych wpływów w tym miesiącu. Dodaj pensję i inne przychody — to podstawa każdej analizy budżetowej.`;
     const incCats = {};
     mInc.forEach(i => { incCats[i.cat] = (incCats[i.cat]||0)+i.amount; });
-    const lines = Object.entries(incCats).map(([cat,val]) => `${INC_META[cat]?.emoji||'💰'} ${INC_META[cat]?.label||cat}: <strong>${fmt(val)}</strong>`).join('<br>');
-    return `💚 <strong>Wpływy w tym miesiącu: ${fmt(totalInc)}</strong><br><br>${lines}`;
+    const lines = Object.entries(incCats).map(([cat,val]) => {
+      const pct = (val/totalInc*100).toFixed(0);
+      return `${INC_META[cat]?.emoji||'💰'} ${INC_META[cat]?.label||cat}: <strong>${fmt(val)}</strong> (${pct}% wpływów)`;
+    }).join('<br>');
+    const dywersyfikacja = Object.keys(incCats).length === 1
+      ? `<br><br>Uwaga: 100% wpływów pochodzi z jednego źródła. Z perspektywy zarządzania ryzykiem — to wysoka koncentracja.`
+      : '';
+    return `<strong>Wpływy w tym miesiącu: ${fmt(totalInc)}</strong><br><br>${lines}${dywersyfikacja}`;
   }
 
   if (has('podsumow','raport','analiz','zestawien','przegląd')) {
+    const spendRatio = totalInc > 0 ? (totalExp/totalInc*100).toFixed(0) : null;
     const catLines = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,4)
       .map(([cat,val]) => {
         const cm = CAT_META[cat]||CAT_META.inne;
-        return `${cm.emoji} ${cm.label}: <strong>${fmt(val)}</strong> (${(val/totalExp*100).toFixed(0)}%)`;
+        const pct = totalExp > 0 ? (val/totalExp*100).toFixed(0) : 0;
+        return `${cm.emoji} ${cm.label}: <strong>${fmt(val)}</strong> — ${pct}% wydatków`;
       }).join('<br>');
-    return `📊 <strong>Podsumowanie miesiąca:</strong><br><br>
-💚 Wpływy: <strong>${fmt(totalInc)}</strong><br>
-🔴 Wydatki: <strong>${fmt(totalExp)}</strong><br>
-💰 Saldo: <strong>${fmt(balance)}</strong><br>
-📈 Oszczędności: <strong>${savePct !== null ? savePct+'%' : '—'}</strong><br><br>
-<strong>Top kategorie:</strong><br>${catLines||'brak danych'}`;
+    const ocena = !totalInc ? '' : balance < 0
+      ? `<br><br><strong>Diagnoza: krytyczna.</strong> Wydatki przekraczają wpływy. Wymagana natychmiastowa redukcja kosztów.`
+      : +savePct < 10
+      ? `<br><br><strong>Diagnoza: poniżej normy.</strong> Stopa oszczędności ${savePct}% — daleko od optymalnych 20%.`
+      : +savePct < 20
+      ? `<br><br><strong>Diagnoza: dobra.</strong> Odkładasz ${savePct}% — blisko celu. Jeszcze ${fmt(totalInc*0.2 - balance)} do optymalnego pułapu.`
+      : `<br><br><strong>Diagnoza: bardzo dobra.</strong> Stopa oszczędności ${savePct}% przekracza rekomendowany poziom.`;
+    return `<strong>Analiza miesiąca:</strong><br><br>Wpływy: <strong>${fmt(totalInc)}</strong> | Wydatki: <strong>${fmt(totalExp)}</strong> | Saldo: <strong>${fmt(balance)}</strong>${spendRatio ? ` (${spendRatio}% wpływów wydane)` : ''}<br><br><strong>Struktura wydatków:</strong><br>${catLines||'brak danych'}${ocena}`;
   }
 
   if (has('najwieks','najdrozs','max wydatek','rekord')) {
-    if (!allExp.length) return 'Brak wydatków do analizy.';
+    if (!allExp.length) return `Brak zarejestrowanych wydatków.`;
     const top = [...allExp].sort((a,b)=>b.amount-a.amount)[0];
     const cm = CAT_META[top.cat]||CAT_META.inne;
-    return `🏆 Twój największy wydatek to:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}`;
+    const pct = totalExp > 0 ? (top.amount/totalExp*100).toFixed(0) : null;
+    return `Największy zarejestrowany wydatek:<br><br><strong>${top.desc}</strong><br>${fmt(top.amount)} • ${cm.emoji} ${cm.label} • ${top.date}${pct ? `<br><br>To ${pct}% Twoich miesięcznych wydatków w ramach tej kategorii — warto sprawdzić czy był planowany.` : ''}`;
   }
 
   if (has('wyjazd','wakacj','urlop','podroz','stac mnie','stac')) {
-    if (!totalInc) return '💡 Dodaj swoje wpływy, żebym mogła ocenić czy stać Cię na wyjazd!';
-    const msg = balance > 1000
-      ? `✅ Masz nadwyżkę ${fmt(balance)} — wygląda na to, że stać Cię na wyjazd!`
+    if (!totalInc) return `Dodaj wpływy za ten miesiąc — bez nich nie mogę ocenić zdolności do sfinansowania wyjazdu.`;
+    const msg = balance > totalInc * 0.25
+      ? `Saldo ${fmt(balance)} stanowi ${savePct}% wpływów — masz realną nadwyżkę. Wyjazd jest finansowo możliwy, jeśli masz też fundusz awaryjny (3-6 mies. wydatków).`
       : balance > 0
-      ? `🟡 Masz małą nadwyżkę (${fmt(balance)}). Na tani wyjazd może starczyć.`
-      : `⚠️ Niestety w tym miesiącu wydatki przekroczyły wpływy o ${fmt(Math.abs(balance))}.`;
+      ? `Saldo ${fmt(balance)} jest dodatnie, ale niewielkie. Wyjazd możliwy przy ścisłym budżecie — wcześniej warto sprawdzić czy nie uszczupli funduszu awaryjnego.`
+      : `Saldo jest ujemne (${fmt(balance)}). Wyjazd teraz oznaczałby finansowanie go długiem lub kosztem oszczędności — co pogłębia problem.`;
     return msg;
   }
 
   if (has('dzieki','dziekuje','super','swietnie','spoko','ok dziek')) {
-    return 'Cieszę się, że mogłam pomóc! 😊 Jeśli masz więcej pytań — jestem tutaj!';
+    return `Rozumiem. Jeśli pojawią się kolejne pytania dotyczące budżetu lub cash flow — jestem do dyspozycji.`;
   }
 
-  const tips = [
-    `💡 Spróbuj zapytać: <em>"Jakie moje saldo?"</em>, <em>"Ile oszczędzam?"</em> lub <em>"Daj mi porady finansowe"</em>`,
-    `📊 Mogę przeanalizować Twoje wydatki według kategorii. Zapytaj np: <em>"Ile wydano na jedzenie?"</em>`,
-    `🎯 Wpisz <em>"Podsumowanie miesiąca"</em> żeby zobaczyć pełną analizę swojego budżetu!`,
+  const fallbacks = [
+    `Pytaj konkretnie — im więcej szczegółów, tym precyzyjniejsza analiza. Spróbuj: <em>"Podsumowanie miesiąca"</em>, <em>"Gdzie tracę pieniądze?"</em> lub <em>"Ile oszczędzam?"</em>`,
+    `Mogę przeanalizować strukturę Twoich wydatków, ocenić stopę oszczędności lub wskazać wycieki finansowe. Jak mogę pomóc?`,
+    `Zadaj konkretne pytanie o swój budżet — pracuję na Twoich prawdziwych danych, więc odpowiedź będzie spersonalizowana.`,
   ];
-  return tips[Math.floor(Math.random()*tips.length)];
+  return fallbacks[Math.floor(Math.random()*fallbacks.length)];
 }
 
 const EXP_PLACEHOLDERS = {
@@ -4616,12 +4649,16 @@ async function processStatementFile(file) {
   // ── KROK 1: wyciągnij tekst lokalnie przez PDF.js (bez wysyłania pliku) ──
   let extractedText = '';
   try {
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
+    // CDN eksponuje window.pdfjsLib (nie window['pdfjs-dist/build/pdf'])
+    const lib = window.pdfjsLib;
+    if (!lib) throw new Error('PDF.js nie załadowany');
+
+    // Ustaw worker — bez tego PDF.js działa wolniej i może crashować w Safari
+    if (lib.GlobalWorkerOptions) {
+      lib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
-    const lib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+
     const arrayBuffer = await file.arrayBuffer();
     progressFill.style.width = '20%';
     progressText.textContent = 'Odczytuję strony wyciągu...';
