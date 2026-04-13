@@ -1707,6 +1707,80 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .rec-empty { text-align: center; padding: 20px; color: var(--text2); font-size: 0.82rem; }
+
+  /* ── WYCIĄG BANKOWY ──────────────────────────────────────────────────────── */
+  .statement-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface2);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .statement-upload-area:hover, .statement-upload-area.dragover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+  .statement-upload-area.uploading { border-color: var(--accent); animation: scanPulse 1.2s infinite; }
+  .statement-upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .statement-upload-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 6px;
+  }
+  .statement-upload-sub { font-size: 0.78rem; color: var(--text2); line-height: 1.5; }
+  .statement-banks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  .statement-bank-tag {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 10px; font-size: 0.7rem; color: var(--text2);
+  }
+  .statement-progress { display: none; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; animation: fadeUp 0.3s ease; }
+  .statement-progress.show { display: block; }
+  .statement-progress-bar { height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+  .statement-progress-fill {
+    height: 100%;
+    background: linear-gradient(45deg, #f09433, #bc1888);
+    border-radius: 99px; width: 0%; transition: width 0.4s ease;
+  }
+  .statement-progress-text { font-size: 0.8rem; color: var(--text2); text-align: center; }
+  .statement-summary { display: none; background: linear-gradient(135deg, #f0fdf4, #eff6ff); border: 1px solid #58b19f30; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; animation: fadeUp 0.3s ease; }
+  .statement-summary.show { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .statement-summary-icon { font-size: 1.5rem; }
+  .statement-summary-text { flex: 1; }
+  .statement-summary-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--text); }
+  .statement-summary-sub { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+  .statement-summary-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .statement-stat { text-align: center; }
+  .statement-stat-val { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1rem; }
+  .statement-stat-val.inc { color: var(--accent); }
+  .statement-stat-val.exp { color: var(--red); }
+  .statement-stat-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .statement-results { display: none; }
+  .statement-results.visible { display: block; animation: fadeUp 0.3s ease; }
+  .statement-results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .statement-results-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+  .statement-filter-btns { display: flex; gap: 4px; }
+  .statement-filter-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: none; font-size: 0.72rem; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .statement-filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+  .statement-items-list { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; margin-bottom: 14px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .statement-item { display: flex; align-items: center; gap: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; transition: border-color 0.15s; }
+  .statement-item:has(input[type=checkbox]:checked) { border-color: var(--accent); background: var(--surface); }
+  .statement-item-check { flex-shrink: 0; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .statement-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .statement-item-info { flex: 1; min-width: 0; }
+  .statement-item-desc { font-size: 0.84rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .statement-item-meta { font-size: 0.68rem; color: var(--text2); margin-top: 2px; }
+  .statement-item-date { font-size: 0.7rem; color: var(--text2); flex-shrink: 0; }
+  .statement-item-amount { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; min-width: 80px; text-align: right; }
+  .statement-item-amount.exp { color: var(--red); }
+  .statement-item-amount.inc { color: var(--accent); }
+  .statement-select-all { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text2); cursor: pointer; padding: 6px 0; margin-bottom: 4px; user-select: none; }
+  .btn-statement-add { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; width: 100%; transition: opacity 0.2s; margin-top: 8px; }
+  .btn-statement-add:hover { opacity: 0.88; }
+  .btn-statement-reset { background: none; border: 1px solid var(--border); color: var(--text2); border-radius: 8px; padding: 8px 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 0.78rem; cursor: pointer; width: 100%; margin-top: 6px; transition: all 0.15s; }
+  .btn-statement-reset:hover { border-color: var(--red); color: var(--red); }
 </style>
 </head>
 <body>
@@ -1867,6 +1941,7 @@
         <button class="ftab exp active" id="ftabExp" onclick="switchForm('exp')">➖ Dodaj wydatek</button>
         <button class="ftab inc" id="ftabInc" onclick="switchForm('inc')">➕ Dodaj wpływ</button>
         <button class="ftab parse" id="ftabParse" onclick="switchForm('parse')">💬 Opisz słownie</button>
+        <button class="ftab parse" id="ftabStatement" onclick="switchForm('statement')">📄 Wyciąg bankowy</button>
       </div>
 
       <!-- FORMULARZ WYDATKU -->
@@ -1975,6 +2050,85 @@
           <div class="parse-result-title">Znalezione transakcje — odznacz lub edytuj kwoty:</div>
           <div id="parseItemsList"></div>
           <button class="btn-parse-add" onclick="addParsedItems()">✅ Dodaj zaznaczone</button>
+        </div>
+      </div>
+
+      <!-- FORMULARZ WYCIĄG BANKOWY -->
+      <div class="parse-form" id="statementForm">
+        <input type="file" id="statementFileInput" accept=".pdf,application/pdf" style="display:none" onchange="handleStatementFile(event)">
+
+        <!-- OBSZAR UPLOAD -->
+        <div class="statement-upload-area" id="statementUploadArea"
+          onclick="document.getElementById('statementFileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleStatementDrop(event)">
+          <div class="statement-upload-icon">📄</div>
+          <div class="statement-upload-title">Wrzuć wyciąg bankowy (PDF)</div>
+          <div class="statement-upload-sub">
+            Kliknij lub przeciągnij plik PDF (max 4MB)<br>
+            AI automatycznie odczyta wszystkie transakcje i je skategoryzuje
+          </div>
+          <div class="statement-banks">
+            <span class="statement-bank-tag">PKO BP</span>
+            <span class="statement-bank-tag">mBank</span>
+            <span class="statement-bank-tag">Santander</span>
+            <span class="statement-bank-tag">ING</span>
+            <span class="statement-bank-tag">Pekao</span>
+            <span class="statement-bank-tag">Alior</span>
+            <span class="statement-bank-tag">BNP Paribas</span>
+            <span class="statement-bank-tag">i inne...</span>
+          </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="statement-progress" id="statementProgress">
+          <div class="statement-progress-bar">
+            <div class="statement-progress-fill" id="statementProgressFill"></div>
+          </div>
+          <div class="statement-progress-text" id="statementProgressText">Dolarek analizuje Twój wyciąg...</div>
+        </div>
+
+        <!-- PODSUMOWANIE -->
+        <div class="statement-summary" id="statementSummary">
+          <div class="statement-summary-icon">✅</div>
+          <div class="statement-summary-text">
+            <div class="statement-summary-title" id="statementSummaryTitle">Wyciąg przeanalizowany</div>
+            <div class="statement-summary-sub" id="statementSummarySub"></div>
+          </div>
+          <div class="statement-summary-stats">
+            <div class="statement-stat">
+              <div class="statement-stat-val inc" id="statementStatInc">—</div>
+              <div class="statement-stat-label">Wpływy</div>
+            </div>
+            <div class="statement-stat">
+              <div class="statement-stat-val exp" id="statementStatExp">—</div>
+              <div class="statement-stat-label">Wydatki</div>
+            </div>
+            <div class="statement-stat">
+              <div class="statement-stat-val" id="statementStatCount" style="color:var(--text2)">—</div>
+              <div class="statement-stat-label">Transakcji</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTA TRANSAKCJI DO ZATWIERDZENIA -->
+        <div class="statement-results" id="statementResults">
+          <div class="statement-results-header">
+            <div class="statement-results-title">Transakcje — odznacz co chcesz pominąć:</div>
+            <div class="statement-filter-btns">
+              <button class="statement-filter-btn active" onclick="filterStatement('all', this)">Wszystkie</button>
+              <button class="statement-filter-btn" onclick="filterStatement('exp', this)">Wydatki</button>
+              <button class="statement-filter-btn" onclick="filterStatement('inc', this)">Wpływy</button>
+            </div>
+          </div>
+          <label class="statement-select-all">
+            <input type="checkbox" id="statementSelectAll" checked onchange="toggleAllStatement(this.checked)">
+            Zaznacz / odznacz wszystkie
+          </label>
+          <div class="statement-items-list" id="statementItemsList"></div>
+          <button class="btn-statement-add" onclick="addStatementItems()">✅ Importuj zaznaczone transakcje</button>
+          <button class="btn-statement-reset" onclick="resetStatement()">🔄 Wczytaj inny wyciąg</button>
         </div>
       </div>
     </div>
@@ -2320,10 +2474,13 @@ function switchForm(type) {
   document.getElementById('expenseForm').classList.toggle('hidden', type !== 'exp');
   document.getElementById('incomeForm').classList.toggle('visible', type === 'inc');
   document.getElementById('parseForm').classList.toggle('visible', type === 'parse');
+  document.getElementById('statementForm').classList.toggle('visible', type === 'statement');
   document.getElementById('ftabExp').classList.toggle('active', type === 'exp');
   document.getElementById('ftabInc').classList.toggle('active', type === 'inc');
   const ftabParse = document.getElementById('ftabParse');
   if (ftabParse) ftabParse.classList.toggle('active', type === 'parse');
+  const ftabStatement = document.getElementById('ftabStatement');
+  if (ftabStatement) ftabStatement.classList.toggle('active', type === 'statement');
 }
 
 function setHistFilter(f, btn) {
@@ -4406,6 +4563,317 @@ if ('serviceWorker' in navigator) {
       .then(reg => console.log('SW zarejestrowany:', reg.scope))
       .catch(err => console.log('SW błąd rejestracji:', err));
   });
+}
+
+// ─── WYCIĄG BANKOWY ───────────────────────────────────────────────────────────
+
+let statementItems = [];      // wszystkie transakcje z wyciągu
+let statementFilter = 'all';  // filtr: all | exp | inc
+// BUG-6/7 FIX: przechowujemy stan checkboxów w Set (globalIdx) zamiast w DOM
+// Dzięki temu stan nie ginie przy zmianie filtra i import działa niezależnie od filtra
+let statementChecked = new Set(); // globalIdx zaznaczonych transakcji
+
+// Obsługa drag & drop
+function handleStatementDrop(event) {
+  event.preventDefault();
+  document.getElementById('statementUploadArea').classList.remove('dragover');
+  const file = event.dataTransfer.files[0];
+  if (file) processStatementFile(file);
+}
+
+// Obsługa kliknięcia (file input)
+function handleStatementFile(event) {
+  const file = event.target.files[0];
+  if (file) processStatementFile(file);
+}
+
+async function processStatementFile(file) {
+  // Walidacja typu
+  if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
+    showToast('Obsługujemy tylko pliki PDF!');
+    return;
+  }
+
+  // Walidacja rozmiaru (max 4MB — Netlify body limit ~6MB, base64 overhead 1.37x)
+  const maxSize = 4 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showToast('Plik za duży! Maksymalnie 4MB (wyciąg miesięczny)');
+    return;
+  }
+
+  // Pokaż progress
+  const uploadArea = document.getElementById('statementUploadArea');
+  const progress   = document.getElementById('statementProgress');
+  const progressFill = document.getElementById('statementProgressFill');
+  const progressText  = document.getElementById('statementProgressText');
+
+  uploadArea.classList.add('uploading');
+  progress.classList.add('show');
+  progressFill.style.width = '10%';
+  progressText.textContent = 'Wczytywanie pliku...';
+
+  // Konwersja do base64
+  let base64;
+  try {
+    base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  } catch {
+    showToast('Błąd wczytywania pliku');
+    resetStatementUI();
+    return;
+  }
+
+  progressFill.style.width = '30%';
+  progressText.textContent = 'Dolarek analizuje wyciąg...';
+
+  // Animacja paska
+  let pct = 30;
+  const progressInterval = setInterval(() => {
+    pct = Math.min(pct + 3, 85);
+    progressFill.style.width = pct + '%';
+    if (pct > 60) progressText.textContent = 'Kategoryzowanie transakcji...';
+    if (pct > 80) progressText.textContent = 'Prawie gotowe...';
+  }, 800);
+
+  try {
+    const response = await fetch('/.netlify/functions/statement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pdf: base64,
+        mediaType: 'application/pdf',
+        filename: file.name,
+      }),
+    });
+
+    clearInterval(progressInterval);
+    progressFill.style.width = '100%';
+
+    const data = await response.json();
+
+    // BUG-1 FIX: obsługa błędu 413 (za duży plik — przekroczono limit Netlify)
+    if (response.status === 413 || data.error === 'pdf_too_large') {
+      showToast('Plik za duży dla serwera. Użyj wyciągu miesięcznego (max 4MB).');
+      resetStatementUI();
+      return;
+    }
+
+    if (data.error || !data.transactions || data.transactions.length === 0) {
+      showToast('Nie udało się odczytać transakcji. Sprawdź czy to wyciąg bankowy.');
+      resetStatementUI();
+      return;
+    }
+
+    statementItems = data.transactions;
+
+    // BUG-6 FIX: inicjalizuj Set — wszystkie transakcje domyślnie zaznaczone
+    statementChecked = new Set(statementItems.map((_, i) => i));
+
+    // Podsumowanie
+    const totalInc = statementItems.filter(t => t.type === 'inc').reduce((s, t) => s + t.amount, 0);
+    const totalExp = statementItems.filter(t => t.type === 'exp').reduce((s, t) => s + t.amount, 0);
+
+    document.getElementById('statementSummaryTitle').textContent =
+      (data.bank ? data.bank + ' — ' : '') + (data.period || 'Wyciąg przeanalizowany');
+    document.getElementById('statementSummarySub').textContent =
+      `Znaleziono ${statementItems.length} transakcji · ${file.name}`;
+    document.getElementById('statementStatInc').textContent = fmt(totalInc);
+    document.getElementById('statementStatExp').textContent = fmt(totalExp);
+    document.getElementById('statementStatCount').textContent = statementItems.length;
+
+    // Ukryj upload, pokaż wyniki
+    uploadArea.style.display = 'none';
+    progress.classList.remove('show');
+    uploadArea.classList.remove('uploading');
+    document.getElementById('statementSummary').classList.add('show');
+    document.getElementById('statementResults').classList.add('visible');
+
+    renderStatementItems();
+    showToast(`Wczytano ${statementItems.length} transakcji! Sprawdź i zatwierdź ✓`);
+
+  } catch (err) {
+    clearInterval(progressInterval);
+    showToast('Błąd połączenia. Spróbuj ponownie!');
+    resetStatementUI();
+  }
+}
+
+function renderStatementItems() {
+  const list = document.getElementById('statementItemsList');
+
+  const filtered = statementFilter === 'all'
+    ? statementItems.map((item, i) => ({ item, globalIdx: i }))
+    : statementItems
+        .map((item, i) => ({ item, globalIdx: i }))
+        .filter(({ item }) => item.type === statementFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:0.82rem">Brak transakcji w tej kategorii</div>';
+    return;
+  }
+
+  // BUG-5 FIX: bezpieczny sort — date może być undefined lub pusty string
+  const sorted = [...filtered].sort((a, b) =>
+    (b.item.date || '').localeCompare(a.item.date || '')
+  );
+
+  list.innerHTML = sorted.map(({ item, globalIdx }) => {
+    const isInc = item.type === 'inc';
+    const cm = isInc
+      ? (INC_META[item.cat] || INC_META.inne_inc)
+      : (CAT_META[item.cat] || CAT_META.inne);
+    const color = isInc ? 'var(--accent)' : (CAT_META[item.cat]?.color || '#868e96');
+    const sign  = isInc ? '+' : '-';
+    // BUG-3/4 FIX: amount jako float, nigdy string/undefined nie trafi do fmt()
+    const safeAmount = parseFloat(item.amount) || 0;
+    // BUG-6 FIX: stan checkboxa pobieramy ze Set, nie z DOM
+    const isChecked = statementChecked.has(globalIdx);
+
+    return `
+      <div class="statement-item">
+        <input type="checkbox" class="statement-item-check"
+          id="stCheck_${globalIdx}"
+          ${isChecked ? 'checked' : ''}
+          onchange="onStatementCheck(${globalIdx}, this.checked)">
+        <div class="statement-item-dot" style="background:${color}"></div>
+        <div class="statement-item-info">
+          <div class="statement-item-desc" title="${item.desc}">${item.desc}</div>
+          <div class="statement-item-meta">${cm.emoji} ${cm.label} · ${isInc ? 'Wpływ' : 'Wydatek'}</div>
+        </div>
+        <div class="statement-item-date">${item.date || '—'}</div>
+        <div class="statement-item-amount ${item.type}">${sign}${fmt(safeAmount)}</div>
+      </div>`;
+  }).join('');
+
+  // Sync "zaznacz wszystkie" checkbox
+  const allInView = sorted.every(({ globalIdx }) => statementChecked.has(globalIdx));
+  const selectAll = document.getElementById('statementSelectAll');
+  if (selectAll) selectAll.checked = allInView;
+}
+
+// BUG-6 FIX: aktualizuj Set przy każdej zmianie checkboxa
+function onStatementCheck(globalIdx, checked) {
+  if (checked) {
+    statementChecked.add(globalIdx);
+  } else {
+    statementChecked.delete(globalIdx);
+  }
+  // Sync "zaznacz wszystkie" checkbox
+  const filtered = statementFilter === 'all'
+    ? statementItems.map((_, i) => i)
+    : statementItems.map((item, i) => ({ item, i }))
+        .filter(({ item }) => item.type === statementFilter)
+        .map(({ i }) => i);
+  const allChecked = filtered.every(i => statementChecked.has(i));
+  const selectAll = document.getElementById('statementSelectAll');
+  if (selectAll) selectAll.checked = allChecked;
+}
+
+function filterStatement(type, btn) {
+  statementFilter = type;
+  document.querySelectorAll('.statement-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStatementItems();
+}
+
+function toggleAllStatement(checked) {
+  // BUG-6/7 FIX: aktualizuj Set — tylko dla aktualnie widocznych transakcji
+  const filtered = statementFilter === 'all'
+    ? statementItems.map((_, i) => i)
+    : statementItems.map((item, i) => ({ item, i }))
+        .filter(({ item }) => item.type === statementFilter)
+        .map(({ i }) => i);
+
+  filtered.forEach(i => {
+    if (checked) {
+      statementChecked.add(i);
+    } else {
+      statementChecked.delete(i);
+    }
+  });
+  // Re-render żeby zaktualizować DOM
+  renderStatementItems();
+}
+
+async function addStatementItems() {
+  let added = 0;
+  const date = getInputDate('inDate');
+
+  // BUG-7 FIX: iterujemy po Set (stan niezależny od filtra), nie po DOM
+  // Dzięki temu importujemy WSZYSTKIE zaznaczone transakcje, nie tylko widoczne
+  for (let i = 0; i < statementItems.length; i++) {
+    if (!statementChecked.has(i)) continue;
+
+    const item = statementItems[i];
+    // BUG-3/4 FIX: amount zawsze jako float
+    const safeAmount = parseFloat(item.amount) || 0;
+    if (safeAmount <= 0) continue;
+
+    // Użyj daty z wyciągu jeśli jest poprawna
+    const itemDate = (item.date && /^\d{4}-\d{2}-\d{2}$/.test(item.date))
+      ? item.date
+      : date;
+
+    if (item.type === 'inc') {
+      incomes.unshift({
+        id: Date.now() + i,
+        amount: safeAmount,
+        cat: item.cat || 'inne_inc',
+        desc: item.desc || 'Import z wyciągu',
+        date: itemDate,
+      });
+    } else {
+      expenses.unshift({
+        id: Date.now() + i,
+        amount: safeAmount,
+        cat: item.cat || 'inne',
+        desc: item.desc || 'Import z wyciągu',
+        date: itemDate,
+      });
+    }
+    added++;
+  }
+
+  if (added === 0) {
+    showToast('Zaznacz przynajmniej jedną transakcję!');
+    return;
+  }
+
+  await save();
+  render();
+  showToast(`Zaimportowano ${added} transakcji z wyciągu! ✓`);
+  resetStatement();
+  switchForm('exp');
+}
+
+function resetStatement() {
+  statementItems = [];
+  statementFilter = 'all';
+  // BUG-6 FIX: wyczyść Set przy resecie
+  statementChecked = new Set();
+
+  document.getElementById('statementUploadArea').style.display = '';
+  document.getElementById('statementUploadArea').classList.remove('uploading');
+  document.getElementById('statementProgress').classList.remove('show');
+  document.getElementById('statementSummary').classList.remove('show');
+  document.getElementById('statementResults').classList.remove('visible');
+  document.getElementById('statementItemsList').innerHTML = '';
+  document.getElementById('statementFileInput').value = '';
+  document.getElementById('statementSelectAll').checked = true;
+
+  document.querySelectorAll('.statement-filter-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === 0);
+  });
+}
+
+function resetStatementUI() {
+  document.getElementById('statementUploadArea').classList.remove('uploading');
+  document.getElementById('statementProgress').classList.remove('show');
+  document.getElementById('statementFileInput').value = '';
 }
 </script>
 
