@@ -6,6 +6,8 @@
 <title>CashFlow — Budżet Domowy</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- PDF.js — wyciąganie tekstu z PDF po stronie przeglądarki (bez limitu rozmiaru/timeout) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -4594,73 +4596,84 @@ async function processStatementFile(file) {
     return;
   }
 
-  // Walidacja rozmiaru (max 4MB — Netlify body limit ~6MB, base64 overhead 1.37x)
-  const maxSize = 4 * 1024 * 1024;
+  // Limit — PDF.js czyta lokalnie, nie ma limitu Netlify
+  const maxSize = 20 * 1024 * 1024; // 20MB
   if (file.size > maxSize) {
-    showToast('Plik za duży! Maksymalnie 4MB (wyciąg miesięczny)');
+    showToast('Plik za duży! Maksymalnie 20MB');
     return;
   }
 
-  // Pokaż progress
-  const uploadArea = document.getElementById('statementUploadArea');
-  const progress   = document.getElementById('statementProgress');
+  const uploadArea   = document.getElementById('statementUploadArea');
+  const progress     = document.getElementById('statementProgress');
   const progressFill = document.getElementById('statementProgressFill');
-  const progressText  = document.getElementById('statementProgressText');
+  const progressText = document.getElementById('statementProgressText');
 
   uploadArea.classList.add('uploading');
   progress.classList.add('show');
-  progressFill.style.width = '10%';
-  progressText.textContent = 'Wczytywanie pliku...';
+  progressFill.style.width = '5%';
+  progressText.textContent = 'Wczytywanie PDF...';
 
-  // Konwersja do base64
-  let base64;
+  // ── KROK 1: wyciągnij tekst lokalnie przez PDF.js (bez wysyłania pliku) ──
+  let extractedText = '';
   try {
-    base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  } catch {
-    showToast('Błąd wczytywania pliku');
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const lib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+    const arrayBuffer = await file.arrayBuffer();
+    progressFill.style.width = '20%';
+    progressText.textContent = 'Odczytuję strony wyciągu...';
+
+    const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
+    const totalPages = pdf.numPages;
+
+    for (let p = 1; p <= totalPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ').replace(/\s+/g, ' ');
+      extractedText += pageText + '\n';
+      const pct = 20 + Math.round((p / totalPages) * 40);
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `Strona ${p} z ${totalPages}...`;
+    }
+  } catch (pdfErr) {
+    console.error('PDF.js error:', pdfErr);
+    try { extractedText = await file.text(); } catch { /* ignore */ }
+  }
+
+  if (!extractedText.trim() || extractedText.trim().length < 50) {
+    showToast('PDF wygląda na skan obrazkowy. Pobierz wyciąg elektroniczny (PDF z tekstem) z banku.');
     resetStatementUI();
     return;
   }
 
-  progressFill.style.width = '30%';
-  progressText.textContent = 'Dolarek analizuje wyciąg...';
+  // Ogranicz do 15 000 znaków — mieści się w limicie API
+  const textToSend = extractedText.trim().slice(0, 15000);
+  progressFill.style.width = '65%';
+  progressText.textContent = 'Dolarek analizuje transakcje...';
 
-  // Animacja paska
-  let pct = 30;
+  // ── KROK 2: wyślij TEKST (nie plik PDF) — mały request, szybka odpowiedź ──
+  let pct2 = 65;
   const progressInterval = setInterval(() => {
-    pct = Math.min(pct + 3, 85);
-    progressFill.style.width = pct + '%';
-    if (pct > 60) progressText.textContent = 'Kategoryzowanie transakcji...';
-    if (pct > 80) progressText.textContent = 'Prawie gotowe...';
-  }, 800);
+    pct2 = Math.min(pct2 + 2, 92);
+    progressFill.style.width = pct2 + '%';
+    if (pct2 > 80) progressText.textContent = 'Kategoryzowanie transakcji...';
+    if (pct2 > 88) progressText.textContent = 'Prawie gotowe...';
+  }, 600);
 
   try {
     const response = await fetch('/.netlify/functions/statement', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pdf: base64,
-        mediaType: 'application/pdf',
-        filename: file.name,
-      }),
+      body: JSON.stringify({ text: textToSend, filename: file.name }),
     });
 
     clearInterval(progressInterval);
     progressFill.style.width = '100%';
 
     const data = await response.json();
-
-    // BUG-1 FIX: obsługa błędu 413 (za duży plik — przekroczono limit Netlify)
-    if (response.status === 413 || data.error === 'pdf_too_large') {
-      showToast('Plik za duży dla serwera. Użyj wyciągu miesięcznego (max 4MB).');
-      resetStatementUI();
-      return;
-    }
 
     if (data.error || !data.transactions || data.transactions.length === 0) {
       showToast('Nie udało się odczytać transakcji. Sprawdź czy to wyciąg bankowy.');
@@ -4669,13 +4682,10 @@ async function processStatementFile(file) {
     }
 
     statementItems = data.transactions;
-
-    // BUG-6 FIX: inicjalizuj Set — wszystkie transakcje domyślnie zaznaczone
     statementChecked = new Set(statementItems.map((_, i) => i));
 
-    // Podsumowanie
-    const totalInc = statementItems.filter(t => t.type === 'inc').reduce((s, t) => s + t.amount, 0);
-    const totalExp = statementItems.filter(t => t.type === 'exp').reduce((s, t) => s + t.amount, 0);
+    const totalInc = statementItems.filter(t => t.type === 'inc').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+    const totalExp = statementItems.filter(t => t.type === 'exp').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
 
     document.getElementById('statementSummaryTitle').textContent =
       (data.bank ? data.bank + ' — ' : '') + (data.period || 'Wyciąg przeanalizowany');
@@ -4685,7 +4695,6 @@ async function processStatementFile(file) {
     document.getElementById('statementStatExp').textContent = fmt(totalExp);
     document.getElementById('statementStatCount').textContent = statementItems.length;
 
-    // Ukryj upload, pokaż wyniki
     uploadArea.style.display = 'none';
     progress.classList.remove('show');
     uploadArea.classList.remove('uploading');
@@ -4697,10 +4706,12 @@ async function processStatementFile(file) {
 
   } catch (err) {
     clearInterval(progressInterval);
-    showToast('Błąd połączenia. Spróbuj ponownie!');
+    console.error('Statement error:', err);
+    showToast('Błąd połączenia. Sprawdź internet i spróbuj ponownie.');
     resetStatementUI();
   }
 }
+
 
 function renderStatementItems() {
   const list = document.getElementById('statementItemsList');
