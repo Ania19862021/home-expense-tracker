@@ -1,0 +1,32 @@
+# netlify.toml — konfiguracja Netlify dla CashFlow
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  # BUG-2 FIX: domyślny timeout to 10s — Claude analizując PDF potrzebuje 30-60s
+  node_bundler = "esbuild"
+
+# Timeout per funkcja (Netlify Pro+) — dla darmowego planu maksimum to 10s
+# Dla planu darmowego używamy chunked approach w statement.js
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[functions.statement]
+  # BUG-2 FIX: zwiększamy timeout dla funkcji analizującej PDF
+  timeout = 60
+
+[functions.chat]
+  timeout = 30
+
+[functions.parse]
+  timeout = 30
+
+[functions.recommend]
+  timeout = 30
+
+[functions.scan]
+  timeout = 30
