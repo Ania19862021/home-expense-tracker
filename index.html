@@ -4523,7 +4523,7 @@ function clearScan() {
 async function handleScanFile(event) {
   const file = event.target.files[0];
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { showToast('Plik za duży! Max 5MB'); return; }
+  if (file.size > 3 * 1024 * 1024) { showToast('Plik za duży! Max 3MB'); return; }
 
   const reader = new FileReader();
   reader.onload = async (e) => {
