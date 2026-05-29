@@ -1,4 +1,4 @@
-💸 CashFlow — Domowy Tracker Finansów
+[💸 CashFlow — Domowy Tracker Finansów
 > Aplikacja webowa do zarządzania budżetem domowym z asystentem AI, systemem logowania i inteligentnymi alertami finansowymi.
 🌐 Zobacz działającą aplikację
 ---
@@ -89,4 +89,4 @@ Anna Karpińska — projekt zaliczeniowy
 Narzędzia AI użyte do stworzenia projektu: Claude (Anthropic)
 ---
 📄 Licencja
-Projekt edukacyjny — stworzony na potrzeby zaliczenia.
+Projekt edukacyjny — stworzony na potrzeby zaliczenia.](https://github.com/Ania19862021/home-expense-tracker)
